@@ -6,13 +6,13 @@ import (
 )
 
 type CreateUserRequest struct {
-	FirstName string  `json:"firstName"`
-	LastName  string  `json:"lastName"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
 }
 
 type UpdateUserRequest struct {
-	FirstName string  `json:"firstName"`
-	LastName  string  `json:"lastName"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
 }
 type User struct {
 	ID                int       `json:"id"`
@@ -26,9 +26,9 @@ type User struct {
 func NewUser(firstName, lastName string) *User {
 
 	return &User{
-		FirstName:         firstName,
-		LastName:          lastName,
-		Number:            int64(rand.Intn(1000000)),
-		CreatedAt:         time.Now().UTC(),
+		FirstName: firstName,
+		LastName:  lastName,
+		Number:    int64(rand.Intn(1000000)),
+		CreatedAt: time.Now().UTC(),
 	}
 }

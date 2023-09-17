@@ -2,17 +2,17 @@ package main
 
 import (
 	"fmt"
-	"go_api/postgres"
-	"go_api/server"
+	database "go_api/database"
+	server "go_api/handlers"
 	"log"
 )
 
 func main() {
-	store, err := postgres.NewPostgressStore()
+	store, err := database.NewDbConnection()
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	if err := store.Init(); err != nil {
 		log.Fatal(err)
 	}

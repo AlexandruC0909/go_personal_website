@@ -1,4 +1,4 @@
-package postgres
+package database
 
 import (
 	"database/sql"
@@ -17,11 +17,11 @@ type Storage interface {
 	GetUsers() ([]*types.User, error)
 }
 
-type PostgresStore struct {
+type DbConnection struct {
 	db *sql.DB
 }
 
-func NewPostgressStore() (*PostgresStore, error) {
+func NewDbConnection() (*DbConnection, error) {
 	connString := "user=go_api_root dbname=postgres password=go_api_root sslmode=disable"
 	db, err := sql.Open("postgres", connString)
 	if err != nil {
@@ -31,15 +31,15 @@ func NewPostgressStore() (*PostgresStore, error) {
 	if err := db.Ping(); err != nil {
 		return nil, err
 	}
-	return &PostgresStore{
+	return &DbConnection{
 		db: db,
 	}, nil
 }
-func (s *PostgresStore) Init() error {
+func (s *DbConnection) Init() error {
 	return s.createUserTable()
 }
 
-func (s *PostgresStore) createUserTable() error {
+func (s *DbConnection) createUserTable() error {
 	query := `create table if not exists users (
 		id serial primary key,
 		first_name varchar(100),
@@ -53,7 +53,7 @@ func (s *PostgresStore) createUserTable() error {
 	return err
 }
 
-func (s *PostgresStore) CreateUser(user *types.User) error {
+func (s *DbConnection) CreateUser(user *types.User) error {
 	query := `insert into users 
 	(first_name, last_name, number, encrypted_password, created_at)
 	values ($1, $2, $3, $4, $5)`
@@ -73,7 +73,7 @@ func (s *PostgresStore) CreateUser(user *types.User) error {
 	return nil
 }
 
-func (s *PostgresStore) UpdateUser(user *types.User) error {
+func (s *DbConnection) UpdateUser(user *types.User) error {
 	query := `update users set 
 	first_name = $1 , last_name = $2`
 
@@ -90,12 +90,12 @@ func (s *PostgresStore) UpdateUser(user *types.User) error {
 	return nil
 }
 
-func (s *PostgresStore) DeleteUser(id int) error {
+func (s *DbConnection) DeleteUser(id int) error {
 	_, err := s.db.Query("delete from users where id = $1", id)
 	return err
 }
 
-func (s *PostgresStore) GetUserById(id int) (*types.User, error) {
+func (s *DbConnection) GetUserById(id int) (*types.User, error) {
 	rows, err := s.db.Query("select * from users where id = $1", id)
 	if err != nil {
 		return nil, err
@@ -108,7 +108,7 @@ func (s *PostgresStore) GetUserById(id int) (*types.User, error) {
 	return nil, fmt.Errorf("user %d not found", id)
 }
 
-func (s *PostgresStore) GetUsers() ([]*types.User, error) {
+func (s *DbConnection) GetUsers() ([]*types.User, error) {
 	rows, err := s.db.Query("select * from users")
 	if err != nil {
 		return nil, err
