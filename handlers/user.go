@@ -8,7 +8,7 @@ import (
 	"go_api/types"
 )
 
-func (s *APIServer) handleUsers(w http.ResponseWriter, r *http.Request) error {
+func (s *ApiRouter) handleUsers(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
 		return s.handleGetUsers(w, r)
 	}
@@ -19,7 +19,7 @@ func (s *APIServer) handleUsers(w http.ResponseWriter, r *http.Request) error {
 	return fmt.Errorf("method not allowed %s", r.Method)
 }
 
-func (s *APIServer) handleGetUsers(w http.ResponseWriter, r *http.Request) error {
+func (s *ApiRouter) handleGetUsers(w http.ResponseWriter, r *http.Request) error {
 	users, err := s.store.GetUsers()
 
 	if err != nil {
@@ -29,7 +29,7 @@ func (s *APIServer) handleGetUsers(w http.ResponseWriter, r *http.Request) error
 	return WriteJSON(w, http.StatusOK, users)
 }
 
-func (s *APIServer) handleUserById(w http.ResponseWriter, r *http.Request) error {
+func (s *ApiRouter) handleUserById(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
 		id, err := getID(r)
 		if err != nil {
@@ -55,7 +55,7 @@ func (s *APIServer) handleUserById(w http.ResponseWriter, r *http.Request) error
 	return fmt.Errorf("method not allowed %s", r.Method)
 }
 
-func (s *APIServer) handleCreateUser(w http.ResponseWriter, r *http.Request) error {
+func (s *ApiRouter) handleCreateUser(w http.ResponseWriter, r *http.Request) error {
 	createAccReq := new(types.CreateUserRequest)
 
 	if err := json.NewDecoder(r.Body).Decode(createAccReq); err != nil {
@@ -71,7 +71,7 @@ func (s *APIServer) handleCreateUser(w http.ResponseWriter, r *http.Request) err
 	return WriteJSON(w, http.StatusOK, user)
 }
 
-func (s *APIServer) handleUpdateUser(w http.ResponseWriter, r *http.Request) error {
+func (s *ApiRouter) handleUpdateUser(w http.ResponseWriter, r *http.Request) error {
 	updateUserReq := new(types.UpdateUserRequest)
 
 	if err := json.NewDecoder(r.Body).Decode(updateUserReq); err != nil {
@@ -87,7 +87,7 @@ func (s *APIServer) handleUpdateUser(w http.ResponseWriter, r *http.Request) err
 	return WriteJSON(w, http.StatusOK, user)
 }
 
-func (s *APIServer) handleDeleteUser(w http.ResponseWriter, r *http.Request) error {
+func (s *ApiRouter) handleDeleteUser(w http.ResponseWriter, r *http.Request) error {
 	id, err := getID(r)
 	if err != nil {
 		return err
