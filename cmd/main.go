@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
+	"go_api/postgres"
+	"go_api/server"
 	"log"
 )
 
 func main() {
-	store, err := NewPostgressStore()
+	store, err := postgres.NewPostgressStore()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -15,6 +17,6 @@ func main() {
 		log.Fatal(err)
 	}
 	fmt.Printf("%+v\n", store)
-	server := NewAPIServer(":3000", store)
+	server := server.NewAPIServer(":3000", store)
 	server.Run()
 }

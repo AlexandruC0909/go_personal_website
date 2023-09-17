@@ -4,34 +4,37 @@ import (
 	"database/sql"
 	"fmt"
 
+	"go_api/types"
+
 	_ "github.com/lib/pq"
 )
+
 type Storage interface {
-	CreateUser(*User) error
+	CreateUser(*types.User) error
 	DeleteUser(int) error
-	UpdateUser(*User) error
-	GetUserById(int) (*User, error)
-	GetUsers() ([]*User, error)
+	UpdateUser(*types.User) error
+	GetUserById(int) (*types.User, error)
+	GetUsers() ([]*types.User, error)
 }
 
 type PostgresStore struct {
 	db *sql.DB
 }
 
-func NewPostgressStore() (*PostgresStore, error){
+func NewPostgressStore() (*PostgresStore, error) {
 	connString := "user=go_api_root dbname=postgres password=go_api_root sslmode=disable"
 	db, err := sql.Open("postgres", connString)
 	if err != nil {
 		return nil, err
 	}
 
-	if err :=db.Ping(); err != nil {
+	if err := db.Ping(); err != nil {
 		return nil, err
 	}
 	return &PostgresStore{
 		db: db,
 	}, nil
-}	
+}
 func (s *PostgresStore) Init() error {
 	return s.createUserTable()
 }
@@ -50,7 +53,7 @@ func (s *PostgresStore) createUserTable() error {
 	return err
 }
 
-func (s *PostgresStore) CreateUser(user *User) error {
+func (s *PostgresStore) CreateUser(user *types.User) error {
 	query := `insert into users 
 	(first_name, last_name, number, encrypted_password, created_at)
 	values ($1, $2, $3, $4, $5)`
@@ -70,7 +73,7 @@ func (s *PostgresStore) CreateUser(user *User) error {
 	return nil
 }
 
-func (s *PostgresStore) UpdateUser(user *User) error {
+func (s *PostgresStore) UpdateUser(user *types.User) error {
 	query := `update users set 
 	first_name = $1 , last_name = $2`
 
@@ -78,7 +81,7 @@ func (s *PostgresStore) UpdateUser(user *User) error {
 		query,
 		user.FirstName,
 		user.LastName,
-		)
+	)
 
 	if err != nil {
 		return err
@@ -92,7 +95,7 @@ func (s *PostgresStore) DeleteUser(id int) error {
 	return err
 }
 
-func (s *PostgresStore) GetUserById(id int) (*User, error) {
+func (s *PostgresStore) GetUserById(id int) (*types.User, error) {
 	rows, err := s.db.Query("select * from users where id = $1", id)
 	if err != nil {
 		return nil, err
@@ -105,13 +108,13 @@ func (s *PostgresStore) GetUserById(id int) (*User, error) {
 	return nil, fmt.Errorf("user %d not found", id)
 }
 
-func (s *PostgresStore) GetUsers() ([]*User, error) {
+func (s *PostgresStore) GetUsers() ([]*types.User, error) {
 	rows, err := s.db.Query("select * from users")
 	if err != nil {
 		return nil, err
 	}
 
-	users := []*User{}
+	users := []*types.User{}
 	for rows.Next() {
 		user, err := scanIntoUser(rows)
 		if err != nil {
@@ -123,8 +126,8 @@ func (s *PostgresStore) GetUsers() ([]*User, error) {
 	return users, nil
 }
 
-func scanIntoUser(rows *sql.Rows) (*User, error) {
-	user := new(User)
+func scanIntoUser(rows *sql.Rows) (*types.User, error) {
+	user := new(types.User)
 	err := rows.Scan(
 		&user.ID,
 		&user.FirstName,
@@ -135,4 +138,3 @@ func scanIntoUser(rows *sql.Rows) (*User, error) {
 
 	return user, err
 }
-

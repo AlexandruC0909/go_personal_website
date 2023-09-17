@@ -1,4 +1,4 @@
-module github.com/AlexandruC0909/go_api
+module go_api
 
 go 1.21.1
 

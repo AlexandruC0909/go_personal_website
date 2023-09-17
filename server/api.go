@@ -7,6 +7,9 @@ import (
 	"net/http"
 	"strconv"
 
+	"go_api/postgres"
+	"go_api/types"
+
 	"github.com/gorilla/mux"
 )
 
@@ -16,11 +19,11 @@ type ApiError struct {
 
 type APIServer struct {
 	listenAddress string
-	store Storage
+	store postgres.Storage
 
 }
 
-func NewAPIServer(listenAddress string, store Storage) *APIServer {
+func NewAPIServer(listenAddress string, store postgres.Storage) *APIServer {
 	return &APIServer{
 		listenAddress: listenAddress,
 		store: store,
@@ -86,13 +89,13 @@ func (s *APIServer) handleUserById(w http.ResponseWriter,r *http.Request) error 
 }
 
 func (s *APIServer) handleCreateUser(w http.ResponseWriter,r *http.Request) error {
-	createAccReq := new(CreateUserRequest)
+	createAccReq := new(types.CreateUserRequest)
 	
 	if err := json.NewDecoder(r.Body).Decode(createAccReq); err != nil {
 		return err
 	}
 	
-	user := NewUser(createAccReq.FirstName, createAccReq.LastName)
+	user := types.NewUser(createAccReq.FirstName, createAccReq.LastName)
 	
 	if err := s.store.CreateUser(user); err!= nil {
 		return err
@@ -102,13 +105,13 @@ func (s *APIServer) handleCreateUser(w http.ResponseWriter,r *http.Request) erro
 }
 
 func (s *APIServer) handleUpdateUser(w http.ResponseWriter,r *http.Request) error {
-	updateUserReq := new(UpdateUserRequest)
+	updateUserReq := new(types.UpdateUserRequest)
 	
 	if err := json.NewDecoder(r.Body).Decode(updateUserReq); err != nil {
 		return err
 	}
 	
-	user := NewUser(updateUserReq.FirstName, updateUserReq.LastName)
+	user := types.NewUser(updateUserReq.FirstName, updateUserReq.LastName)
 	
 	if err := s.store.UpdateUser(user); err!= nil {
 		return err
