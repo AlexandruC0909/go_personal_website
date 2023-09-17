@@ -1,4 +1,4 @@
-package handlers
+package router
 
 import (
 	"encoding/json"
@@ -7,6 +7,14 @@ import (
 
 	"go_api/types"
 )
+
+type UserHandler interface {
+	handleUsers(w http.ResponseWriter, r *http.Request) error
+	handleGetUsers(w http.ResponseWriter, r *http.Request) error
+	handleUserById(w http.ResponseWriter, r *http.Request) error
+	handleDeleteUser(w http.ResponseWriter, r *http.Request) error
+	handleUpdateUser(w http.ResponseWriter, r *http.Request) error
+}
 
 func (s *ApiRouter) handleUsers(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {

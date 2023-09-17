@@ -16,18 +16,18 @@ type ApiError struct {
 	Error string `json:"error"`
 }
 
-type APIServer struct {
+type ApiRouter struct {
 	listenAddress string
-	store         database.Storage
+	store         database.Methods
 }
 
-func NewAPIServer(listenAddress string, store database.Storage) *APIServer {
-	return &APIServer{
+func NewAPIServer(listenAddress string, store database.Methods) *ApiRouter {
+	return &ApiRouter{
 		listenAddress: listenAddress,
 		store:         store,
 	}
 }
-func (s *APIServer) Run() {
+func (s *ApiRouter) Run() {
 	router := mux.NewRouter()
 	router.HandleFunc("/users", makeHTTPHandleFunc(s.handleUsers))
 	router.HandleFunc("/users/{id}", makeHTTPHandleFunc(s.handleUserById))

@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	database "go_api/database"
-	server "go_api/handlers"
+	server "go_api/router"
 	"log"
 )
 
