@@ -2,15 +2,9 @@ package database
 
 import (
 	"database/sql"
-
-	_ "github.com/lib/pq"
 )
 
-type DbConnection struct {
-	db *sql.DB
-}
-
-func NewDbConnection() (*DbConnection, error) {
+func NewPostgresDbConnection() (*DbConnection, error) {
 	connString := "user=go_api_root dbname=postgres password=go_api_root sslmode=disable"
 	db, err := sql.Open("postgres", connString)
 	if err != nil {

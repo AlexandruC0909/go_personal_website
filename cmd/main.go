@@ -3,12 +3,12 @@ package main
 import (
 	"fmt"
 	database "go_api/database"
-	server "go_api/router"
+	server "go_api/handlers"
 	"log"
 )
 
 func main() {
-	store, err := database.NewDbConnection()
+	store, err := database.NewPostgresDbConnection()
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -1,4 +1,4 @@
-package router
+package handlers
 
 import (
 	"encoding/json"
@@ -12,13 +12,13 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type ApiError struct {
-	Error string `json:"error"`
-}
-
 type ApiRouter struct {
 	listenAddress string
 	store         database.Methods
+}
+
+type ApiError struct {
+	Error string `json:"error"`
 }
 
 func NewAPIServer(listenAddress string, store database.Methods) *ApiRouter {
