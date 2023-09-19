@@ -1,4 +1,4 @@
-# go_api API V1
+# go_api
 
 ## Status
 
