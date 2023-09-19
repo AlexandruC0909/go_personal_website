@@ -20,7 +20,7 @@ jobs:
 
       - name: Ensure coverage is reported for every package
         run: |
-          find pkg -type d -print0 | while IFS= read -r -d '' dir; do
+          find go_api -type d -print0 | while IFS= read -r -d '' dir; do
             go_file=$(ls -1 $dir | grep '\.go$' | grep -v '_test\.go$' | head -n1)
             if [[ $go_file ]]; then
               package_line=$(grep '^package' ${dir}/${go_file} | head -n1)
