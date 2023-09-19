@@ -6,8 +6,8 @@
 | --- | --- | --- | --- |
 | Branch | develop | staging | prod |
 | URL | N/A | [STAGING API](https:/baietiiRai.com/api)| [PROD API](https://app.baietiiRai.com/api) |
-| Coverage | [![codecov](https://codecov.io/gh/AlexandruC0909/spring-api/branch/develop/graph/badge.svg?token=55LRRUW8WC)](https://codecov.io/gh/AlexandruC0909/spring-api) | [![codecov](https://codecov.io/gh/AlexandruC0909/spring-api/branch/develop/graph/badge.svg?token=55LRRUW8WC)](https://codecov.io/gh/AlexandruC0909/spring-api) | [![codecov](https://codecov.io/gh/AlexandruC0909/spring-api/branch/develop/graph/badge.svg?token=55LRRUW8WC)](https://codecov.io/gh/AlexandruC0909/spring-api) |
-|Last commit|<img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/AlexandruC0909/spring-api"> | <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/AlexandruC0909/spring-api"> | <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/AlexandruC0909/spring-api">|
+| Coverage | [![codecov](https://codecov.io/gh/AlexandruC0909/go-api/branch/develop/graph/badge.svg?token=55LRRUW8WC)](https://codecov.io/gh/AlexandruC0909/go-api) | [![codecov](https://codecov.io/gh/AlexandruC0909/go-api/branch/develop/graph/badge.svg?token=55LRRUW8WC)](https://codecov.io/gh/AlexandruC0909/go-api) | [![codecov](https://codecov.io/gh/AlexandruC0909/go-api/branch/develop/graph/badge.svg?token=55LRRUW8WC)](https://codecov.io/gh/AlexandruC0909/go-api) |
+|Last commit|<img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/AlexandruC0909/go-api"> | <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/AlexandruC0909/go-api"> | <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/AlexandruC0909/go-api">|
 
 
 ## Create deployment Pull Request
