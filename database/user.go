@@ -15,6 +15,7 @@ type Methods interface {
 	DeleteUser(int) error
 	UpdateUser(*types.User) error
 	GetUser(int) (*types.User, error)
+	GetUserByEmail(string) (*types.User, error)
 	GetUsers() ([]*types.User, error)
 }
 
@@ -83,6 +84,19 @@ func (s *DbConnection) GetUser(id int) (*types.User, error) {
 	}
 
 	return nil, fmt.Errorf("user %d not found", id)
+}
+
+func (s *DbConnection) GetUserByEmail(email string) (*types.User, error) {
+	rows, err := s.db.Query("select * from users where email = $1", email)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		return scanIntoUser(rows)
+	}
+
+	return nil, fmt.Errorf("user %d not found", email)
 }
 
 func (s *DbConnection) UpdateUser(user *types.User) error {

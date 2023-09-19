@@ -9,11 +9,44 @@ import (
 )
 
 type UserHandler interface {
+	handleLogin(w http.ResponseWriter, r *http.Request) error
 	handleUsers(w http.ResponseWriter, r *http.Request) error
 	handleGetUsers(w http.ResponseWriter, r *http.Request) error
 	handleUserById(w http.ResponseWriter, r *http.Request) error
 	handleDeleteUser(w http.ResponseWriter, r *http.Request) error
 	handleUpdateUser(w http.ResponseWriter, r *http.Request) error
+}
+
+func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
+	if r.Method != "POST" {
+		return fmt.Errorf("method not allowed %s", r.Method)
+	}
+
+	var req types.LoginRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		return err
+	}
+
+	user, err := s.store.GetUserByEmail(req.Email)
+	if err != nil {
+		return err
+	}
+
+	if !user.ValidPassword(req.Password) {
+		return fmt.Errorf("not authenticated")
+	}
+
+	token, err := createJWT(user)
+	if err != nil {
+		return err
+	}
+
+	resp := types.LoginResponse{
+		Token: token,
+		Email: user.Email,
+	}
+
+	return WriteJSON(w, http.StatusOK, resp)
 }
 
 func (s *ApiRouter) handleUsers(w http.ResponseWriter, r *http.Request) error {
@@ -70,8 +103,10 @@ func (s *ApiRouter) handleCreateUser(w http.ResponseWriter, r *http.Request) err
 		return err
 	}
 
-	user := types.NewUser(createAccReq.FirstName, createAccReq.LastName, createAccReq.Email)
-
+	user, err := types.NewUser(createAccReq.FirstName, createAccReq.LastName, createAccReq.Email, createAccReq.Password)
+	if err != nil {
+		return err
+	}
 	if err := s.store.CreateUser(user); err != nil {
 		return err
 	}
