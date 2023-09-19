@@ -11,6 +11,7 @@ type CreateUserRequest struct {
 }
 
 type UpdateUserRequest struct {
+	ID        string `json:"id"`
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
 }
@@ -31,5 +32,14 @@ func NewUser(firstName, lastName string) *User {
 		LastName:  lastName,
 		Number:    int64(rand.Intn(1000000)),
 		CreatedAt: time.Now().UTC(),
+	}
+}
+
+func UpdateUser(id int, firstName, lastName string) *User {
+
+	return &User{
+		ID:        id,
+		FirstName: firstName,
+		LastName:  lastName,
 	}
 }

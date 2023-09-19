@@ -86,7 +86,12 @@ func (s *ApiRouter) handleUpdateUser(w http.ResponseWriter, r *http.Request) err
 		return err
 	}
 
-	user := types.NewUser(updateUserReq.FirstName, updateUserReq.LastName)
+	id, err := getID(r)
+	if err != nil {
+		return err
+	}
+
+	user := types.UpdateUser(id, updateUserReq.FirstName, updateUserReq.LastName)
 
 	if err := s.store.UpdateUser(user); err != nil {
 		return err

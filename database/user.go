@@ -52,10 +52,10 @@ func (s *DbConnection) CreateUser(user *types.User) error {
 }
 
 func (s *DbConnection) UpdateUser(user *types.User) error {
-	query := `update users set 
-	first_name = $1 , last_name = $2 where id = $3`
 
-	_, err := s.db.Query(
+	query := `update users set first_name = $1 , last_name = $2 where id = $3`
+
+	_, err := s.db.Exec(
 		query,
 		user.FirstName,
 		user.LastName,
