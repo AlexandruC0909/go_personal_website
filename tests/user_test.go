@@ -2,7 +2,7 @@ package tests
 
 import (
 	"testing"
-	userType "types"
+	userType "go_api/types"
 )
 
 func TestNewUser(t *testing.T) {
