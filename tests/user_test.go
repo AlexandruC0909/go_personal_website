@@ -1,14 +1,15 @@
-package types
+package tests
 
 import (
 	"testing"
+	userType "types"
 )
 
 func TestNewUser(t *testing.T) {
 	firstName := "John"
 	lastName := "Doe"
 
-	user := NewUser(firstName, lastName)
+	user := userType.NewUser(firstName, lastName)
 
 	if user == nil {
 		t.Error("Expected a user object, but got nil")
@@ -32,7 +33,7 @@ func TestNewUser(t *testing.T) {
 }
 
 func TestCreateUserRequest(t *testing.T) {
-	req := CreateUserRequest{
+	req := userType.CreateUserRequest{
 		FirstName: "Jane",
 		LastName:  "Smith",
 	}
@@ -47,7 +48,7 @@ func TestCreateUserRequest(t *testing.T) {
 }
 
 func TestUpdateUserRequest(t *testing.T) {
-	req := UpdateUserRequest{
+	req := userType.UpdateUserRequest{
 		FirstName: "Alice",
 		LastName:  "Johnson",
 	}
