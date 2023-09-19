@@ -44,7 +44,7 @@ func (s *ApiRouter) handleUserById(w http.ResponseWriter, r *http.Request) error
 			return err
 		}
 
-		user, err := s.store.GetUserById(id)
+		user, err := s.store.GetUser(id)
 		if err != nil {
 			return err
 		}

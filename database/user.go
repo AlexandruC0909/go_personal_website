@@ -13,7 +13,7 @@ type Methods interface {
 	CreateUser(*types.User) error
 	DeleteUser(int) error
 	UpdateUser(*types.User) error
-	GetUserById(int) (*types.User, error)
+	GetUser(int) (*types.User, error)
 	GetUsers() ([]*types.User, error)
 }
 
@@ -29,6 +29,24 @@ func (s *DbConnection) createUserTable() error {
 
 	_, err := s.db.Exec(query)
 	return err
+}
+
+func (s *DbConnection) GetUsers() ([]*types.User, error) {
+	rows, err := s.db.Query("select * from users")
+	if err != nil {
+		return nil, err
+	}
+
+	users := []*types.User{}
+	for rows.Next() {
+		user, err := scanIntoUser(rows)
+		if err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
 }
 
 func (s *DbConnection) CreateUser(user *types.User) error {
@@ -51,30 +69,7 @@ func (s *DbConnection) CreateUser(user *types.User) error {
 	return nil
 }
 
-func (s *DbConnection) UpdateUser(user *types.User) error {
-
-	query := `update users set first_name = $1 , last_name = $2 where id = $3`
-
-	_, err := s.db.Exec(
-		query,
-		user.FirstName,
-		user.LastName,
-		user.ID,
-	)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (s *DbConnection) DeleteUser(id int) error {
-	_, err := s.db.Query("delete from users where id = $1", id)
-	return err
-}
-
-func (s *DbConnection) GetUserById(id int) (*types.User, error) {
+func (s *DbConnection) GetUser(id int) (*types.User, error) {
 	rows, err := s.db.Query("select * from users where id = $1", id)
 	if err != nil {
 		return nil, err
@@ -87,22 +82,40 @@ func (s *DbConnection) GetUserById(id int) (*types.User, error) {
 	return nil, fmt.Errorf("user %d not found", id)
 }
 
-func (s *DbConnection) GetUsers() ([]*types.User, error) {
-	rows, err := s.db.Query("select * from users")
-	if err != nil {
-		return nil, err
+func (s *DbConnection) UpdateUser(user *types.User) error {
+	updateQuery := `update users set first_name = $1 , last_name = $2 where id = $3 RETURNING id`
+
+	var userId int
+	err := s.db.QueryRow(
+		updateQuery,
+		user.FirstName,
+		user.LastName,
+		user.ID,
+	).Scan(&userId)
+
+	if err == sql.ErrNoRows {
+		return fmt.Errorf("user %d not found", user.ID)
+	} else if err != nil {
+		return err
 	}
 
-	users := []*types.User{}
-	for rows.Next() {
-		user, err := scanIntoUser(rows)
-		if err != nil {
-			return nil, err
-		}
-		users = append(users, user)
+	return nil
+
+}
+
+func (s *DbConnection) DeleteUser(id int) error {
+	deleteQuery := `DELETE FROM users WHERE id = $1 RETURNING id`
+
+	var userID int
+	err := s.db.QueryRow(deleteQuery, id).Scan(&userID)
+
+	if err == sql.ErrNoRows {
+		return fmt.Errorf("user with id %d not found", id)
+	} else if err != nil {
+		return err
 	}
 
-	return users, nil
+	return nil
 }
 
 func scanIntoUser(rows *sql.Rows) (*types.User, error) {
