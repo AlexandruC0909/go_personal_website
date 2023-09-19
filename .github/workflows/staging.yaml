@@ -1,0 +1,32 @@
+name: Staging
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21.1'
+      
+      - name: Check for Go modules and install dependencies
+        run: |
+          if [ -f go.mod ]; then
+            go mod download
+          else
+            go get -v ./...
+          fi
+
+      - name: Build
+        run: go build -v ./...
+
+      
+
+      

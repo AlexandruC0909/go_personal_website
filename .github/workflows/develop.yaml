@@ -7,16 +7,17 @@ on:
 
 jobs:
   test:
-    name: Run unit tests
+    name: Run tests
     runs-on: [ubuntu-20.04]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
 
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
           go-version: '1.21.1'
-          
+
       - name: Ensure coverage is reported for every package
         run: |
           find pkg -type d -print0 | while IFS= read -r -d '' dir; do
@@ -43,28 +44,5 @@ jobs:
         uses: codecov/codecov-action@v3
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-  
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.21.1'
-      
-      - name: Check for Go modules and install dependencies
-        run: |
-          if [ -f go.mod ]; then
-            go mod download
-          else
-            go get -v ./...
-          fi
-
-      - name: Build
-        run: go build -v ./...
-
-      
 
       
