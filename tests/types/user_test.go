@@ -3,15 +3,16 @@
 package tests
 
 import (
-	"testing"
 	userType "go_api/types"
+	"testing"
 )
 
 func TestNewUser(t *testing.T) {
 	firstName := "John"
 	lastName := "Doe"
+	email := "Doe@john.com"
 
-	user := userType.NewUser(firstName, lastName)
+	user := userType.NewUser(firstName, lastName, email)
 
 	if user == nil {
 		t.Error("Expected a user object, but got nil")
@@ -25,12 +26,16 @@ func TestNewUser(t *testing.T) {
 		t.Errorf("Expected LastName to be %s, but got %s", lastName, user.LastName)
 	}
 
-	if user.Number <= 0 {
-		t.Errorf("Expected Number to be a positive integer, but got %d", user.Number)
+	if user.Email != email {
+		t.Errorf("Expected Email to be %s, but got %s", email, user.Email)
 	}
 
 	if user.CreatedAt.IsZero() {
 		t.Error("Expected CreatedAt to be a valid time, but it's zero")
+	}
+
+	if user.UpdatedAt.IsZero() {
+		t.Error("Expected UpdatedAt to be a valid time, but it's zero")
 	}
 }
 

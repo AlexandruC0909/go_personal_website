@@ -70,7 +70,7 @@ func (s *ApiRouter) handleCreateUser(w http.ResponseWriter, r *http.Request) err
 		return err
 	}
 
-	user := types.NewUser(createAccReq.FirstName, createAccReq.LastName)
+	user := types.NewUser(createAccReq.FirstName, createAccReq.LastName, createAccReq.Email)
 
 	if err := s.store.CreateUser(user); err != nil {
 		return err

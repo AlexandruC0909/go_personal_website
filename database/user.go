@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	"go_api/types"
 
@@ -22,9 +23,10 @@ func (s *DbConnection) createUserTable() error {
 		id serial primary key,
 		first_name varchar(100),
 		last_name varchar(100),
-		number serial,
-		encrypted_password varchar(100),
-		created_at timestamp
+		email varchar(100),
+		password varchar(100),
+		created_at timestamp,
+		updated_at timestamp
 	)`
 
 	_, err := s.db.Exec(query)
@@ -51,16 +53,17 @@ func (s *DbConnection) GetUsers() ([]*types.User, error) {
 
 func (s *DbConnection) CreateUser(user *types.User) error {
 	query := `insert into users 
-	(first_name, last_name, number, encrypted_password, created_at)
-	values ($1, $2, $3, $4, $5)`
+	(first_name, last_name, email, password, created_at, updated_at)
+	values ($1, $2, $3, $4, $5, $6)`
 
 	_, err := s.db.Query(
 		query,
 		user.FirstName,
 		user.LastName,
-		user.Number,
-		user.EncryptedPassword,
-		user.CreatedAt)
+		user.Email,
+		user.Password,
+		user.CreatedAt,
+		user.UpdatedAt)
 
 	if err != nil {
 		return err
@@ -83,13 +86,14 @@ func (s *DbConnection) GetUser(id int) (*types.User, error) {
 }
 
 func (s *DbConnection) UpdateUser(user *types.User) error {
-	updateQuery := `update users set first_name = $1 , last_name = $2 where id = $3 RETURNING id`
+	updateQuery := `update users set first_name = $1 , last_name = $2, updated_at= $3 where id = $4 RETURNING id`
 
 	var userId int
 	err := s.db.QueryRow(
 		updateQuery,
 		user.FirstName,
 		user.LastName,
+		time.Now(),
 		user.ID,
 	).Scan(&userId)
 
@@ -124,9 +128,10 @@ func scanIntoUser(rows *sql.Rows) (*types.User, error) {
 		&user.ID,
 		&user.FirstName,
 		&user.LastName,
-		&user.Number,
-		&user.EncryptedPassword,
-		&user.CreatedAt)
+		&user.Email,
+		&user.Password,
+		&user.CreatedAt,
+		&user.UpdatedAt)
 
 	return user, err
 }
