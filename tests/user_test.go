@@ -1,3 +1,5 @@
+//go:generate go test -coverpkg=go_api/types -coverprofile=coverage.out
+
 package tests
 
 import (
