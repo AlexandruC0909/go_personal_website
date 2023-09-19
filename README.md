@@ -6,7 +6,7 @@
 | --- | --- | --- | --- |
 | Branch | develop | staging | prod |
 | URL | N/A | [STAGING API](https:/baietiiRai.com/api)| [PROD API](https://app.baietiiRai.com/api) |
-| Coverage | [![codecov](https://codecov.io/github/AlexandruC0909/go_api/graphs/sunburst.svg?token=6DTLMS8GSE)](https://codecov.io/gh/AlexandruC0909/go-api) | [![codecov](https://codecov.io/github/AlexandruC0909/go_api/graphs/sunburst.svg?token=6DTLMS8GSE)](https://codecov.io/gh/AlexandruC0909/go-api) | [![codecov](https://codecov.io/github/AlexandruC0909/go_api/graphs/sunburst.svg?token=6DTLMS8GSE)](https://codecov.io/gh/AlexandruC0909/go-api) |
+| Coverage | [![codecov](https://codecov.io/github/AlexandruC0909/go_api/graph/badge.svg?token=6DTLMS8GSE)](https://codecov.io/github/AlexandruC0909/go_api) | [![codecov](https://codecov.io/github/AlexandruC0909/go_api/graph/badge.svg?token=6DTLMS8GSE)](https://codecov.io/github/AlexandruC0909/go_api) | [![codecov](https://codecov.io/github/AlexandruC0909/go_api/graph/badge.svg?token=6DTLMS8GSE)](https://codecov.io/github/AlexandruC0909/go_api) |
 |Last commit|<img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/AlexandruC0909/go_api"> | <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/AlexandruC0909/go_api"> | <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/AlexandruC0909/go_api">|
 
 
