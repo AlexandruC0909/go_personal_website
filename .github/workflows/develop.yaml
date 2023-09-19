@@ -2,7 +2,8 @@ name: Develop
 
 on:
   push:
-    branches: [develop]
+    branches:
+      - develop
 
 jobs:
   build:
@@ -16,9 +17,13 @@ jobs:
         with:
           go-version: '1.21.1'
       
-      - name: Install dependencies
-        run: go get .
+      - name: Check for Go modules and install dependencies
+        run: |
+          if [ -f go.mod ]; then
+            go mod download
+          else
+            go get -v ./...
+          fi
       
       - name: Build
         run: go build -v ./...
-      
