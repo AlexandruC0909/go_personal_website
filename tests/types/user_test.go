@@ -55,8 +55,8 @@ func TestCreateUserRequest(t *testing.T) {
 	if req.LastName != "Smith" {
 		t.Errorf("Expected LastName to be %s, but got %s", "Smith", req.LastName)
 	}
-	if req.LastName != "jane@smith.com" {
-		t.Errorf("Expected Email to be %s, but got %s", "jane@smith.com", req.LastName)
+	if req.Email != "jane@smith.com" {
+		t.Errorf("Expected Email to be %s, but got %s", "jane@smith.com", req.Email)
 	}
 }
 
