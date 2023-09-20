@@ -45,7 +45,7 @@ func TestCreateUserRequest(t *testing.T) {
 		FirstName: "Jane",
 		LastName:  "Smith",
 		Email:  "jane@smith.com",
-		password : "password1234"
+		password : "password1234",
 	}
 
 	if req.FirstName != "Jane" {

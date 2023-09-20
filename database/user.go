@@ -96,7 +96,7 @@ func (s *DbConnection) GetUserByEmail(email string) (*types.User, error) {
 		return scanIntoUser(rows)
 	}
 
-	return nil, fmt.Errorf("user %d not found", email)
+	return nil, fmt.Errorf("user %s not found", email)
 }
 
 func (s *DbConnection) UpdateUser(user *types.User) error {
