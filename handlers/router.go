@@ -67,6 +67,7 @@ func getID(r *http.Request) (int, error) {
 }
 
 func createJWT(user *user.User) (string, error) {
+	os.Setenv("JWT_SECRET", "9V7$2kP&6a#R@5bT1yZ!8wG*4qS%F3eU")
 	claims := &jwt.MapClaims{
 		"expiresAt": 15000,
 		"id":        user.ID,
@@ -105,7 +106,7 @@ func withJWTAuth(handlerFunc http.HandlerFunc, s database.Methods) http.HandlerF
 		}
 		user, err := s.GetUser(userID)
 		if err != nil {
-			permissionDenied(w)
+
 			return
 		}
 
