@@ -11,8 +11,9 @@ func TestNewUser(t *testing.T) {
 	firstName := "John"
 	lastName := "Doe"
 	email := "Doe@john.com"
+	password := "password1234"
 
-	user := userType.NewUser(firstName, lastName, email)
+	user,_ := userType.NewUser(firstName, lastName, email, password)
 
 	if user == nil {
 		t.Error("Expected a user object, but got nil")
@@ -44,6 +45,7 @@ func TestCreateUserRequest(t *testing.T) {
 		FirstName: "Jane",
 		LastName:  "Smith",
 		Email:  "jane@smith.com",
+		password : "password1234"
 	}
 
 	if req.FirstName != "Jane" {
@@ -60,6 +62,7 @@ func TestCreateUserRequest(t *testing.T) {
 
 func TestUpdateUserRequest(t *testing.T) {
 	req := userType.UpdateUserRequest{
+		ID: 3,
 		FirstName: "Alice",
 		LastName:  "Johnson",
 	}
