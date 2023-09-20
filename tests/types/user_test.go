@@ -75,3 +75,52 @@ func TestUpdateUserRequest(t *testing.T) {
 		t.Errorf("Expected LastName to be %s, but got %s", "Johnson", req.LastName)
 	}
 }
+
+func TestUpdateUser(t *testing.T) {
+	id := 1
+	firstName := "NewFirstName"
+	lastName := "NewLastName"
+
+	user := userType.UpdateUser(id, firstName, lastName)
+
+
+	if user.FirstName != firstName {
+		t.Errorf("Expected FirstName to be %s, but got %s", firstName, user.FirstName)
+	}
+
+	if user.LastName != lastName {
+		t.Errorf("Expected LastName to be %s, but got %s", lastName, user.LastName)
+	}
+}
+
+func TestLoginRequest(t *testing.T) {
+	req := userType.LoginRequest{
+		Email:    "user@example.com",
+		Password: "password1234",
+	}
+
+	if req.Email != "user@example.com" {
+		t.Errorf("Expected Email to be %s, but got %s", "user@example.com", req.Email)
+	}
+
+	if req.Password != "password1234" {
+		t.Errorf("Expected Password to be %s, but got %s", "password1234", req.Password)
+	}
+}
+
+func TestLoginResponse(t *testing.T) {
+	res := userType.LoginResponse{
+		Email: "user@example.com",
+		Token: "some-auth-token",
+	}
+
+	if res.Email != "user@example.com" {
+		t.Errorf("Expected Email to be %s, but got %s", "user@example.com", res.Email)
+	}
+
+	if res.Token != "some-auth-token" {
+		t.Errorf("Expected Token to be %s, but got %s", "some-auth-token", res.Token)
+	}
+}
+
+
