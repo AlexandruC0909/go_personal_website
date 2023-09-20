@@ -45,7 +45,7 @@ func TestCreateUserRequest(t *testing.T) {
 		FirstName: "Jane",
 		LastName:  "Smith",
 		Email:  "jane@smith.com",
-		password : "password1234",
+		Password : "password1234",
 	}
 
 	if req.FirstName != "Jane" {
@@ -62,7 +62,7 @@ func TestCreateUserRequest(t *testing.T) {
 
 func TestUpdateUserRequest(t *testing.T) {
 	req := userType.UpdateUserRequest{
-		ID: 3,
+		ID: "3",
 		FirstName: "Alice",
 		LastName:  "Johnson",
 	}
