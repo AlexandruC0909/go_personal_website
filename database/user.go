@@ -22,33 +22,6 @@ type Methods interface {
 	GetUsers() ([]*types.User, error)
 }
 
-func (s *DbConnection) createUserTable() error {
-	query := `create table if not exists users (
-		id serial primary key,
-		first_name varchar(100),
-		last_name varchar(100),
-		email varchar(100),
-		password varchar(100),
-		created_at timestamp,
-		updated_at timestamp,
-		image_url varchar(200) ,
-		roles_id INT,
-    FOREIGN KEY (roles_id) REFERENCES roles (id)
-	);
-	CREATE INDEX IF NOT EXISTS idx_role_id ON users (roles_id);`
-
-	_, err := s.db.Exec(query)
-	return err
-}
-func (s *DbConnection) createRoleTable() error {
-	query := `create table if not exists roles (
-		id serial primary key,
-		name varchar(20)
-	)`
-	_, err := s.db.Exec(query)
-	return err
-}
-
 func (s *DbConnection) GetUsers() ([]*types.User, error) {
 	rows, err := s.db.Query(getUserQuery)
 	if err != nil {
