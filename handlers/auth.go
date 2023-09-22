@@ -191,7 +191,7 @@ func withJWTAuth(handlerFunc http.HandlerFunc, s database.Methods) http.HandlerF
 		}
 
 		//claims := token.Claims.(jwt.MapClaims)
-		if user.ID != 3 {
+		if user.ID != 1 {
 			permissionDenied(w)
 			return
 		}
