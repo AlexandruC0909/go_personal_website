@@ -109,7 +109,7 @@ func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error
 
 func createJWT(user *user.User) (string, error) {
 
-	expirationTime := time.Now().Add(1 * time.Minute)
+	expirationTime := time.Now().Add(60 * time.Minute)
 
 	claims := &types.LoginResponse{
 		Email: user.Email,
@@ -128,15 +128,49 @@ func permissionDenied(w http.ResponseWriter) {
 	WriteJSON(w, http.StatusForbidden, ApiError{Error: "permission denied"})
 }
 
+func validateJWT(tokenString string) (*jwt.Token, error) {
+	secret := os.Getenv("JWT_SECRET")
+	claims := &types.LoginResponse{}
+	return jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+
+		return []byte(secret), nil
+	})
+}
+
+func refreshToken(w http.ResponseWriter, r *http.Request, user *user.User) (string, error) {
+	secret := os.Getenv("JWT_SECRET")
+
+	tokenString := r.Header.Get("Authorization")
+	splitToken := strings.Split(tokenString, "Bearer ")
+	tokenString = splitToken[1]
+
+	claims := &types.LoginResponse{}
+
+	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+
+		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
+		return []byte(secret), nil
+	})
+
+	if time.Until(claims.ExpiresAt.Time) > 30*time.Second {
+		w.WriteHeader(http.StatusBadRequest)
+		return tokenString, err
+	}
+	return createJWT(user)
+}
+
 func withJWTAuth(handlerFunc http.HandlerFunc, s database.Methods) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("calling JWT auth middleware")
+		tokenString := extractTokenFromRequest(r)
 
-		reqToken := r.Header.Get("Authorization")
-		splitToken := strings.Split(reqToken, "Bearer ")
-		reqToken = splitToken[1]
-
-		token, err := validateJWT(reqToken)
+		token, err := validateJWT(tokenString)
 		if err != nil {
 			permissionDenied(w)
 			return
@@ -171,40 +205,46 @@ func withJWTAuth(handlerFunc http.HandlerFunc, s database.Methods) http.HandlerF
 	}
 }
 
-func validateJWT(tokenString string) (*jwt.Token, error) {
-	secret := os.Getenv("JWT_SECRET")
-	claims := &types.LoginResponse{}
-	return jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+func withRoleAuth(requiredRole string, s database.Methods, handlerFunc http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("calling role-based auth middleware")
+		secret := os.Getenv("JWT_SECRET")
+
+		tokenString := extractTokenFromRequest(r)
+
+		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+			return []byte(secret), nil
+		})
+
+		if err != nil {
+			permissionDenied(w)
+			return
 		}
 
-		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
-		return []byte(secret), nil
-	})
+		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+			email := claims["email"].(string)
+			user, err := s.GetUserByEmail(email)
+			if err != nil {
+				permissionDenied(w)
+				return
+			}
+
+			// Check if the user's role matches the required role
+			if user.Role.Name != requiredRole {
+				permissionDenied(w)
+				return
+			}
+
+			handlerFunc(w, r)
+		} else {
+			permissionDenied(w)
+		}
+	}
 }
 
-func refreshToken(w http.ResponseWriter, r *http.Request, user *user.User) (string, error) {
-	secret := os.Getenv("JWT_SECRET")
-
-	tokenString := r.Header.Get("Authorization")
-	splitToken := strings.Split(tokenString, "Bearer ")
-	tokenString = splitToken[1]
-
-	claims := &types.LoginResponse{}
-
-	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-		}
-
-		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
-		return []byte(secret), nil
-	})
-
-	if time.Until(claims.ExpiresAt.Time) > 30*time.Second {
-		w.WriteHeader(http.StatusBadRequest)
-		return tokenString, err
-	}
-	return createJWT(user)
+func extractTokenFromRequest(r *http.Request) string {
+	reqToken := r.Header.Get("Authorization")
+	splitToken := strings.Split(reqToken, "Bearer ")
+	reqToken = splitToken[1]
+	return reqToken
 }
