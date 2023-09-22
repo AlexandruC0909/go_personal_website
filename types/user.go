@@ -3,6 +3,7 @@ package types
 import (
 	"time"
 
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -16,6 +17,7 @@ type CreateUserRequest struct {
 type LoginResponse struct {
 	Email string `json:"email"`
 	Token string `json:"token"`
+	jwt.RegisteredClaims
 }
 
 type LoginRequest struct {
