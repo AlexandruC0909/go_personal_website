@@ -7,23 +7,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type CreateUserRequest struct {
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	Email     string `json:"email"`
-	Password  string `json:"password"`
-}
 
-type LoginResponse struct {
-	Email string `json:"email"`
-	Token string `json:"token"`
-	jwt.RegisteredClaims
-}
-
-type LoginRequest struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
 type UpdateUserRequest struct {
 	ID        string `json:"id"`
 	FirstName string `json:"firstName"`

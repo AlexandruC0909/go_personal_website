@@ -82,7 +82,7 @@ func (s *ApiRouter) handleRefresh(w http.ResponseWriter, r *http.Request) error 
 }
 
 func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error {
-	createAccReq := new(types.CreateUserRequest)
+	createAccReq := new(types.RegisterRequest)
 
 	if err := json.NewDecoder(r.Body).Decode(createAccReq); err != nil {
 		return err
