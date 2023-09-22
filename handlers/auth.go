@@ -95,8 +95,16 @@ func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error
 	if err := s.store.CreateUser(user); err != nil {
 		return err
 	}
+	token, err := createJWT(user)
+	if err != nil {
+		return err
+	}
 
-	return WriteJSON(w, http.StatusOK, user)
+	resp := types.LoginResponse{
+		Token: token,
+		Email: user.Email,
+	}
+	return WriteJSON(w, http.StatusOK, resp)
 }
 
 func createJWT(user *user.User) (string, error) {
