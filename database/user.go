@@ -10,6 +10,8 @@ import (
 	_ "github.com/lib/pq"
 )
 
+const getUserQuery = "SELECT u.id, u.first_name, u.last_name, u.email, u.password, u.created_at, u.updated_at, r.id as role_id, r.name as role_name FROM users u JOIN roles r ON u.roles_id = r.id "
+
 type Methods interface {
 	CreateUser(*types.User) error
 	DeleteUser(int) error
@@ -27,15 +29,26 @@ func (s *DbConnection) createUserTable() error {
 		email varchar(100),
 		password varchar(100),
 		created_at timestamp,
-		updated_at timestamp
-	)`
+		updated_at timestamp,
+		roles_id INT,
+    FOREIGN KEY (roles_id) REFERENCES roles (id)
+	);
+	CREATE INDEX IF NOT EXISTS idx_role_id ON users (roles_id);`
 
+	_, err := s.db.Exec(query)
+	return err
+}
+func (s *DbConnection) createRoleTable() error {
+	query := `create table if not exists roles (
+		id serial primary key,
+		name varchar(20)
+	)`
 	_, err := s.db.Exec(query)
 	return err
 }
 
 func (s *DbConnection) GetUsers() ([]*types.User, error) {
-	rows, err := s.db.Query("select * from users")
+	rows, err := s.db.Query(getUserQuery)
 	if err != nil {
 		return nil, err
 	}
@@ -54,8 +67,8 @@ func (s *DbConnection) GetUsers() ([]*types.User, error) {
 
 func (s *DbConnection) CreateUser(user *types.User) error {
 	query := `insert into users 
-	(first_name, last_name, email, password, created_at, updated_at)
-	values ($1, $2, $3, $4, $5, $6)`
+	(first_name, last_name, email, password, created_at, updated_at, roles_id)
+	values ($1, $2, $3, $4, $5, $6, 2)`
 
 	_, err := s.db.Query(
 		query,
@@ -74,7 +87,7 @@ func (s *DbConnection) CreateUser(user *types.User) error {
 }
 
 func (s *DbConnection) GetUser(id int) (*types.User, error) {
-	rows, err := s.db.Query("select * from users where id = $1", id)
+	rows, err := s.db.Query(getUserQuery+"WHERE u.id = $1", id)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +100,7 @@ func (s *DbConnection) GetUser(id int) (*types.User, error) {
 }
 
 func (s *DbConnection) GetUserByEmail(email string) (*types.User, error) {
-	rows, err := s.db.Query("select * from users where email = $1", email)
+	rows, err := s.db.Query(getUserQuery+"where email = $1", email)
 	if err != nil {
 		return nil, err
 	}
@@ -138,6 +151,7 @@ func (s *DbConnection) DeleteUser(id int) error {
 
 func scanIntoUser(rows *sql.Rows) (*types.User, error) {
 	user := new(types.User)
+	role := types.Role{}
 	err := rows.Scan(
 		&user.ID,
 		&user.FirstName,
@@ -145,7 +159,10 @@ func scanIntoUser(rows *sql.Rows) (*types.User, error) {
 		&user.Email,
 		&user.Password,
 		&user.CreatedAt,
-		&user.UpdatedAt)
-
+		&user.UpdatedAt,
+		&role.ID,
+		&role.Name,
+	)
+	user.Role = role
 	return user, err
 }

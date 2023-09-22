@@ -32,7 +32,7 @@ func (s *ApiRouter) Run() {
 	router.HandleFunc("/auth/login", makeHTTPHandleFunc(s.handleLogin))
 	router.HandleFunc("/auth/refresh", makeHTTPHandleFunc(s.handleRefresh))
 	router.HandleFunc("/auth/register", makeHTTPHandleFunc(s.handleRegister))
-	router.HandleFunc("/users", makeHTTPHandleFunc(s.handleUsers))
+	router.HandleFunc("/users", withRoleAuth("admin", s.store, makeHTTPHandleFunc(s.handleUsers)))
 	router.HandleFunc("/users/{id}", withJWTAuth(makeHTTPHandleFunc(s.handleUserById), s.store))
 
 	log.Println("JSON API server running on port:", s.listenAddress)

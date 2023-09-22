@@ -18,6 +18,6 @@ func NewPostgresDbConnection() (*DbConnection, error) {
 		db: db,
 	}, nil
 }
-func (s *DbConnection) Init() error {
-	return s.createUserTable()
+func (s *DbConnection) Init() (error, error) {
+	return s.createRoleTable(), s.createUserTable()
 }
