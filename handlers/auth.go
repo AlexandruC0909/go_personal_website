@@ -87,7 +87,10 @@ func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error
 	if err := json.NewDecoder(r.Body).Decode(createAccReq); err != nil {
 		return err
 	}
-
+	existingUser, _ := s.store.GetUserByEmail(createAccReq.Email)
+	if existingUser != nil {
+		return WriteJSON(w, http.StatusForbidden, ApiError{Error: createAccReq.Email + " already used"})
+	}
 	user, err := types.NewUser(createAccReq.FirstName, createAccReq.LastName, createAccReq.Email, createAccReq.Password)
 	if err != nil {
 		return err
@@ -162,6 +165,8 @@ func refreshToken(w http.ResponseWriter, r *http.Request, user *user.User) (stri
 		w.WriteHeader(http.StatusBadRequest)
 		return tokenString, err
 	}
+	claims.RegisteredClaims.ExpiresAt = jwt.NewNumericDate(time.Now())
+
 	return createJWT(user)
 }
 
@@ -179,22 +184,6 @@ func withJWTAuth(handlerFunc http.HandlerFunc, s database.Methods) http.HandlerF
 			permissionDenied(w)
 			return
 		}
-		userID, err := getID(r)
-		if err != nil {
-			permissionDenied(w)
-			return
-		}
-		user, err := s.GetUser(userID)
-		if err != nil {
-
-			return
-		}
-
-		//claims := token.Claims.(jwt.MapClaims)
-		if user.ID != 1 {
-			permissionDenied(w)
-			return
-		}
 
 		if err != nil {
 			WriteJSON(w, http.StatusForbidden, ApiError{Error: "invalid token"})
@@ -205,7 +194,7 @@ func withJWTAuth(handlerFunc http.HandlerFunc, s database.Methods) http.HandlerF
 	}
 }
 
-func withRoleAuth(requiredRole string, s database.Methods, handlerFunc http.HandlerFunc) http.HandlerFunc {
+func withRoleAuth(requiredRole string, handlerFunc http.HandlerFunc, s database.Methods) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("calling role-based auth middleware")
 		secret := os.Getenv("JWT_SECRET")

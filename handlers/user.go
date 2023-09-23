@@ -9,22 +9,10 @@ import (
 )
 
 type UserHandler interface {
-	handleUsers(w http.ResponseWriter, r *http.Request) error
 	handleGetUsers(w http.ResponseWriter, r *http.Request) error
 	handleUserById(w http.ResponseWriter, r *http.Request) error
 	handleDeleteUser(w http.ResponseWriter, r *http.Request) error
 	handleUpdateUser(w http.ResponseWriter, r *http.Request) error
-}
-
-func (s *ApiRouter) handleUsers(w http.ResponseWriter, r *http.Request) error {
-	if r.Method == "GET" {
-		return s.handleGetUsers(w, r)
-	}
-	if r.Method == "POST" {
-		return s.handleRegister(w, r)
-	}
-
-	return fmt.Errorf("method not allowed %s", r.Method)
 }
 
 func (s *ApiRouter) handleGetUsers(w http.ResponseWriter, r *http.Request) error {

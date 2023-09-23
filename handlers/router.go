@@ -32,7 +32,8 @@ func (s *ApiRouter) Run() {
 	router.HandleFunc("/auth/login", makeHTTPHandleFunc(s.handleLogin))
 	router.HandleFunc("/auth/refresh", makeHTTPHandleFunc(s.handleRefresh))
 	router.HandleFunc("/auth/register", makeHTTPHandleFunc(s.handleRegister))
-	router.HandleFunc("/users", makeHTTPHandleFunc(s.handleUsers))
+	router.HandleFunc("/users", withRoleAuth("admin", makeHTTPHandleFunc(s.handleGetUsers), s.store))
+
 	router.HandleFunc("/users/{id}", withJWTAuth(makeHTTPHandleFunc(s.handleUserById), s.store))
 	router.HandleFunc("/users/{id}/upload", withJWTAuth(makeHTTPHandleFunc(s.UploadImages), s.store))
 
