@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
 
 	"go_api/types"
@@ -22,7 +23,15 @@ func (s *ApiRouter) handleGetUsers(w http.ResponseWriter, r *http.Request) error
 		return err
 	}
 
-	return WriteJSON(w, http.StatusOK, users)
+	tmpl, err := template.ParseFiles("../templates/user/usersList.html")
+	if err != nil {
+		return err
+	}
+	err = tmpl.Execute(w, users)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *ApiRouter) handleUserById(w http.ResponseWriter, r *http.Request) error {
@@ -37,7 +46,15 @@ func (s *ApiRouter) handleUserById(w http.ResponseWriter, r *http.Request) error
 			return err
 		}
 
-		return WriteJSON(w, http.StatusOK, user)
+		tmpl, err := template.ParseFiles("../templates/user/userDetails.html")
+		if err != nil {
+			return err
+		}
+		err = tmpl.Execute(w, user)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
 
 	if r.Method == "DELETE" {

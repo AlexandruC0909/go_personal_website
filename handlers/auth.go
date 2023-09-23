@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
 	"os"
 	"strings"
@@ -21,36 +22,74 @@ type AuthHandler interface {
 	handleRegister(w http.ResponseWriter, r *http.Request) error
 }
 
+func (s *ApiRouter) handleLoginRender(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		// Parse and execute the HTML template for the login form
+		tmpl, err := template.ParseFiles("../templates/login.html")
+		if err != nil {
+		}
+
+		err = tmpl.Execute(w, nil)
+
+	}
+}
+
 func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
-	if r.Method != "POST" {
-		return fmt.Errorf("method not allowed %s", r.Method)
+	if r.Method == "GET" {
+		tmpl, err := template.ParseFiles("../templates/login.html")
+		if err != nil {
+			return err
+		}
+		err = tmpl.Execute(w, nil)
+		if err != nil {
+			return err
+		}
+
+		return nil
 	}
 
-	var req types.LoginRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return err
+	if r.Method == "POST" {
+		var req types.LoginRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			return err
+		}
+
+		user, err := s.store.GetUserByEmail(req.Email)
+		if err != nil {
+			return err
+		}
+
+		if !user.ValidPassword(req.Password) {
+			return fmt.Errorf("not authenticated")
+		}
+
+		token, err := createJWT(user)
+		if err != nil {
+			return err
+		}
+
+		// Set response headers
+		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+		w.Header().Set("Pragma", "no-cache")
+		w.Header().Set("Expires", "0")
+
+		// Set the access token cookie
+		http.SetCookie(w, &http.Cookie{
+			Name:     "access_token",
+			Value:    token,
+			Expires:  time.Now().Add(60 * time.Minute),
+			HttpOnly: true,
+			Path:     "/",
+			Domain:   "localhost", // Set to the appropriate domain for your environment
+		})
+
+		// Write the JSON response with the redirect
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		fmt.Fprintf(w, `{"redirect": "/users"}`)
 	}
 
-	user, err := s.store.GetUserByEmail(req.Email)
-	if err != nil {
-		return err
-	}
-
-	if !user.ValidPassword(req.Password) {
-		return fmt.Errorf("not authenticated")
-	}
-
-	token, err := createJWT(user)
-	if err != nil {
-		return err
-	}
-
-	resp := types.LoginResponse{
-		Token: token,
-		Email: user.Email,
-	}
-
-	return WriteJSON(w, http.StatusOK, resp)
+	return fmt.Errorf("method not allowed %s", r.Method)
 }
 
 func (s *ApiRouter) handleRefresh(w http.ResponseWriter, r *http.Request) error {
@@ -173,7 +212,7 @@ func refreshToken(w http.ResponseWriter, r *http.Request, user *user.User) (stri
 func withJWTAuth(handlerFunc http.HandlerFunc, s database.Methods) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("calling JWT auth middleware")
-		tokenString := extractTokenFromRequest(r)
+		tokenString, _ := extractTokenFromRequest(r)
 
 		token, err := validateJWT(tokenString)
 		if err != nil {
@@ -199,7 +238,7 @@ func withRoleAuth(requiredRole string, handlerFunc http.HandlerFunc, s database.
 		fmt.Println("calling role-based auth middleware")
 		secret := os.Getenv("JWT_SECRET")
 
-		tokenString := extractTokenFromRequest(r)
+		tokenString, _ := extractTokenFromRequest(r)
 
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 			return []byte(secret), nil
@@ -231,9 +270,10 @@ func withRoleAuth(requiredRole string, handlerFunc http.HandlerFunc, s database.
 	}
 }
 
-func extractTokenFromRequest(r *http.Request) string {
-	reqToken := r.Header.Get("Authorization")
-	splitToken := strings.Split(reqToken, "Bearer ")
-	reqToken = splitToken[1]
-	return reqToken
+func extractTokenFromRequest(r *http.Request) (string, error) {
+	cookie, err := r.Cookie("access_token")
+	if err != nil {
+		return "", err
+	}
+	return cookie.Value, nil
 }
