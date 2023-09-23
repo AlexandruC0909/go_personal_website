@@ -6,6 +6,7 @@ import (
 	"html/template"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -22,21 +23,9 @@ type AuthHandler interface {
 	handleRegister(w http.ResponseWriter, r *http.Request) error
 }
 
-func (s *ApiRouter) handleLoginRender(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "GET" {
-		// Parse and execute the HTML template for the login form
-		tmpl, err := template.ParseFiles("../templates/login.html")
-		if err != nil {
-		}
-
-		err = tmpl.Execute(w, nil)
-
-	}
-}
-
 func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
-		tmpl, err := template.ParseFiles("../templates/login.html")
+		tmpl, err := template.ParseFiles("../templates/auth/login.html")
 		if err != nil {
 			return err
 		}
@@ -67,13 +56,10 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			return err
 		}
-
-		// Set response headers
 		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 		w.Header().Set("Pragma", "no-cache")
 		w.Header().Set("Expires", "0")
 
-		// Set the access token cookie
 		http.SetCookie(w, &http.Cookie{
 			Name:     "access_token",
 			Value:    token,
@@ -82,11 +68,8 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 			Path:     "/",
 			Domain:   "localhost", // Set to the appropriate domain for your environment
 		})
+		http.Redirect(w, r, "/users/"+strconv.Itoa(user.ID), http.StatusMovedPermanently)
 
-		// Write the JSON response with the redirect
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		fmt.Fprintf(w, `{"redirect": "/users"}`)
 	}
 
 	return fmt.Errorf("method not allowed %s", r.Method)
@@ -121,32 +104,58 @@ func (s *ApiRouter) handleRefresh(w http.ResponseWriter, r *http.Request) error 
 }
 
 func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error {
-	createAccReq := new(types.RegisterRequest)
+	if r.Method == "GET" {
+		tmpl, err := template.ParseFiles("../templates/auth/register.html")
+		if err != nil {
+			return err
+		}
+		err = tmpl.Execute(w, nil)
+		if err != nil {
+			return err
+		}
 
-	if err := json.NewDecoder(r.Body).Decode(createAccReq); err != nil {
-		return err
-	}
-	existingUser, _ := s.store.GetUserByEmail(createAccReq.Email)
-	if existingUser != nil {
-		return WriteJSON(w, http.StatusForbidden, ApiError{Error: createAccReq.Email + " already used"})
-	}
-	user, err := types.NewUser(createAccReq.FirstName, createAccReq.LastName, createAccReq.Email, createAccReq.Password)
-	if err != nil {
-		return err
-	}
-	if err := s.store.CreateUser(user); err != nil {
-		return err
-	}
-	token, err := createJWT(user)
-	if err != nil {
-		return err
+		return nil
 	}
 
-	resp := types.LoginResponse{
-		Token: token,
-		Email: user.Email,
+	if r.Method == "POST" {
+		createAccReq := new(types.RegisterRequest)
+
+		if err := json.NewDecoder(r.Body).Decode(createAccReq); err != nil {
+			return err
+		}
+		existingUser, _ := s.store.GetUserByEmail(createAccReq.Email)
+		if existingUser != nil {
+			return WriteJSON(w, http.StatusForbidden, ApiError{Error: createAccReq.Email + " already used"})
+		}
+		user, err := types.NewUser(createAccReq.FirstName, createAccReq.LastName, createAccReq.Email, createAccReq.Password)
+		if err != nil {
+			return err
+		}
+		if err := s.store.CreateUser(user); err != nil {
+			return err
+		}
+		token, err := createJWT(user)
+		if err != nil {
+			return err
+		}
+
+		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+		w.Header().Set("Pragma", "no-cache")
+		w.Header().Set("Expires", "0")
+
+		http.SetCookie(w, &http.Cookie{
+			Name:     "access_token",
+			Value:    token,
+			Expires:  time.Now().Add(60 * time.Minute),
+			HttpOnly: true,
+			Path:     "/",
+			Domain:   "localhost", // Set to the appropriate domain for your environment
+		})
+		http.Redirect(w, r, "/users/"+strconv.Itoa(user.ID), http.StatusMovedPermanently)
 	}
-	return WriteJSON(w, http.StatusOK, resp)
+
+	return fmt.Errorf("method not allowed %s", r.Method)
+
 }
 
 func createJWT(user *user.User) (string, error) {
