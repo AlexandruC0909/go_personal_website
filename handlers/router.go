@@ -10,6 +10,7 @@ import (
 	database "go_api/database"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 type ApiRouter struct {
@@ -28,7 +29,17 @@ func NewAPIServer(listenAddress string, store database.Methods) *ApiRouter {
 	}
 }
 func (s *ApiRouter) Run() {
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"}, // Replace with your front-end URL
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"*"},
+		AllowCredentials: true,
+		Debug:            true,
+	})
+
 	router := mux.NewRouter()
+	router.Use(c.Handler)
+
 	router.HandleFunc("/auth/login", makeHTTPHandleFunc(s.handleLogin))
 	router.HandleFunc("/auth/refresh", makeHTTPHandleFunc(s.handleRefresh))
 	router.HandleFunc("/auth/register", makeHTTPHandleFunc(s.handleRegister))

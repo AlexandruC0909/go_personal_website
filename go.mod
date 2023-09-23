@@ -18,4 +18,5 @@ require (
 require (
 	github.com/golang-jwt/jwt/v5 v5.0.0 // indirect
 	github.com/golang-migrate/migrate/v4 v4.16.2
+	github.com/rs/cors v1.10.0
 )
