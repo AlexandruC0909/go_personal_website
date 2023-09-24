@@ -60,7 +60,7 @@ func (s *ApiRouter) UploadImages(w http.ResponseWriter, r *http.Request) error {
 			return err
 		}
 
-		newFileName := fmt.Sprintf("./uploads/%d%s", time.Now().UnixNano(), filepath.Ext(fileHeader.Filename))
+		newFileName := fmt.Sprintf("../uploads/%d%s", time.Now().UnixNano(), filepath.Ext(fileHeader.Filename))
 		f, err := os.Create(newFileName)
 		if err != nil {
 			return err
