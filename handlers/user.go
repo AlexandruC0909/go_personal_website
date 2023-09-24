@@ -22,8 +22,11 @@ func (s *ApiRouter) handleGetUsers(w http.ResponseWriter, r *http.Request) error
 	if err != nil {
 		return err
 	}
-
-	tmpl, err := template.ParseFiles("../templates/user/usersList.html")
+	files := []string{
+		"../templates/ui/base.html",
+		"../templates/user/usersList.html",
+	}
+	tmpl, err := template.ParseFiles(files...)
 	if err != nil {
 		return err
 	}

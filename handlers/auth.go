@@ -38,6 +38,7 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if r.Method == "POST" {
+
 		var req types.LoginRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			return err
@@ -45,11 +46,19 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 
 		user, err := s.store.GetUserByEmail(req.Email)
 		if err != nil {
-			return err
+			// Send a JSON response indicating user not found
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusNotFound)
+
+			return nil
 		}
 
 		if !user.ValidPassword(req.Password) {
-			return fmt.Errorf("not authenticated")
+			// Send a JSON response indicating user not found
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusNotFound)
+
+			return nil
 		}
 
 		token, err := createJWT(user)
@@ -59,7 +68,7 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 		w.Header().Set("Pragma", "no-cache")
 		w.Header().Set("Expires", "0")
-
+		w.Header().Set("HX-Redirect", "/users/"+strconv.Itoa(user.ID))
 		http.SetCookie(w, &http.Cookie{
 			Name:     "access_token",
 			Value:    token,
@@ -68,7 +77,6 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 			Path:     "/",
 			Domain:   "localhost", // Set to the appropriate domain for your environment
 		})
-		http.Redirect(w, r, "/users/"+strconv.Itoa(user.ID), http.StatusMovedPermanently)
 
 	}
 
