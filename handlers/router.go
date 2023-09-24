@@ -52,6 +52,7 @@ func (s *ApiRouter) Run() {
 	router.HandleFunc("/users/{id}", withJWTAuth(makeHTTPHandleFunc(s.handleUserById), s.store))
 	router.HandleFunc("/users/{id}/upload", withJWTAuth(makeHTTPHandleFunc(s.UploadImages), s.store))
 
+	router.HandleFunc("/posts", withJWTAuth(makeHTTPHandleFunc(s.handleGetPosts), s.store))
 	log.Println("JSON API server running on port:", s.listenAddress)
 
 	http.ListenAndServe(s.listenAddress, router)

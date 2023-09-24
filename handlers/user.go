@@ -49,7 +49,14 @@ func (s *ApiRouter) handleUserById(w http.ResponseWriter, r *http.Request) error
 			return err
 		}
 
-		tmpl, err := template.ParseFiles("../templates/user/userDetails.html")
+		if err != nil {
+			return err
+		}
+		files := []string{
+			"../templates/ui/base.html",
+			"../templates/user/userDetails.html",
+		}
+		tmpl, err := template.ParseFiles(files...)
 		if err != nil {
 			return err
 		}
