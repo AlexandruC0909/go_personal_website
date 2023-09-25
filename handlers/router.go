@@ -40,15 +40,19 @@ func (s *ApiRouter) Run() {
 		Debug:            true,
 	})
 
+	/* 	customHeaders := map[string]string{
+		"Cache-Control":   "no-cache",
+		"X-Custom-Header": "Custom Value",
+		"Content-Type":    "image/jpeg",
+	} */
 	router := mux.NewRouter()
+	fileServer := http.FileServer(http.Dir("./static/uploads/"))
+	router.Handle("/uploads/", http.StripPrefix("/uploads", fileServer))
 
 	router.Use(c.Handler)
-	directory := flag.String("d", "./uploads", "the directory of static file to host")
 	flag.Parse()
 
 	router.NotFoundHandler = http.HandlerFunc(makeHTTPHandleFunc(s.handleNotFound))
-
-	router.Handle("/uploads", http.FileServer(http.Dir(*directory)))
 	router.HandleFunc("/auth/login", makeHTTPHandleFunc(s.handleLogin))
 	router.HandleFunc("/auth/refresh", makeHTTPHandleFunc(s.handleRefresh))
 	router.HandleFunc("/auth/register", makeHTTPHandleFunc(s.handleRegister))
@@ -63,7 +67,7 @@ func (s *ApiRouter) Run() {
 }
 
 func (s *ApiRouter) handleNotFound(w http.ResponseWriter, r *http.Request) error {
-	tmpl, err := template.ParseFiles("../templates/ui/page404.html")
+	tmpl, err := template.ParseFiles("templates/ui/page404.html")
 	if err != nil {
 		return err
 	}
