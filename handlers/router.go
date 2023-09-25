@@ -54,7 +54,6 @@ func (s *ApiRouter) Run() {
 
 	router.NotFoundHandler = http.HandlerFunc(makeHTTPHandleFunc(s.handleNotFound))
 	router.HandleFunc("/auth/login", makeHTTPHandleFunc(s.handleLogin))
-	router.HandleFunc("/auth/refresh", makeHTTPHandleFunc(s.handleRefresh))
 	router.HandleFunc("/auth/register", makeHTTPHandleFunc(s.handleRegister))
 	router.HandleFunc("/users", withJWTAuth(makeHTTPHandleFunc(s.handleGetUsers), s.store))
 
