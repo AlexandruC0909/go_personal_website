@@ -1,4 +1,4 @@
-# go_api
+# Personal site made with go.
 
 ## Status
 
