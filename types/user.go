@@ -11,6 +11,10 @@ type UpdateUserRequest struct {
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
 }
+type UpdateUserImageRequest struct {
+	ID       int    `json:"id"`
+	ImageURL string `json:"image_url"`
+}
 type User struct {
 	ID        int       `json:"id"`
 	FirstName string    `json:"firstName"`
@@ -20,6 +24,7 @@ type User struct {
 	Role      Role      `json:"role"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
+	ImageURL  string    `json:"imageURL"`
 }
 
 func NewUser(firstName, lastName, email, password string) (*User, error) {

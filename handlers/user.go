@@ -3,28 +3,17 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/http"
 
 	"go_api/types"
 )
 
 type UserHandler interface {
-	handleUsers(w http.ResponseWriter, r *http.Request) error
 	handleGetUsers(w http.ResponseWriter, r *http.Request) error
 	handleUserById(w http.ResponseWriter, r *http.Request) error
 	handleDeleteUser(w http.ResponseWriter, r *http.Request) error
 	handleUpdateUser(w http.ResponseWriter, r *http.Request) error
-}
-
-func (s *ApiRouter) handleUsers(w http.ResponseWriter, r *http.Request) error {
-	if r.Method == "GET" {
-		return s.handleGetUsers(w, r)
-	}
-	if r.Method == "POST" {
-		return s.handleRegister(w, r)
-	}
-
-	return fmt.Errorf("method not allowed %s", r.Method)
 }
 
 func (s *ApiRouter) handleGetUsers(w http.ResponseWriter, r *http.Request) error {
@@ -33,8 +22,19 @@ func (s *ApiRouter) handleGetUsers(w http.ResponseWriter, r *http.Request) error
 	if err != nil {
 		return err
 	}
-
-	return WriteJSON(w, http.StatusOK, users)
+	files := []string{
+		"../templates/ui/base.html",
+		"../templates/user/usersList.html",
+	}
+	tmpl, err := template.ParseFiles(files...)
+	if err != nil {
+		return err
+	}
+	err = tmpl.Execute(w, users)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *ApiRouter) handleUserById(w http.ResponseWriter, r *http.Request) error {
@@ -49,7 +49,22 @@ func (s *ApiRouter) handleUserById(w http.ResponseWriter, r *http.Request) error
 			return err
 		}
 
-		return WriteJSON(w, http.StatusOK, user)
+		if err != nil {
+			return err
+		}
+		files := []string{
+			"../templates/ui/base.html",
+			"../templates/user/userDetails.html",
+		}
+		tmpl, err := template.ParseFiles(files...)
+		if err != nil {
+			return err
+		}
+		err = tmpl.Execute(w, user)
+		if err != nil {
+			return err
+		}
+		return nil
 	}
 
 	if r.Method == "DELETE" {

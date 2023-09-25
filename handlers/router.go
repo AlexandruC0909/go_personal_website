@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"strconv"
@@ -10,6 +12,7 @@ import (
 	database "go_api/database"
 
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 )
 
 type ApiRouter struct {
@@ -27,17 +30,49 @@ func NewAPIServer(listenAddress string, store database.Methods) *ApiRouter {
 		store:         store,
 	}
 }
+
 func (s *ApiRouter) Run() {
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"}, // Replace with your front-end URL
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"*"},
+		AllowCredentials: true,
+		Debug:            true,
+	})
+
 	router := mux.NewRouter()
+
+	router.Use(c.Handler)
+	directory := flag.String("d", "./uploads", "the directory of static file to host")
+	flag.Parse()
+
+	router.NotFoundHandler = http.HandlerFunc(makeHTTPHandleFunc(s.handleNotFound))
+
+	router.Handle("/uploads", http.FileServer(http.Dir(*directory)))
 	router.HandleFunc("/auth/login", makeHTTPHandleFunc(s.handleLogin))
 	router.HandleFunc("/auth/refresh", makeHTTPHandleFunc(s.handleRefresh))
 	router.HandleFunc("/auth/register", makeHTTPHandleFunc(s.handleRegister))
-	router.HandleFunc("/users", withRoleAuth("admin", s.store, makeHTTPHandleFunc(s.handleUsers)))
-	router.HandleFunc("/users/{id}", withJWTAuth(makeHTTPHandleFunc(s.handleUserById), s.store))
+	router.HandleFunc("/users", withJWTAuth(makeHTTPHandleFunc(s.handleGetUsers), s.store))
 
+	router.HandleFunc("/users/{id}", withJWTAuth(makeHTTPHandleFunc(s.handleUserById), s.store))
+	router.HandleFunc("/users/{id}/upload", withJWTAuth(makeHTTPHandleFunc(s.UploadImages), s.store))
+	router.HandleFunc("/posts", withJWTAuth(makeHTTPHandleFunc(s.handleGetPosts), s.store))
 	log.Println("JSON API server running on port:", s.listenAddress)
 
 	http.ListenAndServe(s.listenAddress, router)
+}
+
+func (s *ApiRouter) handleNotFound(w http.ResponseWriter, r *http.Request) error {
+	tmpl, err := template.ParseFiles("../templates/ui/page404.html")
+	if err != nil {
+		return err
+	}
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 type apiFunc func(http.ResponseWriter, *http.Request) error
