@@ -50,7 +50,7 @@ func (s *ApiRouter) UploadImages(w http.ResponseWriter, r *http.Request) error {
 			return fmt.Errorf("The provided file format is not allowed. Please upload a JPEG, JPG, or PNG image")
 		}
 
-		err = os.MkdirAll("../static/uploads", os.ModePerm)
+		err = os.MkdirAll("./static/uploads", os.ModePerm)
 		if err != nil {
 			return err
 		}
@@ -60,7 +60,7 @@ func (s *ApiRouter) UploadImages(w http.ResponseWriter, r *http.Request) error {
 			return err
 		}
 
-		newFileName := fmt.Sprintf("../static/uploads/%d%s", time.Now().UnixNano(), filepath.Ext(fileHeader.Filename))
+		newFileName := fmt.Sprintf("./static/uploads/%d%s", time.Now().UnixNano(), filepath.Ext(fileHeader.Filename))
 		f, err := os.Create(newFileName)
 		if err != nil {
 			return err
