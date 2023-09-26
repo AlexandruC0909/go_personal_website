@@ -1,4 +1,4 @@
-# go_api
+# Personal site made with go.
 
 ## Status
 
@@ -11,12 +11,10 @@
 
 ## Create deployment Pull Request
 
-- [Create a STAGING deployment](https://github.com/AlexandruC0909/go_api/compare/staging...develop?quick_pull=1&title=Deploy+to+STAGING+vX.X.X-staging.X&labels=deployment)
 - [Create a PROD deployment](https://github.com/AlexandruC0909/go_api/compare/prod...staging?quick_pull=1&title=Deploy+to+PROD+vX.X.X&labels=deployment)
 
 ## Create Release
 
-- [Create a STAGING release](https://github.com/AlexandruC0909/go_api/releases/new?tag=vX.X.X-staging.X&target=staging&title=Deploy+vX.X.X-staging.X+into+STAGING&body=%23%23+:wrench:+Technical+issues:%0A%0A%23%23+:bulb:+Functional+issues:%0A%0AMerge+commit%3A&prerelease=1)
 - [Create a PROD release](https://github.com/AlexandruC0909/go_api/releases/new?tag=vX.X.X&target=master&title=Deploy+vX.X.X+into+PROD&body=%23%23+:wrench:+Technical+issues:%0A%0A%23%23+:bulb:+Functional+issues:%0A%0AMerge+commit%3A&prerelease=0)
 
 [![codecov](https://codecov.io/github/AlexandruC0909/go_api/graphs/icicle.svg?token=6DTLMS8GSE)](https://codecov.io/github/AlexandruC0909/go_api)
