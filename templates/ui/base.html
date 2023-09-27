@@ -17,7 +17,14 @@
 
     <!-- Sidebar -->
     <aside class="h-full w-16 flex flex-col space-y-10 items-center justify-center relative bg-gray-800 text-white">
-      <!-- Profile -->
+      <div class="line-container">
+        <svg class="svg-animation" width="1" height="600" preservAspectRatio="xMidyMax"
+          xmlns="http://www.w3.org/2000/svg">
+          <path id="svg-animation-path" class="path" pathLength="1" d="M 0 0 L 0 1080" stroke="white"
+            stroke-width="2" />
+        </svg>
+      </div>
+
       <a href="/home">
         <div
           class="h-10 w-10 flex items-center justify-center rounded-lg cursor-pointer hover:text-gray-800 hover:bg-white  hover:duration-300 hover:ease-linear focus:bg-white">
@@ -30,8 +37,6 @@
           </svg>
         </div>
       </a>
-
-      <!-- Courses -->
       <a href="/posts">
         <div
           class="h-10 w-10 flex items-center justify-center rounded-lg cursor-pointer hover:text-gray-800 hover:bg-white  hover:duration-300 hover:ease-linear focus:bg-white">
@@ -41,7 +46,6 @@
           </svg>
         </div>
       </a>
-      <!-- Theme -->
       <div id="theme-toggle"
         class="h-10 w-10 flex items-center justify-center rounded-lg cursor-pointer hover:text-gray-800 hover:bg-white  hover:duration-300 hover:ease-linear focus:bg-white">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -49,7 +53,6 @@
             d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
         </svg>
       </div>
-
       <div
         class="h-10 w-10 flex items-center justify-center rounded-lg cursor-pointer hover:text-gray-800 hover:bg-white  hover:duration-300 hover:ease-linear focus:bg-white">
         <svg fill="#ffffff" height="18px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -62,10 +65,7 @@
           </path>
         </svg>
       </div>
-
-
     </aside>
-
     <!-- Main -->
     <main class=" w-full flex relative overflow-auto ">
       <div class="container mx-auto">{{block "content" .}}{{end}}</div>
@@ -73,71 +73,67 @@
 
     </main>
   </div>
-
-  </div>
-
-  <!-- Content will be injected here -->
   <script>
+    /* document.addEventListener('DOMContentLoaded', () => {
+      let path = document.getElementById('svg-animation-path');
+      let pathLength = path.getTotalLength();
+      path.style.strokeDasharray = pathLength;
+      path.style.strokeDashoffset = pathLength;
 
-    var themeToggleBtn = document.getElementById("theme-toggle");
+      window.addEventListener('scroll', () => {
+        var scrollPercentage = (window.scrollY + window.innerHeight) / document.body.clientHeight;
+        var drawLength = pathLength * (1 - scrollPercentage);
 
-    themeToggleBtn.addEventListener("click", function () {
-      // toggle icons inside button
-
-      // if set via local storage previously
-      if (localStorage.getItem("color-theme")) {
-        if (localStorage.getItem("color-theme") === "light") {
-          document.documentElement.classList.add("dark");
-          localStorage.setItem("color-theme", "dark");
-        } else {
-          document.documentElement.classList.remove("dark");
-          localStorage.setItem("color-theme", "light");
-        }
-
-        // if NOT set via local storage previously
-      } else {
-        if (document.documentElement.classList.contains("dark")) {
-          document.documentElement.classList.remove("dark");
-          localStorage.setItem("color-theme", "light");
-        } else {
-          document.documentElement.classList.add("dark");
-          localStorage.setItem("color-theme", "dark");
-        }
-      }
+        path.style.strokeDashoffset = drawLength;
+      });
     });
-    // Get the button element
+    let path = document.getElementById('svg-animation-path');
+    let pathLength = path.getTotalLength();
+    path.style.strokeDasharray = pathLength;
+    path.style.strokeDashoffset = pathLength;
 
+    window.addEventListener('scroll', () => {
+      var scrollPercentage = (window.scrollY + window.innerHeight) / document.body.clientHeight;
+      var drawLength = pathLength * (1 - scrollPercentage);
 
-    // Store the last scroll position
-
-    // Add a scroll event listener to the window
-    let lastScrollPosition = window.scrollY;
-
-    (function () {
-      document.addEventListener('scroll', hide, true);
-      var x = 0;
-      function hide() {
-
-        const button = document.querySelector(".hidden-button");
-        const currentScrollPosition = window.scrollY;
-
-        // Check if the user is scrolling up
-        if (currentScrollPosition < lastScrollPosition) {
-          // Scroll is going up, show the button
-          button.style.display = "block";
-          lastScrollPosition = currentScrollPosition;
-
-        } else {
-          // Scroll is going down, hide the button
-          button.style.display = "none";
-        }
-      }
-    })();
+      path.style.strokeDashoffset = drawLength;
+    }); */
   </script>
+
+
+
+
+
+
 </body>
 
 </html>
 <style>
+  .path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: dash 5s linear alternate infinite;
+  }
+
+  @keyframes dash {
+    from {
+      stroke-dashoffset: 1;
+    }
+
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .line-container {
+    position: absolute;
+  }
+
+  .svg-animation {
+    display: inline-block;
+    height: 100%;
+  }
+
   ::-webkit-scrollbar {
     width: 7px;
   }
