@@ -17,7 +17,7 @@
     <!-- Sidebar -->
     <aside class="h-full w-16 flex flex-col space-y-10 items-center justify-center relative bg-gray-800 text-white">
       <!-- Profile -->
-      <a href="/users">
+      <a href="/home">
         <div
           class="h-10 w-10 flex items-center justify-center rounded-lg cursor-pointer hover:text-gray-800 hover:bg-white  hover:duration-300 hover:ease-linear focus:bg-white">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -85,6 +85,7 @@
             <!-- Título -->
             <div class="text-sm font-regular">Student</div>
           </div>
+          <button class="hidden-button bg-blue-500 text-white py-2 px-4 rounded-lg">Your Button</button>
 
           <!-- Foto -->
           <div class="h-10 w-10 rounded-full cursor-pointer bg-gray-200 border-2 border-blue-400"></div>
@@ -136,6 +137,34 @@
         }
       }
     });
+    // Get the button element
+
+
+    // Store the last scroll position
+
+    // Add a scroll event listener to the window
+    let lastScrollPosition = window.scrollY;
+
+    (function () {
+      document.addEventListener('scroll', hide, true);
+      var x = 0;
+      function hide() {
+
+        const button = document.querySelector(".hidden-button");
+        const currentScrollPosition = window.scrollY;
+
+        // Check if the user is scrolling up
+        if (currentScrollPosition < lastScrollPosition) {
+          // Scroll is going up, show the button
+          button.style.display = "block";
+          lastScrollPosition = currentScrollPosition;
+
+        } else {
+          // Scroll is going down, hide the button
+          button.style.display = "none";
+        }
+      }
+    })();
   </script>
 </body>
 

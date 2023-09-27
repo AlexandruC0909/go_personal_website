@@ -53,6 +53,7 @@ func (s *ApiRouter) Run() {
 	flag.Parse()
 
 	router.NotFoundHandler = http.HandlerFunc(makeHTTPHandleFunc(s.handleNotFound))
+	router.HandleFunc("/home", makeHTTPHandleFunc(s.handleHome))
 	router.HandleFunc("/auth/login", makeHTTPHandleFunc(s.handleLogin))
 	router.HandleFunc("/auth/register", makeHTTPHandleFunc(s.handleRegister))
 	router.HandleFunc("/users", withJWTAuth(makeHTTPHandleFunc(s.handleGetUsers), s.store))
@@ -64,7 +65,22 @@ func (s *ApiRouter) Run() {
 
 	http.ListenAndServe(s.listenAddress, router)
 }
+func (s *ApiRouter) handleHome(w http.ResponseWriter, r *http.Request) error {
 
+	files := []string{
+		"templates/ui/base.html",
+		"templates/ui/home.html",
+	}
+	tmpl, err := template.ParseFiles(files...)
+	if err != nil {
+		return err
+	}
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 func (s *ApiRouter) handleNotFound(w http.ResponseWriter, r *http.Request) error {
 	tmpl, err := template.ParseFiles("templates/ui/page404.html")
 	if err != nil {
