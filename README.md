@@ -5,7 +5,7 @@
 | Environment | N/A | PROD |
 | --- | --- | --- |
 | Branch | develop | prod |
-| URL | N/A | [PROD API](https://app.baietiiRai.com/api) |
+| URL | N/A | [PROD URL](https://baietiiRai.com/api) |
 | Coverage | [![codecov](https://codecov.io/github/AlexandruC0909/go_api/graph/badge.svg?token=6DTLMS8GSE)](https://codecov.io/github/AlexandruC0909/go_api) | [![codecov](https://codecov.io/github/AlexandruC0909/go_api/graph/badge.svg?token=6DTLMS8GSE)](https://codecov.io/github/AlexandruC0909/go_api) |
 | Last Commit | <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/AlexandruC0909/go_api/develop"> | <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/AlexandruC0909/go_api/prod"> |
 
