@@ -56,6 +56,8 @@ func (s *ApiRouter) Run() {
 
 	router.HandleFunc("/home", makeHTTPHandleFunc(s.handleHome))
 	router.HandleFunc("/auth/login", makeHTTPHandleFunc(s.handleLogin))
+	router.HandleFunc("/auth/logout", makeHTTPHandleFunc(s.handleLogout))
+
 	router.HandleFunc("/auth/register", makeHTTPHandleFunc(s.handleRegister))
 	router.HandleFunc("/users", withJWTAuth(makeHTTPHandleFunc(s.handleGetUsers), s.store))
 
