@@ -11,8 +11,8 @@ type PostsHandler interface {
 
 func (s *ApiRouter) handleGetPosts(w http.ResponseWriter, r *http.Request) error {
 	files := []string{
-		"../templates/ui/base.html",
-		"../templates/posts/postsList.html",
+		"templates/ui/base.html",
+		"templates/posts/postsList.html",
 	}
 	tmpl, err := template.ParseFiles(files...)
 	if err != nil {

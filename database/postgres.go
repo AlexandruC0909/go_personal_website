@@ -23,7 +23,7 @@ func NewPostgresDbConnection() (*DbConnection, error) {
 
 	// Create a new migration instance
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://../database/migrations",
+		"file://database/migrations",
 		"postgres",
 		driver)
 	if err != nil {

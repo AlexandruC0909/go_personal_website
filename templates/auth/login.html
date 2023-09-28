@@ -54,7 +54,6 @@
                 const responseData = JSON.parse(event.detail.xhr.response);
 
                 if (responseData.user) {
-                    // Store user data in local storage
                     localStorage.setItem('user', JSON.stringify(responseData.user));
                 }
             }

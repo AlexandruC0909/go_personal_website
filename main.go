@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	database "go_api/database"
+	"go_api/database"
 	server "go_api/handlers"
 	"log"
 	"os"

@@ -23,8 +23,8 @@ func (s *ApiRouter) handleGetUsers(w http.ResponseWriter, r *http.Request) error
 		return err
 	}
 	files := []string{
-		"../templates/ui/base.html",
-		"../templates/user/usersList.html",
+		"templates/ui/base.html",
+		"templates/user/usersList.html",
 	}
 	tmpl, err := template.ParseFiles(files...)
 	if err != nil {
@@ -53,8 +53,8 @@ func (s *ApiRouter) handleUserById(w http.ResponseWriter, r *http.Request) error
 			return err
 		}
 		files := []string{
-			"../templates/ui/base.html",
-			"../templates/user/userDetails.html",
+			"templates/ui/base.html",
+			"templates/user/userDetails.html",
 		}
 		tmpl, err := template.ParseFiles(files...)
 		if err != nil {

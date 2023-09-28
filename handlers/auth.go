@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 
 	database "go_api/database"
@@ -19,13 +18,12 @@ import (
 
 type AuthHandler interface {
 	handleLogin(w http.ResponseWriter, r *http.Request) error
-	handleRefresh(w http.ResponseWriter, r *http.Request) error
 	handleRegister(w http.ResponseWriter, r *http.Request) error
 }
 
 func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
-		tmpl, err := template.ParseFiles("../templates/auth/login.html")
+		tmpl, err := template.ParseFiles("templates/auth/login.html")
 		if err != nil {
 			return err
 		}
@@ -65,14 +63,17 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			return err
 		}
-		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-		w.Header().Set("Pragma", "no-cache")
-		w.Header().Set("Expires", "0")
 		w.Header().Set("HX-Redirect", "/users/"+strconv.Itoa(user.ID))
 		http.SetCookie(w, &http.Cookie{
 			Name:     "access_token",
 			Value:    token,
-			Expires:  time.Now().Add(60 * time.Minute),
+			HttpOnly: true,
+			Path:     "/",
+			Domain:   "localhost", // Set to the appropriate domain for your environment
+		})
+		http.SetCookie(w, &http.Cookie{
+			Name:     "email",
+			Value:    user.Email,
 			HttpOnly: true,
 			Path:     "/",
 			Domain:   "localhost", // Set to the appropriate domain for your environment
@@ -83,37 +84,9 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 	return fmt.Errorf("method not allowed %s", r.Method)
 }
 
-func (s *ApiRouter) handleRefresh(w http.ResponseWriter, r *http.Request) error {
-	if r.Method != "POST" {
-		return fmt.Errorf("method not allowed %s", r.Method)
-	}
-
-	var req types.LoginRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return err
-	}
-
-	user, err := s.store.GetUserByEmail(req.Email)
-	if err != nil {
-		return err
-	}
-
-	token, err := refreshToken(w, r, user)
-	if err != nil {
-		return err
-	}
-
-	resp := types.LoginResponse{
-		Token: token,
-		Email: user.Email,
-	}
-
-	return WriteJSON(w, http.StatusOK, resp)
-}
-
 func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
-		tmpl, err := template.ParseFiles("../templates/auth/register.html")
+		tmpl, err := template.ParseFiles("templates/auth/register.html")
 		if err != nil {
 			return err
 		}
@@ -147,14 +120,9 @@ func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error
 			return err
 		}
 
-		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-		w.Header().Set("Pragma", "no-cache")
-		w.Header().Set("Expires", "0")
-
 		http.SetCookie(w, &http.Cookie{
 			Name:     "access_token",
 			Value:    token,
-			Expires:  time.Now().Add(60 * time.Minute),
 			HttpOnly: true,
 			Path:     "/",
 			Domain:   "localhost", // Set to the appropriate domain for your environment
@@ -168,7 +136,7 @@ func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error
 
 func createJWT(user *user.User) (string, error) {
 
-	expirationTime := time.Now().Add(60 * time.Minute)
+	expirationTime := time.Now().Add(20 * time.Second)
 
 	claims := &types.LoginResponse{
 		Email: user.Email,
@@ -197,15 +165,13 @@ func validateJWT(tokenString string) (*jwt.Token, error) {
 
 		return []byte(secret), nil
 	})
+
 }
 
-func refreshToken(w http.ResponseWriter, r *http.Request, user *user.User) (string, error) {
+func refreshToken(w http.ResponseWriter, r *http.Request, user *user.User) error {
 	secret := os.Getenv("JWT_SECRET")
 
-	tokenString := r.Header.Get("Authorization")
-	splitToken := strings.Split(tokenString, "Bearer ")
-	tokenString = splitToken[1]
-
+	tokenString, _ := extractTokenFromRequest(r)
 	claims := &types.LoginResponse{}
 
 	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
@@ -217,33 +183,59 @@ func refreshToken(w http.ResponseWriter, r *http.Request, user *user.User) (stri
 		return []byte(secret), nil
 	})
 
-	if time.Until(claims.ExpiresAt.Time) > 30*time.Second {
-		w.WriteHeader(http.StatusBadRequest)
-		return tokenString, err
-	}
 	claims.RegisteredClaims.ExpiresAt = jwt.NewNumericDate(time.Now())
 
-	return createJWT(user)
+	token, err := createJWT(user)
+	if err != nil {
+		return err
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
+		Value:    token,
+		HttpOnly: true,
+		Path:     "/",
+		Domain:   "localhost", // Set to the appropriate domain for your environment
+	})
+	return nil
 }
 
 func withJWTAuth(handlerFunc http.HandlerFunc, s database.Methods) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		secret := os.Getenv("JWT_SECRET")
+
 		fmt.Println("calling JWT auth middleware")
 		tokenString, _ := extractTokenFromRequest(r)
+		claims := &types.LoginResponse{}
+		jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			}
 
-		token, err := validateJWT(tokenString)
-		if err != nil {
-			permissionDenied(w)
-			return
-		}
-		if !token.Valid {
-			permissionDenied(w)
-			return
-		}
+			// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
+			return []byte(secret), nil
+		})
+		if time.Until(claims.ExpiresAt.Time) < 1*time.Second {
+			cookie, _ := r.Cookie("email")
 
-		if err != nil {
-			WriteJSON(w, http.StatusForbidden, ApiError{Error: "invalid token"})
-			return
+			user, _ := s.GetUserByEmail(cookie.Value)
+			refreshToken(w, r, user)
+		} else {
+
+			token, err := validateJWT(tokenString)
+			if err != nil {
+				permissionDenied(w)
+				return
+			}
+			if !token.Valid {
+				permissionDenied(w)
+				return
+			}
+			if err != nil {
+				WriteJSON(w, http.StatusForbidden, ApiError{Error: "invalid token"})
+				return
+			}
+
 		}
 
 		handlerFunc(w, r)

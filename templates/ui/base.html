@@ -6,7 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>User Details</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet" />
-  <script src="https://unpkg.com/htmx.org@1.7.1/dist/htmx.js"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.6"
+    integrity="sha384-FhXw7b6AlE/jyjlZH5iHa/tTe9EpJ1Y55RjcgPbjeWMskSxZt1v9qkxLJWNJaGni"
+    crossorigin="anonymous"></script>
+  <script src="./static/js/taiwind.config.js"></script>
 </head>
 
 <body>
@@ -14,8 +17,15 @@
 
     <!-- Sidebar -->
     <aside class="h-full w-16 flex flex-col space-y-10 items-center justify-center relative bg-gray-800 text-white">
-      <!-- Profile -->
-      <a href="/users">
+      <div class="line-container">
+        <svg class="svg-animation" width="1" height="600" preservAspectRatio="xMidyMax"
+          xmlns="http://www.w3.org/2000/svg">
+          <path id="svg-animation-path" class="path" pathLength="1" d="M 0 0 L 0 1080" stroke="white"
+            stroke-width="2" />
+        </svg>
+      </div>
+
+      <a href="/home">
         <div
           class="h-10 w-10 flex items-center justify-center rounded-lg cursor-pointer hover:text-gray-800 hover:bg-white  hover:duration-300 hover:ease-linear focus:bg-white">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -27,8 +37,6 @@
           </svg>
         </div>
       </a>
-
-      <!-- Courses -->
       <a href="/posts">
         <div
           class="h-10 w-10 flex items-center justify-center rounded-lg cursor-pointer hover:text-gray-800 hover:bg-white  hover:duration-300 hover:ease-linear focus:bg-white">
@@ -38,7 +46,6 @@
           </svg>
         </div>
       </a>
-      <!-- Theme -->
       <div id="theme-toggle"
         class="h-10 w-10 flex items-center justify-center rounded-lg cursor-pointer hover:text-gray-800 hover:bg-white  hover:duration-300 hover:ease-linear focus:bg-white">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -46,95 +53,110 @@
             d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
         </svg>
       </div>
-
-      <!-- Configuration -->
       <div
         class="h-10 w-10 flex items-center justify-center rounded-lg cursor-pointer hover:text-gray-800 hover:bg-white  hover:duration-300 hover:ease-linear focus:bg-white">
-        <a href="/auth/login">
-          <button type="button"
-            class="text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5">
-            <svg fill="#ffffff" height="18px" xmlns="http://www.w3.org/2000/svg"
-              xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 471.2 471.2" xml:space="preserve"
-              transform="rotate(180)" stroke="#ffffff" stroke-width="20">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="20"
-                d="M227.619,444.2h-122.9c-33.4,0-60.5-27.2-60.5-60.5V87.5c0-33.4,27.2-60.5,60.5-60.5h124.9c7.5,0,13.5-6,13.5-13.5 s-6-13.5-13.5-13.5h-124.9c-48.3,0-87.5,39.3-87.5,87.5v296.2c0,48.3,39.3,87.5,87.5,87.5h122.9c7.5,0,13.5-6,13.5-13.5 S235.019,444.2,227.619,444.2z">
-              </path>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="20"
-                d="M450.019,226.1l-85.8-85.8c-5.3-5.3-13.8-5.3-19.1,0c-5.3,5.3-5.3,13.8,0,19.1l62.8,62.8h-273.9c-7.5,0-13.5,6-13.5,13.5 s6,13.5,13.5,13.5h273.9l-62.8,62.8c-5.3,5.3-5.3,13.8,0,19.1c2.6,2.6,6.1,4,9.5,4s6.9-1.3,9.5-4l85.8-85.8 C455.319,239.9,455.319,231.3,450.019,226.1z">
-              </path>
-            </svg>
-          </button>
-        </a>
+        <svg fill="#ffffff" height="18px" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+          viewBox="0 0 471.2 471.2" xml:space="preserve" transform="rotate(180)" stroke="#ffffff" stroke-width="20">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="20"
+            d="M227.619,444.2h-122.9c-33.4,0-60.5-27.2-60.5-60.5V87.5c0-33.4,27.2-60.5,60.5-60.5h124.9c7.5,0,13.5-6,13.5-13.5 s-6-13.5-13.5-13.5h-124.9c-48.3,0-87.5,39.3-87.5,87.5v296.2c0,48.3,39.3,87.5,87.5,87.5h122.9c7.5,0,13.5-6,13.5-13.5 S235.019,444.2,227.619,444.2z">
+          </path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="20"
+            d="M450.019,226.1l-85.8-85.8c-5.3-5.3-13.8-5.3-19.1,0c-5.3,5.3-5.3,13.8,0,19.1l62.8,62.8h-273.9c-7.5,0-13.5,6-13.5,13.5 s6,13.5,13.5,13.5h273.9l-62.8,62.8c-5.3,5.3-5.3,13.8,0,19.1c2.6,2.6,6.1,4,9.5,4s6.9-1.3,9.5-4l85.8-85.8 C455.319,239.9,455.319,231.3,450.019,226.1z">
+          </path>
+        </svg>
       </div>
     </aside>
+    <!-- Main -->
+    <main class=" w-full flex relative overflow-auto ">
+      <div class="container mx-auto">{{block "content" .}}{{end}}</div>
 
 
-
-    <div class="w-full h-full flex flex-col justify-between">
-      <!-- Header -->
-      <header class="h-16 w-full flex items-center relative justify-end px-5 space-x-10 bg-gray-800">
-        <!-- Informação -->
-        <div class="flex flex-shrink-0 items-center space-x-4 text-white">
-
-          <!-- Texto -->
-          <div class="flex flex-col items-end ">
-            <!-- Nome -->
-            <div class="text-md font-medium ">Alex</div>
-            <!-- Título -->
-            <div class="text-sm font-regular">Student</div>
-          </div>
-
-          <!-- Foto -->
-          <div class="h-10 w-10 rounded-full cursor-pointer bg-gray-200 border-2 border-blue-400"></div>
-        </div>
-      </header>
-
-      <!-- Main -->
-      <main class="flex relative overflow-auto ">
-        <div class="container mx-auto">{{block "content" .}}{{end}}</div>
-
-
-      </main>
-    </div>
-
+    </main>
   </div>
-
-  <!-- Content will be injected here -->
   <script>
-    const tailwindConfig = {
-      darkMode: 'class',
-      // ... other configuration options ...
-    };
+    /* document.addEventListener('DOMContentLoaded', () => {
+      let path = document.getElementById('svg-animation-path');
+      let pathLength = path.getTotalLength();
+      path.style.strokeDasharray = pathLength;
+      path.style.strokeDashoffset = pathLength;
 
+      window.addEventListener('scroll', () => {
+        var scrollPercentage = (window.scrollY + window.innerHeight) / document.body.clientHeight;
+        var drawLength = pathLength * (1 - scrollPercentage);
 
-
-    var themeToggleBtn = document.getElementById("theme-toggle");
-
-    themeToggleBtn.addEventListener("click", function () {
-      // toggle icons inside button
-
-      // if set via local storage previously
-      if (localStorage.getItem("color-theme")) {
-        if (localStorage.getItem("color-theme") === "light") {
-          document.documentElement.classList.add("dark");
-          localStorage.setItem("color-theme", "dark");
-        } else {
-          document.documentElement.classList.remove("dark");
-          localStorage.setItem("color-theme", "light");
-        }
-
-        // if NOT set via local storage previously
-      } else {
-        if (document.documentElement.classList.contains("dark")) {
-          document.documentElement.classList.remove("dark");
-          localStorage.setItem("color-theme", "light");
-        } else {
-          document.documentElement.classList.add("dark");
-          localStorage.setItem("color-theme", "dark");
-        }
-      }
+        path.style.strokeDashoffset = drawLength;
+      });
     });
+    let path = document.getElementById('svg-animation-path');
+    let pathLength = path.getTotalLength();
+    path.style.strokeDasharray = pathLength;
+    path.style.strokeDashoffset = pathLength;
+
+    window.addEventListener('scroll', () => {
+      var scrollPercentage = (window.scrollY + window.innerHeight) / document.body.clientHeight;
+      var drawLength = pathLength * (1 - scrollPercentage);
+
+      path.style.strokeDashoffset = drawLength;
+    }); */
   </script>
+
+
+
+
+
+
 </body>
 
 </html>
+<style>
+  .path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: dash 5s linear alternate infinite;
+  }
+
+  @keyframes dash {
+    from {
+      stroke-dashoffset: 1;
+    }
+
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  .line-container {
+    position: absolute;
+  }
+
+  .svg-animation {
+    display: inline-block;
+    height: 100%;
+  }
+
+  ::-webkit-scrollbar {
+    width: 7px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: #202936;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #a5b6ce;
+    border-radius: 5px;
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #202936;
+  }
+
+  /* Add this CSS class to hide the menu */
+  .hidden {
+    transform: translateY(-100%);
+    transition: transform 0.3s ease-in-out;
+  }
+</style>

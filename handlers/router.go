@@ -7,12 +7,16 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
 
 	database "go_api/database"
 
-	"github.com/gorilla/mux"
-	"github.com/rs/cors"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 )
 
 type ApiRouter struct {
@@ -32,25 +36,26 @@ func NewAPIServer(listenAddress string, store database.Methods) *ApiRouter {
 }
 
 func (s *ApiRouter) Run() {
-	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"}, // Replace with your front-end URL
+
+	router := chi.NewRouter()
+	router.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"https://*", "http://*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"*"},
-		AllowCredentials: true,
-		Debug:            true,
-	})
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300,
+	}))
+	router.Use(middleware.Logger)
 
-	router := mux.NewRouter()
+	workDir, _ := os.Getwd()
+	filesDir := http.Dir(filepath.Join(workDir, "/static"))
+	FileServer(router, "/static", filesDir)
 
-	router.Use(c.Handler)
-	directory := flag.String("d", "./uploads", "the directory of static file to host")
 	flag.Parse()
 
-	router.NotFoundHandler = http.HandlerFunc(makeHTTPHandleFunc(s.handleNotFound))
-
-	router.Handle("/uploads", http.FileServer(http.Dir(*directory)))
+	router.HandleFunc("/home", makeHTTPHandleFunc(s.handleHome))
 	router.HandleFunc("/auth/login", makeHTTPHandleFunc(s.handleLogin))
-	router.HandleFunc("/auth/refresh", makeHTTPHandleFunc(s.handleRefresh))
 	router.HandleFunc("/auth/register", makeHTTPHandleFunc(s.handleRegister))
 	router.HandleFunc("/users", withJWTAuth(makeHTTPHandleFunc(s.handleGetUsers), s.store))
 
@@ -62,8 +67,42 @@ func (s *ApiRouter) Run() {
 	http.ListenAndServe(s.listenAddress, router)
 }
 
+func FileServer(r chi.Router, path string, root http.FileSystem) {
+	if strings.ContainsAny(path, "{}*") {
+		panic("FileServer does not permit any URL parameters.")
+	}
+
+	if path != "/" && path[len(path)-1] != '/' {
+		r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
+		path += "/"
+	}
+	path += "*"
+
+	r.Get(path, func(w http.ResponseWriter, r *http.Request) {
+		rctx := chi.RouteContext(r.Context())
+		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
+		fs := http.StripPrefix(pathPrefix, http.FileServer(root))
+		fs.ServeHTTP(w, r)
+	})
+}
+func (s *ApiRouter) handleHome(w http.ResponseWriter, r *http.Request) error {
+
+	files := []string{
+		"templates/ui/base.html",
+		"templates/ui/home.html",
+	}
+	tmpl, err := template.ParseFiles(files...)
+	if err != nil {
+		return err
+	}
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 func (s *ApiRouter) handleNotFound(w http.ResponseWriter, r *http.Request) error {
-	tmpl, err := template.ParseFiles("../templates/ui/page404.html")
+	tmpl, err := template.ParseFiles("templates/ui/page404.html")
 	if err != nil {
 		return err
 	}
@@ -92,7 +131,7 @@ func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
 }
 
 func getID(r *http.Request) (int, error) {
-	idStr := mux.Vars(r)["id"]
+	idStr := chi.URLParam(r, "id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
 		return id, fmt.Errorf("invalid id given %s", idStr)
