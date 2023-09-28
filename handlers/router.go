@@ -51,7 +51,7 @@ func (s *ApiRouter) Run() {
 	workDir, _ := os.Getwd()
 	filesDir := http.Dir(filepath.Join(workDir, "/static"))
 	FileServer(router, "/static", filesDir)
-
+	router.NotFound(makeHTTPHandleFunc(s.handleNotFound))
 	flag.Parse()
 
 	router.HandleFunc("/home", makeHTTPHandleFunc(s.handleHome))

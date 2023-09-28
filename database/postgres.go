@@ -21,7 +21,6 @@ func NewPostgresDbConnection() (*DbConnection, error) {
 		return nil, err
 	}
 
-	// Create a new migration instance
 	m, err := migrate.NewWithDatabaseInstance(
 		"file://database/migrations",
 		"postgres",
@@ -30,7 +29,6 @@ func NewPostgresDbConnection() (*DbConnection, error) {
 		return nil, err
 	}
 
-	// Run migrations
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
 		return nil, err
 	}

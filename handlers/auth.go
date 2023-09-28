@@ -141,7 +141,6 @@ func (s *ApiRouter) handleLogout(w http.ResponseWriter, r *http.Request) error {
 			Path:     "/",
 			Domain:   "localhost",
 		})
-		w.Header().Set("HX-Redirect", "/auth/login")
 		return nil
 	}
 
@@ -287,7 +286,6 @@ func withRoleAuth(requiredRole string, handlerFunc http.HandlerFunc, s database.
 				return
 			}
 
-			// Check if the user's role matches the required role
 			if user.Role.Name != requiredRole {
 				permissionDenied(w)
 				return

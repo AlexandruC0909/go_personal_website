@@ -13,7 +13,6 @@ type UploadHandler interface {
 	UploadImages(w http.ResponseWriter, r *http.Request) error
 }
 
-// handler to handle the image upload
 func (s *ApiRouter) UploadImages(w http.ResponseWriter, r *http.Request) error {
 
 	id, err := getID(r)
@@ -32,7 +31,6 @@ func (s *ApiRouter) UploadImages(w http.ResponseWriter, r *http.Request) error {
 	files := r.MultipartForm.File["file"]
 
 	for _, fileHeader := range files {
-		// Open the file
 		file, err := fileHeader.Open()
 		if err != nil {
 			return err
