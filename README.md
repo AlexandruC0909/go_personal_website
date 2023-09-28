@@ -1,15 +1,15 @@
-# Personal site made with go.
+# Personal Site Made with Go
 
 ## Status
 
-| Environment | N/A | STAGING | PROD |
-| --- | --- | --- | --- |
-| Branch | develop | staging | prod |
-| URL | N/A | [STAGING API](https:/baietiiRai.com/api)| [PROD API](https://app.baietiiRai.com/api) |
-| Coverage | [![codecov](https://codecov.io/github/AlexandruC0909/go_api/graph/badge.svg?token=6DTLMS8GSE)](https://codecov.io/github/AlexandruC0909/go_api) | [![codecov](https://codecov.io/github/AlexandruC0909/go_api/graph/badge.svg?token=6DTLMS8GSE)](https://codecov.io/github/AlexandruC0909/go_api) | [![codecov](https://codecov.io/github/AlexandruC0909/go_api/graph/badge.svg?token=6DTLMS8GSE)](https://codecov.io/github/AlexandruC0909/go_api) |
-|Last commit| <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/AlexandruC0909/go_api/develop"> | <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/AlexandruC0909/go_api/staging"> | <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/AlexandruC0909/go_api/prod">|
+| Environment | N/A | PROD |
+| --- | --- | --- |
+| Branch | develop | prod |
+| URL | N/A | [PROD URL](https://baietiiRai.com/api) |
+| Coverage | [![codecov](https://codecov.io/github/AlexandruC0909/go_api/graph/badge.svg?token=6DTLMS8GSE)](https://codecov.io/github/AlexandruC0909/go_api) | [![codecov](https://codecov.io/github/AlexandruC0909/go_api/graph/badge.svg?token=6DTLMS8GSE)](https://codecov.io/github/AlexandruC0909/go_api) |
+| Last Commit | <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/AlexandruC0909/go_api/develop"> | <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/AlexandruC0909/go_api/prod"> |
 
-## Create deployment Pull Request
+## Create Deployment Pull Request
 
 - [Create a PROD deployment](https://github.com/AlexandruC0909/go_api/compare/prod...staging?quick_pull=1&title=Deploy+to+PROD+vX.X.X&labels=deployment)
 
