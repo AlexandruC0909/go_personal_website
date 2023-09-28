@@ -20,8 +20,8 @@
       <div class="relative">
         <div
           class="w-48 h-48 bg-indigo-100 mx-auto rounded-full shadow-2xl absolute inset-x-0 top-0 -mt-24 flex items-center justify-center text-indigo-500">
-          <img class="h-full w-full rounded-full object-cover object-center" src={{.ImageURL}} alt="User Avatar"
-            onerror="this.src='../static/uploads/default_avatar.jpg'" />
+          <img id="profile_image" class="h-full w-full rounded-full object-cover object-center" src={{.ImageURL}}
+            alt="User Avatar" onerror="this.src='../static/uploads/default_avatar.jpg'" />
         </div>
       </div>
 
@@ -43,19 +43,15 @@
   </div>
 </div>
 <script>
-  function handleFormSuccess(event) {
-    if (event.detail.trigger === 'form#form') {
-      // Update the user's image on the page
-      const newImageUrl = event.detail.response.newImageUrl;
-      const userImage = document.getElementById('userAvatar');
-      if (userImage) {
-        userImage.src = newImageUrl;
-      }
-      alert('Image uploaded successfully!');
+  document.body.addEventListener('htmx:beforeSwap', function (evt) {
+    if (evt.detail.xhr.status === 404) {
+      alert("Error: Could Not Find Resource");
+    } else {
+      evt.detail.shouldSwap = false;
+      document.getElementById("profile_image").src = evt.detail.serverResponse;
     }
-  }
+  });
 
-  document.addEventListener('htmx:afterSwap', handleFormSuccess);
 </script>
 
 {{end}}
