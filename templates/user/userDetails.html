@@ -42,5 +42,20 @@
 
   </div>
 </div>
+<script>
+  function handleFormSuccess(event) {
+    if (event.detail.trigger === 'form#form') {
+      // Update the user's image on the page
+      const newImageUrl = event.detail.response.newImageUrl;
+      const userImage = document.getElementById('userAvatar');
+      if (userImage) {
+        userImage.src = newImageUrl;
+      }
+      alert('Image uploaded successfully!');
+    }
+  }
+
+  document.addEventListener('htmx:afterSwap', handleFormSuccess);
+</script>
 
 {{end}}

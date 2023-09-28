@@ -44,7 +44,6 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 
 		user, err := s.store.GetUserByEmail(req.Email)
 		if err != nil {
-			// Send a JSON response indicating user not found
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusNotFound)
 
@@ -52,7 +51,6 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 		}
 
 		if !user.ValidPassword(req.Password) {
-			// Send a JSON response indicating user not found
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusNotFound)
 
@@ -63,21 +61,21 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			return err
 		}
-		w.Header().Set("HX-Redirect", "/users/"+strconv.Itoa(user.ID))
 		http.SetCookie(w, &http.Cookie{
 			Name:     "access_token",
 			Value:    token,
 			HttpOnly: true,
 			Path:     "/",
-			Domain:   "localhost", // Set to the appropriate domain for your environment
+			Domain:   "localhost",
 		})
 		http.SetCookie(w, &http.Cookie{
 			Name:     "email",
 			Value:    user.Email,
 			HttpOnly: true,
 			Path:     "/",
-			Domain:   "localhost", // Set to the appropriate domain for your environment
+			Domain:   "localhost",
 		})
+		w.Header().Set("HX-Redirect", "/users/"+strconv.Itoa(user.ID))
 
 	}
 
@@ -125,7 +123,7 @@ func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error
 			Value:    token,
 			HttpOnly: true,
 			Path:     "/",
-			Domain:   "localhost", // Set to the appropriate domain for your environment
+			Domain:   "localhost",
 		})
 		http.Redirect(w, r, "/users/"+strconv.Itoa(user.ID), http.StatusMovedPermanently)
 	}
@@ -179,7 +177,6 @@ func refreshToken(w http.ResponseWriter, r *http.Request, user *user.User) error
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 
-		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
 		return []byte(secret), nil
 	})
 
@@ -195,7 +192,7 @@ func refreshToken(w http.ResponseWriter, r *http.Request, user *user.User) error
 		Value:    token,
 		HttpOnly: true,
 		Path:     "/",
-		Domain:   "localhost", // Set to the appropriate domain for your environment
+		Domain:   "localhost",
 	})
 	return nil
 }
@@ -212,7 +209,6 @@ func withJWTAuth(handlerFunc http.HandlerFunc, s database.Methods) http.HandlerF
 				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 			}
 
-			// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
 			return []byte(secret), nil
 		})
 		if time.Until(claims.ExpiresAt.Time) < 1*time.Second {

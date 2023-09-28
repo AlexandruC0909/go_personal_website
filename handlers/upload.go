@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -65,15 +66,34 @@ func (s *ApiRouter) UploadImages(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			return err
 		}
-		user.ImageURL = newFileName
-
+		if len(user.ImageURL) > 2 {
+			err := os.Remove(user.ImageURL[1:])
+			if err != nil {
+				return err
+			}
+		}
+		user.ImageURL = "." + newFileName
 		s.store.UpdateUserImage(user)
-		defer f.Close()
 
+		defer f.Close()
+		user, err := s.store.GetUser(id)
+		if err != nil {
+			return err
+		}
 		_, err = io.Copy(f, file)
 		if err != nil {
 			return err
 		}
+		response := map[string]interface{}{
+			"newImageUrl": user.ImageURL,
+		}
+		w.Header().Set("Content-Type", "application/json")
+
+		if err := json.NewEncoder(w).Encode(response); err != nil {
+			return err
+		}
+
+		return nil
 	}
 
 	return nil
