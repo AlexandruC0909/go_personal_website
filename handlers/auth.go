@@ -44,7 +44,6 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 
 		user, err := s.store.GetUserByEmail(req.Email)
 		if err != nil {
-			// Send a JSON response indicating user not found
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusNotFound)
 
@@ -52,7 +51,6 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 		}
 
 		if !user.ValidPassword(req.Password) {
-			// Send a JSON response indicating user not found
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusNotFound)
 
@@ -63,21 +61,21 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			return err
 		}
-		w.Header().Set("HX-Redirect", "/users/"+strconv.Itoa(user.ID))
 		http.SetCookie(w, &http.Cookie{
 			Name:     "access_token",
 			Value:    token,
 			HttpOnly: true,
 			Path:     "/",
-			Domain:   "localhost", // Set to the appropriate domain for your environment
+			Domain:   "localhost",
 		})
 		http.SetCookie(w, &http.Cookie{
 			Name:     "email",
 			Value:    user.Email,
 			HttpOnly: true,
 			Path:     "/",
-			Domain:   "localhost", // Set to the appropriate domain for your environment
+			Domain:   "localhost",
 		})
+		w.Header().Set("HX-Redirect", "/home")
 
 	}
 
@@ -125,9 +123,25 @@ func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error
 			Value:    token,
 			HttpOnly: true,
 			Path:     "/",
-			Domain:   "localhost", // Set to the appropriate domain for your environment
+			Domain:   "localhost",
 		})
-		http.Redirect(w, r, "/users/"+strconv.Itoa(user.ID), http.StatusMovedPermanently)
+		http.Redirect(w, r, "/home/"+strconv.Itoa(user.ID), http.StatusMovedPermanently)
+	}
+
+	return fmt.Errorf("method not allowed %s", r.Method)
+
+}
+
+func (s *ApiRouter) handleLogout(w http.ResponseWriter, r *http.Request) error {
+	if r.Method == "GET" {
+		http.SetCookie(w, &http.Cookie{
+			Name:     "access_token",
+			Value:    "",
+			HttpOnly: true,
+			Path:     "/",
+			Domain:   "localhost",
+		})
+		return nil
 	}
 
 	return fmt.Errorf("method not allowed %s", r.Method)
@@ -179,7 +193,6 @@ func refreshToken(w http.ResponseWriter, r *http.Request, user *user.User) error
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
 
-		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
 		return []byte(secret), nil
 	})
 
@@ -195,7 +208,7 @@ func refreshToken(w http.ResponseWriter, r *http.Request, user *user.User) error
 		Value:    token,
 		HttpOnly: true,
 		Path:     "/",
-		Domain:   "localhost", // Set to the appropriate domain for your environment
+		Domain:   "localhost",
 	})
 	return nil
 }
@@ -205,16 +218,23 @@ func withJWTAuth(handlerFunc http.HandlerFunc, s database.Methods) http.HandlerF
 		secret := os.Getenv("JWT_SECRET")
 
 		fmt.Println("calling JWT auth middleware")
-		tokenString, _ := extractTokenFromRequest(r)
+		tokenString, err := extractTokenFromRequest(r)
+		if err != nil {
+			permissionDenied(w)
+			return
+		}
 		claims := &types.LoginResponse{}
 		jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 			}
 
-			// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
 			return []byte(secret), nil
 		})
+		if err != nil {
+			permissionDenied(w)
+			return
+		}
 		if time.Until(claims.ExpiresAt.Time) < 1*time.Second {
 			cookie, _ := r.Cookie("email")
 
@@ -266,7 +286,6 @@ func withRoleAuth(requiredRole string, handlerFunc http.HandlerFunc, s database.
 				return
 			}
 
-			// Check if the user's role matches the required role
 			if user.Role.Name != requiredRole {
 				permissionDenied(w)
 				return

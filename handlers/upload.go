@@ -13,7 +13,6 @@ type UploadHandler interface {
 	UploadImages(w http.ResponseWriter, r *http.Request) error
 }
 
-// handler to handle the image upload
 func (s *ApiRouter) UploadImages(w http.ResponseWriter, r *http.Request) error {
 
 	id, err := getID(r)
@@ -32,7 +31,6 @@ func (s *ApiRouter) UploadImages(w http.ResponseWriter, r *http.Request) error {
 	files := r.MultipartForm.File["file"]
 
 	for _, fileHeader := range files {
-		// Open the file
 		file, err := fileHeader.Open()
 		if err != nil {
 			return err
@@ -65,12 +63,26 @@ func (s *ApiRouter) UploadImages(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			return err
 		}
-		user.ImageURL = newFileName
-
+		if len(user.ImageURL) > 2 {
+			err := os.Remove(user.ImageURL[1:])
+			if err != nil {
+				return err
+			}
+		}
+		user.ImageURL = "." + newFileName
 		s.store.UpdateUserImage(user)
-		defer f.Close()
 
+		defer f.Close()
+		user, err := s.store.GetUser(id)
+		if err != nil {
+			return err
+		}
 		_, err = io.Copy(f, file)
+		if err != nil {
+			return err
+		}
+		w.Header().Set("Content-Type", "text/plain")
+		_, err = w.Write([]byte(user.ImageURL))
 		if err != nil {
 			return err
 		}

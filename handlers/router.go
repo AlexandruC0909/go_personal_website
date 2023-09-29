@@ -51,11 +51,13 @@ func (s *ApiRouter) Run() {
 	workDir, _ := os.Getwd()
 	filesDir := http.Dir(filepath.Join(workDir, "/static"))
 	FileServer(router, "/static", filesDir)
-
+	router.NotFound(makeHTTPHandleFunc(s.handleNotFound))
 	flag.Parse()
 
 	router.HandleFunc("/home", makeHTTPHandleFunc(s.handleHome))
 	router.HandleFunc("/auth/login", makeHTTPHandleFunc(s.handleLogin))
+	router.HandleFunc("/auth/logout", makeHTTPHandleFunc(s.handleLogout))
+
 	router.HandleFunc("/auth/register", makeHTTPHandleFunc(s.handleRegister))
 	router.HandleFunc("/users", withJWTAuth(makeHTTPHandleFunc(s.handleGetUsers), s.store))
 
