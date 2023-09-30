@@ -6,24 +6,43 @@ on:
       - develop
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
+  test:
+    name: Run tests
+    runs-on: [ubuntu-20.04]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
 
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
           go-version: '1.21.1'
-      
-      - name: Check for Go modules and install dependencies
+
+      - name: Ensure coverage is reported for every package
         run: |
-          if [ -f go.mod ]; then
-            go mod download
+          find . -type d -print0 | while IFS= read -r -d '' dir; do
+            go_file=$(ls -1 $dir | grep '\.go$' | grep -v '_test\.go$' | head -n1)
+            if [[ $go_file ]]; then
+              package_line=$(grep '^package' ${dir}/${go_file} | head -n1)
+              echo "${package_line}_test" >$dir/package_coverage_test.go
+            fi
+          done
+      - name: Run Tests
+        run: go test -coverpkg=./... -race -coverprofile=coverage.out -covermode=atomic ./...
+
+      - name: Check for coverage.out in any directory
+        run: |
+          found_file=$(find . -name "coverage.out" -print -quit)
+          if [ -n "$found_file" ]; then
+            echo "coverage.out exists in at least one directory at location: $found_file"
           else
-            go get -v ./...
+            echo "coverage.out does not exist in any directory"
+            # You can add additional debugging information or commands here
           fi
+     
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
       
-      - name: Build
-        run: go build -v ./...
