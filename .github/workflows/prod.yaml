@@ -42,7 +42,10 @@ jobs:
 
       - name: Copy program to server
         run: |
-           scp -i deploy_key.pem ./main $SERVER_USERNAME@$SERVER_IP:/usr/local/go_personal_site
+            echo "$SSH_PRIVATE_KEY" > deploy_key.pem
+            chmod 600 deploy_key.pem
+            scp -i deploy_key.pem ./main $SERVER_USERNAME@$SERVER_IP:/usr/local/go_personal_site
+            rm deploy_key.pem
         env:
           SERVER_USERNAME: root
           SERVER_IP: 87.106.122.212
