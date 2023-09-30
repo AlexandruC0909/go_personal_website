@@ -2,20 +2,15 @@ package database
 
 import (
 	"database/sql"
-	"log"
 	"os"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
 func NewPostgresDbConnection() (*DbConnection, error) {
-	if err := godotenv.Load(".env.local"); err != nil {
-		log.Fatal("Error loading .env file")
-	}
 	dbname := os.Getenv("DB_NAME")
 	dbPassword := os.Getenv("DB_PASSWORD")
 	dbUser := os.Getenv("DB_USER")
