@@ -34,7 +34,10 @@ jobs:
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-
+      
+      - name: Debug Loaded SSH Keys
+        run: ssh-add -l
+        
       - name: Copy program to server
         run: |
            scp -i deploy_key.pem ./main $SERVER_USERNAME@$SERVER_IP:/usr/local/go_personal_site
