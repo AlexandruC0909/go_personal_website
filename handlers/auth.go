@@ -6,7 +6,6 @@ import (
 	"html/template"
 	"net/http"
 	"os"
-	"strconv"
 	"time"
 
 	database "go_api/database"
@@ -125,11 +124,10 @@ func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error
 			Path:     "/",
 			Domain:   "localhost",
 		})
-		http.Redirect(w, r, "/home/"+strconv.Itoa(user.ID), http.StatusMovedPermanently)
+		w.Header().Set("HX-Redirect", "/home")
 	}
 
 	return fmt.Errorf("method not allowed %s", r.Method)
-
 }
 
 func (s *ApiRouter) handleLogout(w http.ResponseWriter, r *http.Request) error {
@@ -146,71 +144,6 @@ func (s *ApiRouter) handleLogout(w http.ResponseWriter, r *http.Request) error {
 
 	return fmt.Errorf("method not allowed %s", r.Method)
 
-}
-
-func createJWT(user *user.User) (string, error) {
-
-	expirationTime := time.Now().Add(20 * time.Second)
-
-	claims := &types.LoginResponse{
-		Email: user.Email,
-		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(expirationTime),
-		},
-	}
-
-	secret := os.Getenv("JWT_SECRET")
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	return token.SignedString([]byte(secret))
-}
-
-func permissionDenied(w http.ResponseWriter) {
-	WriteJSON(w, http.StatusForbidden, ApiError{Error: "permission denied"})
-}
-
-func validateJWT(tokenString string) (*jwt.Token, error) {
-	secret := os.Getenv("JWT_SECRET")
-	claims := &types.LoginResponse{}
-	return jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-		}
-
-		return []byte(secret), nil
-	})
-
-}
-
-func refreshToken(w http.ResponseWriter, r *http.Request, user *user.User) error {
-	secret := os.Getenv("JWT_SECRET")
-
-	tokenString, _ := extractTokenFromRequest(r)
-	claims := &types.LoginResponse{}
-
-	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-		}
-
-		return []byte(secret), nil
-	})
-
-	claims.RegisteredClaims.ExpiresAt = jwt.NewNumericDate(time.Now())
-
-	token, err := createJWT(user)
-	if err != nil {
-		return err
-	}
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     "access_token",
-		Value:    token,
-		HttpOnly: true,
-		Path:     "/",
-		Domain:   "localhost",
-	})
-	return nil
 }
 
 func withJWTAuth(handlerFunc http.HandlerFunc, s database.Methods) http.HandlerFunc {
@@ -298,10 +231,74 @@ func withRoleAuth(requiredRole string, handlerFunc http.HandlerFunc, s database.
 	}
 }
 
+func createJWT(user *user.User) (string, error) {
+
+	expirationTime := time.Now().Add(20 * time.Second)
+
+	claims := &types.LoginResponse{
+		Email: user.Email,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+		},
+	}
+
+	secret := os.Getenv("JWT_SECRET")
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+
+	return token.SignedString([]byte(secret))
+}
+
+func validateJWT(tokenString string) (*jwt.Token, error) {
+	secret := os.Getenv("JWT_SECRET")
+	claims := &types.LoginResponse{}
+	return jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+
+		return []byte(secret), nil
+	})
+}
+
+func refreshToken(w http.ResponseWriter, r *http.Request, user *user.User) error {
+	secret := os.Getenv("JWT_SECRET")
+
+	tokenString, _ := extractTokenFromRequest(r)
+	claims := &types.LoginResponse{}
+
+	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+
+		return []byte(secret), nil
+	})
+
+	claims.RegisteredClaims.ExpiresAt = jwt.NewNumericDate(time.Now())
+
+	token, err := createJWT(user)
+	if err != nil {
+		return err
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
+		Value:    token,
+		HttpOnly: true,
+		Path:     "/",
+		Domain:   "localhost",
+	})
+	return nil
+}
+
 func extractTokenFromRequest(r *http.Request) (string, error) {
 	cookie, err := r.Cookie("access_token")
 	if err != nil {
 		return "", err
 	}
 	return cookie.Value, nil
+}
+
+func permissionDenied(w http.ResponseWriter) {
+	WriteJSON(w, http.StatusForbidden, ApiError{Error: "permission denied"})
 }
