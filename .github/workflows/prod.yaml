@@ -30,17 +30,15 @@ jobs:
       - name: Build Go program
         run: go build -o main
 
-      - name: Deploy to Server via SSH
+      - name: Use SSH key for deployment
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Copy program to server
+        run: |
+           scp -i deploy_key.pem ./main $SERVER_USERNAME@$SERVER_IP:/usr/local/go_personal_site
         env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SERVER_USERNAME: root
           SERVER_IP: 87.106.122.212
-        run: |
-          echo "$SSH_PRIVATE_KEY" > deploy_key.pem
-          chmod 600 deploy_key.pem
-          
-          # SCP or use another method to copy the program to your server
-          scp -i deploy_key.pem ./main $SERVER_USERNAME@$SERVER_IP:/path/to/destination/
-          
-
-          rm deploy_key.pem
+          shell: bash
