@@ -11,7 +11,7 @@
 
 ## Create Deployment Pull Request
 
-- [Create a PROD deployment](https://github.com/AlexandruC0909/go_personal_site/compare/prod...staging?quick_pull=1&title=Deploy+to+PROD+vX.X.X&labels=deployment)
+- [Create a PROD deployment](https://github.com/AlexandruC0909/go_personal_site/compare/prod...develop?quick_pull=1&title=Deploy+to+PROD+vX.X.X&labels=deployment)
 
 ## Create Release
 
