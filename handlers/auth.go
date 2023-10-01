@@ -134,7 +134,7 @@ func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error
 			Value:    token,
 			HttpOnly: true,
 			Path:     "/",
-			Domain:   "localhost",
+			Domain:   "http://87.106.122.212",
 		})
 		w.Header().Set("HX-Redirect", "/home")
 	}
