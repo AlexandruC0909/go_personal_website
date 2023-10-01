@@ -3,7 +3,6 @@ package database
 import (
 	"database/sql"
 	"os"
-	"fmt"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
@@ -14,11 +13,8 @@ import (
 func NewPostgresDbConnection() (*DbConnection, error) {
 
 	dbName := os.Getenv("DB_NAME")
-    fmt.Printf("DB_NAME: %s\n", dbName)
 	dbPassword := os.Getenv("DB_PASSWORD")
-	fmt.Printf("Pass: %s\n", dbPassword)
 	dbUser := os.Getenv("DB_USER")
-	fmt.Printf("user: %s\n", dbUser)
 
 	connString := "user=" + dbUser + " dbname=" + dbName + " password=" + dbPassword + " sslmode=disable"
 	db, err := sql.Open("postgres", connString)
@@ -39,15 +35,21 @@ func NewPostgresDbConnection() (*DbConnection, error) {
 		return nil, err
 	}
 
-	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		return nil, err
-	}
-
-	if err := db.Ping(); err != nil {
-		return nil, err
-	}
-
 	return &DbConnection{
-		db: db,
+		db:      db,
+		migrate: m,
 	}, nil
+}
+
+func (c *DbConnection) CloseDB() {
+	if c.db != nil {
+		c.db.Close()
+	}
+}
+
+func (c *DbConnection) RunMigrations() error {
+	if err := c.migrate.Up(); err != nil && err != migrate.ErrNoChange {
+		return err
+	}
+	return nil
 }
