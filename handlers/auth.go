@@ -6,7 +6,6 @@ import (
 	"html/template"
 	"net/http"
 	"os"
-	"path/filepath"
 	"time"
 
 	database "go_api/database"
@@ -90,7 +89,6 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 
 func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
-
 		templatesDir := os.Getenv("TEMPLATES_DIR")
 		if templatesDir == "" {
 			fmt.Println("TEMPLATES_DIR environment variable is not set.")
@@ -98,7 +96,6 @@ func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error
 
 		tmplPath := fmt.Sprintf("%s/auth/register.html", templatesDir)
 		tmpl, err := template.ParseFiles(tmplPath)
-
 		if err != nil {
 			return err
 		}
