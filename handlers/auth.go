@@ -26,7 +26,6 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 		templatesDir := os.Getenv("TEMPLATES_DIR")
 		if templatesDir == "" {
 			fmt.Println("TEMPLATES_DIR environment variable is not set.")
-			return
 		}
 
 		tmplPath := fmt.Sprintf("%s/auth/login.html", templatesDir)
