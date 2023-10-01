@@ -47,3 +47,10 @@ jobs:
         env:
           SERVER_USERNAME: root
           SERVER_IP: 87.106.122.212
+      
+      - name: Copy templates to server
+        run: |
+          scp -o StrictHostKeyChecking=no -i deploy_key.pem -r ./templates/ $SERVER_USERNAME@$SERVER_IP:/usr/local/go_personal_site/
+        env:
+        SERVER_USERNAME: root
+        SERVER_IP: 87.106.122.212
