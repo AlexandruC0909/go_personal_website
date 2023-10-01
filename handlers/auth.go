@@ -66,19 +66,20 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			return err
 		}
+		domain := os.Getenv("DOMAIN")
 		http.SetCookie(w, &http.Cookie{
 			Name:     "access_token",
 			Value:    token,
 			HttpOnly: true,
 			Path:     "/",
-			Domain:   "http://87.106.122.212",
+			Domain:   domain,
 		})
 		http.SetCookie(w, &http.Cookie{
 			Name:     "email",
 			Value:    user.Email,
 			HttpOnly: true,
 			Path:     "/",
-			Domain:   "http://87.106.122.212",
+			Domain:   domain,
 		})
 		w.Header().Set("HX-Redirect", "/home")
 
@@ -128,13 +129,13 @@ func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error
 		if err != nil {
 			return err
 		}
-
+		domain := os.Getenv("DOMAIN")
 		http.SetCookie(w, &http.Cookie{
 			Name:     "access_token",
 			Value:    token,
 			HttpOnly: true,
 			Path:     "/",
-			Domain:   "http://87.106.122.212",
+			Domain:   domain,
 		})
 		w.Header().Set("HX-Redirect", "/home")
 	}
@@ -144,12 +145,13 @@ func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error
 
 func (s *ApiRouter) handleLogout(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
+		domain := os.Getenv("DOMAIN")
 		http.SetCookie(w, &http.Cookie{
 			Name:     "access_token",
 			Value:    "",
 			HttpOnly: true,
 			Path:     "/",
-			Domain:   "localhost",
+			Domain:   domain,
 		})
 		return nil
 	}
