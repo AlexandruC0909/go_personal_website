@@ -6,7 +6,6 @@ import (
 	"html/template"
 	"net/http"
 	"os"
-	"path/filepath"
 	"time"
 
 	database "go_api/database"
@@ -90,14 +89,13 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 
 func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
-		relativePath := "templates/auth/register.html"
-
-		// Get the absolute path.
-		absolutePath, err := filepath.Abs(relativePath)
-		if err != nil {
-			fmt.Println("Error:", err)
+		templatesDir := os.Getenv("TEMPLATES_DIR")
+		if templatesDir == "" {
+			fmt.Println("TEMPLATES_DIR environment variable is not set.")
 		}
-		tmpl, err := template.ParseFiles(absolutePath)
+
+		tmplPath := fmt.Sprintf("%s/auth/register.html", templatesDir)
+		tmpl, err := template.ParseFiles(tmplPath)
 		if err != nil {
 			return err
 		}
