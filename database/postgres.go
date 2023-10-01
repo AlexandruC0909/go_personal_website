@@ -2,7 +2,9 @@ package database
 
 import (
 	"database/sql"
+	"fmt"
 	"os"
+	"log"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
@@ -16,33 +18,40 @@ func NewPostgresDbConnection() (*DbConnection, error) {
 	dbUser := os.Getenv("DB_USER")
 
 	connString := "user=" + dbUser + " dbname=" + dbname + " password=" + dbPassword + " sslmode=disable"
+
 	db, err := sql.Open("postgres", connString)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to open database connection: %v", err)
 	}
 
 	driver, err := postgres.WithInstance(db, &postgres.Config{})
 	if err != nil {
-		return nil, err
+		db.Close()
+		return nil, fmt.Errorf("failed to create database driver: %v", err)
 	}
-
+	migrationsPath := "file:///usr/local/go_personal_site/database/migrations"
+	log.Printf("Using migrations path: %s", migrationsPath)
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://database/migrations",
+		migrationsPath,
 		"postgres",
 		driver)
 	if err != nil {
-		return nil, err
+		db.Close()
+		return nil, fmt.Errorf("failed to create migration instance: %v", err)
 	}
 
 	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
-		return nil, err
+		db.Close()
+		return nil, fmt.Errorf("failed to apply migrations: %v", err)
 	}
 
 	if err := db.Ping(); err != nil {
-		return nil, err
+		db.Close()
+		return nil, fmt.Errorf("failed to ping database: %v", err)
 	}
 
 	return &DbConnection{
 		db: db,
 	}, nil
 }
+
