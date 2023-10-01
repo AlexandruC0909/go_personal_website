@@ -3,6 +3,7 @@ package database
 import (
 	"database/sql"
 	"os"
+	"fmt"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
