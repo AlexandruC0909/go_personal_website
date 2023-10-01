@@ -22,7 +22,13 @@ type AuthHandler interface {
 
 func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
-		tmpl, err := template.ParseFiles("templates/auth/login.html")
+		templatesDir := os.Getenv("TEMPLATES_DIR")
+		if templatesDir == "" {
+			fmt.Println("TEMPLATES_DIR environment variable is not set.")
+		}
+
+		tmplPath := fmt.Sprintf("%s/auth/login.html", templatesDir)
+		tmpl, err := template.ParseFiles(tmplPath)
 		if err != nil {
 			return err
 		}
@@ -83,7 +89,13 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 
 func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
-		tmpl, err := template.ParseFiles("templates/auth/register.html")
+		templatesDir := os.Getenv("TEMPLATES_DIR")
+		if templatesDir == "" {
+			fmt.Println("TEMPLATES_DIR environment variable is not set.")
+		}
+
+		tmplPath := fmt.Sprintf("%s/auth/register.html", templatesDir)
+		tmpl, err := template.ParseFiles(tmplPath)
 		if err != nil {
 			return err
 		}

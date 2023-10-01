@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
+	"os"
 )
 
 type PostsHandler interface {
@@ -10,9 +12,17 @@ type PostsHandler interface {
 }
 
 func (s *ApiRouter) handleGetPosts(w http.ResponseWriter, r *http.Request) error {
+	templatesDir := os.Getenv("TEMPLATES_DIR")
+	if templatesDir == "" {
+		fmt.Println("TEMPLATES_DIR environment variable is not set.")
+	}
+
+	tmplPathBase := fmt.Sprintf("%s/ui/base.html", templatesDir)
+	tmplPathContent := fmt.Sprintf("%s/posts/postsList.html", templatesDir)
+
 	files := []string{
-		"templates/ui/base.html",
-		"templates/posts/postsList.html",
+		tmplPathBase,
+		tmplPathContent,
 	}
 	tmpl, err := template.ParseFiles(files...)
 	if err != nil {
