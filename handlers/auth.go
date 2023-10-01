@@ -30,6 +30,7 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 		}
 
 		tmplPath := fmt.Sprintf("%s/auth/login.html", templatesDir)
+		tmpl, err := template.ParseFiles(tmplPath)
 		if err != nil {
 			return err
 		}
