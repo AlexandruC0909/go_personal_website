@@ -11,12 +11,11 @@ import (
 )
 
 func NewPostgresDbConnection() (*DbConnection, error) {
-
-	dbName := os.Getenv("DB_NAME")
+	dbname := os.Getenv("DB_NAME")
 	dbPassword := os.Getenv("DB_PASSWORD")
 	dbUser := os.Getenv("DB_USER")
 
-	connString := "user=" + dbUser + " dbname=" + dbName + " password=" + dbPassword + " sslmode=disable"
+	connString := "user=" + dbUser + " dbname=" + dbname + " password=" + dbPassword + " sslmode=disable"
 	db, err := sql.Open("postgres", connString)
 	if err != nil {
 		return nil, err
@@ -35,21 +34,15 @@ func NewPostgresDbConnection() (*DbConnection, error) {
 		return nil, err
 	}
 
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		return nil, err
+	}
+
+	if err := db.Ping(); err != nil {
+		return nil, err
+	}
+
 	return &DbConnection{
-		db:      db,
-		migrate: m,
+		db: db,
 	}, nil
-}
-
-func (c *DbConnection) CloseDB() {
-	if c.db != nil {
-		c.db.Close()
-	}
-}
-
-func (c *DbConnection) RunMigrations() error {
-	if err := c.migrate.Up(); err != nil && err != migrate.ErrNoChange {
-		return err
-	}
-	return nil
 }
