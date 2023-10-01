@@ -71,14 +71,14 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 			Value:    token,
 			HttpOnly: true,
 			Path:     "/",
-			Domain:   "localhost",
+			Domain:   "http://87.106.122.212",
 		})
 		http.SetCookie(w, &http.Cookie{
 			Name:     "email",
 			Value:    user.Email,
 			HttpOnly: true,
 			Path:     "/",
-			Domain:   "localhost",
+			Domain:   "http://87.106.122.212",
 		})
 		w.Header().Set("HX-Redirect", "/home")
 
