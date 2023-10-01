@@ -31,6 +31,14 @@ jobs:
       - name: Build Go program
         run: go build -o main
 
+      - name: Run Database Migrations
+        env:
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: |
+          ./main migrate
+
       - name: Use SSH key for deployment
         uses: webfactory/ssh-agent@v0.5.3
         with:
