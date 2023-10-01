@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"embed"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -15,6 +16,8 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+var templatesFS embed.FS
+
 type AuthHandler interface {
 	handleLogin(w http.ResponseWriter, r *http.Request) error
 	handleRegister(w http.ResponseWriter, r *http.Request) error
@@ -22,7 +25,7 @@ type AuthHandler interface {
 
 func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
-		tmpl, err := template.ParseFiles("templates/auth/login.html")
+		tmpl, err := template.ParseFS(templatesFS, "templates/auth/login.html")
 		if err != nil {
 			return err
 		}
@@ -83,7 +86,7 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 
 func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
-		tmpl, err := template.ParseFiles("templates/auth/register.html")
+		tmpl, err := template.ParseFS(templatesFS, "templates/auth/register.html")
 		if err != nil {
 			return err
 		}
