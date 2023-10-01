@@ -20,7 +20,7 @@ func NewPostgresDbConnection() (*DbConnection, error) {
 	dbUser := os.Getenv("DB_USER")
 	fmt.Printf("user: %s\n", dbUser)
 
-	connString := "user=" + dbUser + " dbname=" + dbname + " password=" + dbPassword + " sslmode=disable"
+	connString := "user=" + dbUser + " dbname=" + dbName + " password=" + dbPassword + " sslmode=disable"
 	db, err := sql.Open("postgres", connString)
 	if err != nil {
 		return nil, err
