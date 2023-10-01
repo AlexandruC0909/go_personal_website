@@ -30,7 +30,7 @@ func NewPostgresDbConnection() (*DbConnection, error) {
 	}
 
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://database/migrations",
+		migrationsPath := "file:///usr/local/go_personal_site/database/migrations",
 		"postgres",
 		driver)
 	if err != nil {
