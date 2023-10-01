@@ -23,13 +23,14 @@ type AuthHandler interface {
 
 func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
-		currentDir, err := os.Getwd()
-		if err != nil {
-			return err
-		}
+		relativePath := "templates/auth/login.html"
 
-		tmplPath := filepath.Join(currentDir, "./templates/auth/login.html")
-		tmpl, err := template.ParseFiles(tmplPath)
+		// Get the absolute path.
+		absolutePath, err := filepath.Abs(relativePath)
+		if err != nil {
+			fmt.Println("Error:", err)
+		}
+		tmpl, err := template.ParseFiles(absolutePath)
 		if err != nil {
 			return err
 		}
@@ -90,13 +91,14 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 
 func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
-		currentDir, err := os.Getwd()
-		if err != nil {
-			return err
-		}
+		relativePath := "templates/auth/register.html"
 
-		tmplPath := filepath.Join(currentDir, "./templates/auth/register.html")
-		tmpl, err := template.ParseFiles(tmplPath)
+		// Get the absolute path.
+		absolutePath, err := filepath.Abs(relativePath)
+		if err != nil {
+			fmt.Println("Error:", err)
+		}
+		tmpl, err := template.ParseFiles(absolutePath)
 		if err != nil {
 			return err
 		}
