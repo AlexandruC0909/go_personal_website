@@ -39,7 +39,7 @@ func (s *ApiRouter) Run() {
 
 	router := chi.NewRouter()
 	router.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"*"}, 
+		AllowedOrigins:   []string{"http://localhost", "https://localhost", "http://http://87.106.122.212", "https://http://87.106.122.212"}, // Add your server domain here
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
