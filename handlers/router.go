@@ -113,7 +113,13 @@ func (s *ApiRouter) handleHome(w http.ResponseWriter, r *http.Request) error {
 	return nil
 }
 func (s *ApiRouter) handleNotFound(w http.ResponseWriter, r *http.Request) error {
-	tmpl, err := template.ParseFiles("templates/ui/page404.html")
+	templatesDir := os.Getenv("TEMPLATES_DIR")
+		if templatesDir == "" {
+			fmt.Println("TEMPLATES_DIR environment variable is not set.")
+		}
+
+		tmplPath := fmt.Sprintf("%s/ui/page404.html", templatesDir)
+		tmpl, err := template.ParseFiles(tmplPath)
 	if err != nil {
 		return err
 	}
