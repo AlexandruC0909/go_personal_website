@@ -28,7 +28,7 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 			return err
 		}
 
-		tmplPath := filepath.Join(currentDir, "templates/auth/login.html")
+		tmplPath := filepath.Join(currentDir, "./templates/auth/login.html")
 		tmpl, err := template.ParseFiles(tmplPath)
 		if err != nil {
 			return err
@@ -95,7 +95,7 @@ func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error
 			return err
 		}
 
-		tmplPath := filepath.Join(currentDir, "templates/auth/register.html")
+		tmplPath := filepath.Join(currentDir, "./templates/auth/register.html")
 		tmpl, err := template.ParseFiles(tmplPath)
 		if err != nil {
 			return err
