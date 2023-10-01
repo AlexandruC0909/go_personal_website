@@ -40,9 +40,10 @@ jobs:
         run: |
           ssh-add -l
 
-      - name: Copy program to server
+      - name: Copy program and migrations to server
         run: |
           scp -o StrictHostKeyChecking=no -i deploy_key.pem ./main $SERVER_USERNAME@$SERVER_IP:/usr/local/go_personal_site
+          scp -o StrictHostKeyChecking=no -i deploy_key.pem -r ./database/migrations/ $SERVER_USERNAME@$SERVER_IP:/usr/local/go_personal_site/database/
         env:
           SERVER_USERNAME: root
           SERVER_IP: 87.106.122.212
