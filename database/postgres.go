@@ -13,15 +13,13 @@ import (
 )
 
 func NewPostgresDbConnection() (*DbConnection, error) {
-	if os.Getenv("GO_ENV") != "production" {
-		if err := godotenv.Load(); err != nil {
-			log.Fatal("Error loading .env file")
-		}
-	}
-	
+
 	dbname := os.Getenv("DB_NAME")
+	fmt.Printf("DB_NAME: %s\n", dbName)
 	dbPassword := os.Getenv("DB_PASSWORD")
+	fmt.Printf("Pass: %s\n", dbPassword)
 	dbUser := os.Getenv("DB_USER")
+	fmt.Printf("user: %s\n", dbUser)
 
 	connString := "user=" + dbUser + " dbname=" + dbname + " password=" + dbPassword + " sslmode=disable"
 	db, err := sql.Open("postgres", connString)
