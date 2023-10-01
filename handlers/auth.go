@@ -30,6 +30,7 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 		if err != nil {
 			fmt.Println("Error:", err)
 		}
+		fmt.Println(absolutePath)
 		tmpl, err := template.ParseFiles(absolutePath)
 		if err != nil {
 			return err
