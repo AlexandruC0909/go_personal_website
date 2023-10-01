@@ -13,8 +13,8 @@ import (
 
 func NewPostgresDbConnection() (*DbConnection, error) {
 
-	dbname := os.Getenv("DB_NAME")
-	fmt.Printf("DB_NAME: %s\n", dbName)
+	dbName := os.Getenv("DB_NAME")
+    fmt.Printf("DB_NAME: %s\n", dbName)
 	dbPassword := os.Getenv("DB_PASSWORD")
 	fmt.Printf("Pass: %s\n", dbPassword)
 	dbUser := os.Getenv("DB_USER")
