@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"os"
 
 	"go_api/types"
 )
@@ -22,11 +23,20 @@ func (s *ApiRouter) handleGetUsers(w http.ResponseWriter, r *http.Request) error
 	if err != nil {
 		return err
 	}
+	templatesDir := os.Getenv("TEMPLATES_DIR")
+	if templatesDir == "" {
+		fmt.Println("TEMPLATES_DIR environment variable is not set.")
+	}
+
+	tmplPathBase := fmt.Sprintf("%s/ui/base.html", templatesDir)
+	tmplPathContent := fmt.Sprintf("%s/user/usersList.html", templatesDir)
+
 	files := []string{
-		"templates/ui/base.html",
-		"templates/user/usersList.html",
+		tmplPathBase,
+		tmplPathContent,
 	}
 	tmpl, err := template.ParseFiles(files...)
+
 	if err != nil {
 		return err
 	}
@@ -52,9 +62,17 @@ func (s *ApiRouter) handleUserById(w http.ResponseWriter, r *http.Request) error
 		if err != nil {
 			return err
 		}
+		templatesDir := os.Getenv("TEMPLATES_DIR")
+		if templatesDir == "" {
+			fmt.Println("TEMPLATES_DIR environment variable is not set.")
+		}
+
+		tmplPathBase := fmt.Sprintf("%s/ui/base.html", templatesDir)
+		tmplPathContent := fmt.Sprintf("%s/user/userDetails.html", templatesDir)
+
 		files := []string{
-			"templates/ui/base.html",
-			"templates/user/userDetails.html",
+			tmplPathBase,
+			tmplPathContent,
 		}
 		tmpl, err := template.ParseFiles(files...)
 		if err != nil {

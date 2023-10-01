@@ -89,11 +89,20 @@ func FileServer(r chi.Router, path string, root http.FileSystem) {
 }
 func (s *ApiRouter) handleHome(w http.ResponseWriter, r *http.Request) error {
 
+	templatesDir := os.Getenv("TEMPLATES_DIR")
+	if templatesDir == "" {
+		fmt.Println("TEMPLATES_DIR environment variable is not set.")
+	}
+
+	tmplPathBase := fmt.Sprintf("%s/ui/base.html", templatesDir)
+	tmplPathContent := fmt.Sprintf("%s/ui/home.html", templatesDir)
+
 	files := []string{
-		"templates/ui/base.html",
-		"templates/ui/home.html",
+		tmplPathBase,
+		tmplPathContent,
 	}
 	tmpl, err := template.ParseFiles(files...)
+
 	if err != nil {
 		return err
 	}
