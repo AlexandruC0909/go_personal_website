@@ -1,12 +1,12 @@
 package handlers
 
 import (
-	"embed"
 	"encoding/json"
 	"fmt"
 	"html/template"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 
 	database "go_api/database"
@@ -16,8 +16,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var templatesFS embed.FS
-
 type AuthHandler interface {
 	handleLogin(w http.ResponseWriter, r *http.Request) error
 	handleRegister(w http.ResponseWriter, r *http.Request) error
@@ -25,7 +23,13 @@ type AuthHandler interface {
 
 func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
-		tmpl, err := template.ParseFS(templatesFS, "templates/auth/login.html")
+		currentDir, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+
+		tmplPath := filepath.Join(currentDir, "templates/auth/login.html")
+		tmpl, err := template.ParseFiles(tmplPath)
 		if err != nil {
 			return err
 		}
@@ -86,7 +90,13 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 
 func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "GET" {
-		tmpl, err := template.ParseFS(templatesFS, "templates/auth/register.html")
+		currentDir, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+
+		tmplPath := filepath.Join(currentDir, "templates/auth/register.html")
+		tmpl, err := template.ParseFiles(tmplPath)
 		if err != nil {
 			return err
 		}
