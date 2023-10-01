@@ -28,9 +28,10 @@ func NewPostgresDbConnection() (*DbConnection, error) {
 		db.Close()
 		return nil, fmt.Errorf("failed to create database driver: %v", err)
 	}
-
+	migrationsPath := "file:///usr/local/go_personal_site/database/migrations"
+	log.Printf("Using migrations path: %s", migrationsPath)
 	m, err := migrate.NewWithDatabaseInstance(
-		migrationsPath := "file:///usr/local/go_personal_site/database/migrations",
+		migrationsPath,
 		"postgres",
 		driver)
 	if err != nil {
