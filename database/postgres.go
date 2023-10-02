@@ -3,16 +3,24 @@ package database
 import (
 	"database/sql"
 	"fmt"
-	"os"
 	"log"
+	"os"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
 
 func NewPostgresDbConnection() (*DbConnection, error) {
+	isProduction := os.Getenv("GO_ENV") == "production"
+
+	if !isProduction {
+		if err := godotenv.Load(".env.local"); err != nil {
+			log.Fatal("Error loading .env file")
+		}
+	}
 	dbname := os.Getenv("DB_NAME")
 	dbPassword := os.Getenv("DB_PASSWORD")
 	dbUser := os.Getenv("DB_USER")
@@ -29,10 +37,11 @@ func NewPostgresDbConnection() (*DbConnection, error) {
 		db.Close()
 		return nil, fmt.Errorf("failed to create database driver: %v", err)
 	}
-	migrationsPath := "file:///usr/local/go_personal_site/database/migrations"
-	log.Printf("Using migrations path: %s", migrationsPath)
+	migrationPath := os.Getenv("MIGRATIONS_DIR")
+
+	log.Printf("Using migrations path: %s", migrationPath)
 	m, err := migrate.NewWithDatabaseInstance(
-		migrationsPath,
+		migrationPath,
 		"postgres",
 		driver)
 	if err != nil {
@@ -54,4 +63,3 @@ func NewPostgresDbConnection() (*DbConnection, error) {
 		db: db,
 	}, nil
 }
-
