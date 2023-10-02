@@ -95,10 +95,12 @@ func (s *ApiRouter) handleHome(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	tmplPathBase := fmt.Sprintf("%s/ui/base.html", templatesDir)
+	tmplPathNav := fmt.Sprintf("%s/ui/navbar.html", templatesDir)
 	tmplPathContent := fmt.Sprintf("%s/ui/home.html", templatesDir)
 
 	files := []string{
 		tmplPathBase,
+		tmplPathNav,
 		tmplPathContent,
 	}
 	tmpl, err := template.ParseFiles(files...)
@@ -114,12 +116,18 @@ func (s *ApiRouter) handleHome(w http.ResponseWriter, r *http.Request) error {
 }
 func (s *ApiRouter) handleNotFound(w http.ResponseWriter, r *http.Request) error {
 	templatesDir := os.Getenv("TEMPLATES_DIR")
-		if templatesDir == "" {
-			fmt.Println("TEMPLATES_DIR environment variable is not set.")
-		}
+	if templatesDir == "" {
+		fmt.Println("TEMPLATES_DIR environment variable is not set.")
+	}
 
-		tmplPath := fmt.Sprintf("%s/ui/page404.html", templatesDir)
-		tmpl, err := template.ParseFiles(tmplPath)
+	tmplPathBase := fmt.Sprintf("%s/ui/base.html", templatesDir)
+	tmplPathContent := fmt.Sprintf("%s/ui/page404.html", templatesDir)
+
+	files := []string{
+		tmplPathBase,
+		tmplPathContent,
+	}
+	tmpl, err := template.ParseFiles(files...)
 	if err != nil {
 		return err
 	}

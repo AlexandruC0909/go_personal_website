@@ -29,10 +29,12 @@ func (s *ApiRouter) handleGetUsers(w http.ResponseWriter, r *http.Request) error
 	}
 
 	tmplPathBase := fmt.Sprintf("%s/ui/base.html", templatesDir)
+	tmplPathNav := fmt.Sprintf("%s/ui/navbar.html", templatesDir)
 	tmplPathContent := fmt.Sprintf("%s/user/usersList.html", templatesDir)
 
 	files := []string{
 		tmplPathBase,
+		tmplPathNav,
 		tmplPathContent,
 	}
 	tmpl, err := template.ParseFiles(files...)
@@ -68,10 +70,12 @@ func (s *ApiRouter) handleUserById(w http.ResponseWriter, r *http.Request) error
 		}
 
 		tmplPathBase := fmt.Sprintf("%s/ui/base.html", templatesDir)
+		tmplPathNav := fmt.Sprintf("%s/ui/navbar.html", templatesDir)
 		tmplPathContent := fmt.Sprintf("%s/user/userDetails.html", templatesDir)
 
 		files := []string{
 			tmplPathBase,
+			tmplPathNav,
 			tmplPathContent,
 		}
 		tmpl, err := template.ParseFiles(files...)
