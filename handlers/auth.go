@@ -81,7 +81,7 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 			Path:     "/",
 			Domain:   domain,
 		})
-		w.Header().Set("HX-Redirect", "/home")
+		w.Header().Set("HX-Redirect", "/")
 
 	}
 
@@ -137,7 +137,7 @@ func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error
 			Path:     "/",
 			Domain:   domain,
 		})
-		w.Header().Set("HX-Redirect", "/home")
+		w.Header().Set("HX-Redirect", "/")
 	}
 
 	return fmt.Errorf("method not allowed %s", r.Method)
@@ -153,6 +153,14 @@ func (s *ApiRouter) handleLogout(w http.ResponseWriter, r *http.Request) error {
 			Path:     "/",
 			Domain:   domain,
 		})
+		http.SetCookie(w, &http.Cookie{
+			Name:     "email",
+			Value:    "",
+			HttpOnly: true,
+			Path:     "/",
+			Domain:   domain,
+		})
+		w.Header().Set("HX-Redirect", "/")
 		return nil
 	}
 
@@ -294,13 +302,13 @@ func refreshToken(w http.ResponseWriter, r *http.Request, user *user.User) error
 	if err != nil {
 		return err
 	}
-
+	domain := os.Getenv("DOMAIN")
 	http.SetCookie(w, &http.Cookie{
 		Name:     "access_token",
 		Value:    token,
 		HttpOnly: true,
 		Path:     "/",
-		Domain:   "localhost",
+		Domain:   domain,
 	})
 	return nil
 }
