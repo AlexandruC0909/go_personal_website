@@ -27,8 +27,14 @@ func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
 			fmt.Println("TEMPLATES_DIR environment variable is not set.")
 		}
 
-		tmplPath := fmt.Sprintf("%s/auth/login.html", templatesDir)
-		tmpl, err := template.ParseFiles(tmplPath)
+		tmplPathBase := fmt.Sprintf("%s/ui/base.html", templatesDir)
+		tmplPathContent := fmt.Sprintf("%s/auth/login.html", templatesDir)
+
+		files := []string{
+			tmplPathBase,
+			tmplPathContent,
+		}
+		tmpl, err := template.ParseFiles(files...)
 		if err != nil {
 			return err
 		}
@@ -95,8 +101,15 @@ func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error
 			fmt.Println("TEMPLATES_DIR environment variable is not set.")
 		}
 
-		tmplPath := fmt.Sprintf("%s/auth/register.html", templatesDir)
-		tmpl, err := template.ParseFiles(tmplPath)
+		tmplPathBase := fmt.Sprintf("%s/ui/base.html", templatesDir)
+		tmplPathContent := fmt.Sprintf("%s/auth/register.html", templatesDir)
+
+		files := []string{
+			tmplPathBase,
+			tmplPathContent,
+		}
+		tmpl, err := template.ParseFiles(files...)
+
 		if err != nil {
 			return err
 		}
@@ -219,7 +232,6 @@ func withJWTAuth(handlerFunc http.HandlerFunc, s database.Methods) http.HandlerF
 
 func withRoleAuth(requiredRole string, handlerFunc http.HandlerFunc, s database.Methods) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("calling role-based auth middleware")
 		secret := os.Getenv("JWT_SECRET")
 
 		tokenString, _ := extractTokenFromRequest(r)
@@ -321,6 +333,27 @@ func extractTokenFromRequest(r *http.Request) (string, error) {
 	return cookie.Value, nil
 }
 
-func permissionDenied(w http.ResponseWriter) {
-	WriteJSON(w, http.StatusForbidden, ApiError{Error: "permission denied"})
+func permissionDenied(w http.ResponseWriter) error {
+	templatesDir := os.Getenv("TEMPLATES_DIR")
+	if templatesDir == "" {
+		fmt.Println("TEMPLATES_DIR environment variable is not set.")
+	}
+
+	tmplPathBase := fmt.Sprintf("%s/ui/base.html", templatesDir)
+	tmplPathContent := fmt.Sprintf("%s/ui/page403.html", templatesDir)
+
+	files := []string{
+		tmplPathBase,
+		tmplPathContent,
+	}
+	tmpl, err := template.ParseFiles(files...)
+	if err != nil {
+		return err
+	}
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

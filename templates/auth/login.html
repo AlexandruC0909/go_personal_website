@@ -1,17 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
-    <script src="https://cdn.jsdelivr.net/npm/htmx.org@1.6.0/dist/htmx.min.js"></script>
-    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+{{define "title"}}Login{{end}} {{define "content"}}
 
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
-
     <div
         class="w-full bg-white dark:bg-black rounded-lg shadow dark:border md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
         <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
@@ -46,6 +35,8 @@
             </form>
         </div>
     </div>
+
+    </div>
     <script>
 
         htmx.config.historyEnabled = false;
@@ -65,5 +56,4 @@
 
     </script>
 </body>
-
-</html>
+{{end}}

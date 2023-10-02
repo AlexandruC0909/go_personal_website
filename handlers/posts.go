@@ -18,10 +18,12 @@ func (s *ApiRouter) handleGetPosts(w http.ResponseWriter, r *http.Request) error
 	}
 
 	tmplPathBase := fmt.Sprintf("%s/ui/base.html", templatesDir)
+	tmplPathNav := fmt.Sprintf("%s/ui/navbar.html", templatesDir)
 	tmplPathContent := fmt.Sprintf("%s/posts/postsList.html", templatesDir)
 
 	files := []string{
 		tmplPathBase,
+		tmplPathNav,
 		tmplPathContent,
 	}
 	tmpl, err := template.ParseFiles(files...)
