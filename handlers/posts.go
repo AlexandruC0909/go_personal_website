@@ -11,7 +11,7 @@ type PostsHandler interface {
 	handleGetPosts(w http.ResponseWriter, r *http.Request) error
 }
 
-func (s *ApiRouter) handleGetPosts(w http.ResponseWriter, r *http.Request) error {
+func (s *ApiRouter) handleGetPosts(w http.ResponseWriter, r *http.Request) {
 	templatesDir := os.Getenv("TEMPLATES_DIR")
 	if templatesDir == "" {
 		fmt.Println("TEMPLATES_DIR environment variable is not set.")
@@ -28,11 +28,12 @@ func (s *ApiRouter) handleGetPosts(w http.ResponseWriter, r *http.Request) error
 	}
 	tmpl, err := template.ParseFiles(files...)
 	if err != nil {
-		return err
+		s.handleError(w, r, err)
+		return
 	}
 	err = tmpl.Execute(w, nil)
 	if err != nil {
-		return err
+		s.handleError(w, r, err)
+		return
 	}
-	return nil
 }

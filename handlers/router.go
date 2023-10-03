@@ -28,6 +28,8 @@ type ApiError struct {
 	Error string `json:"error"`
 }
 
+type ApiFunc func(http.ResponseWriter, *http.Request) error
+
 func NewAPIServer(listenAddress string, store database.Methods) *ApiRouter {
 	return &ApiRouter{
 		listenAddress: listenAddress,
@@ -39,7 +41,7 @@ func (s *ApiRouter) Run() {
 
 	router := chi.NewRouter()
 	router.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost", "https://localhost", "http://http://87.106.122.212", "https://http://87.106.122.212"},
+		AllowedOrigins:   []string{"http://localhost", "https://localhost", "http://87.106.122.212", "https://87.106.122.212"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
@@ -50,20 +52,28 @@ func (s *ApiRouter) Run() {
 
 	workDir, _ := os.Getwd()
 	filesDir := http.Dir(filepath.Join(workDir, "/static"))
-	FileServer(router, "/static", filesDir)
-	router.NotFound(makeHTTPHandleFunc(s.handleNotFound))
+	router.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(filesDir)))
+
+	router.NotFound(s.handleNotFound)
+
 	flag.Parse()
+	router.Get("/", s.handleHome)
+	router.Get("/auth/login", s.handleLoginGET)
+	router.Post("/auth/login", s.handleLoginPOST)
+	router.Post("/auth/logout", s.handleLogout)
+	router.Post("/auth/register", s.handleRegister)
+	router.Route("/users", func(r chi.Router) {
+		r.Use(JWTAuthMiddleware(s.store))
+		r.Get("/", s.handleGetUsers)
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", s.handleUserByIdGET)
+			r.Delete("/", s.handleUserByIdDELETE)
+			r.Put("/", s.handleUserByIdPUT)
+			r.Post("/upload", s.UploadImages)
+		})
+	})
 
-	router.HandleFunc("/", makeHTTPHandleFunc(s.handleHome))
-	router.HandleFunc("/auth/login", makeHTTPHandleFunc(s.handleLogin))
-	router.HandleFunc("/auth/logout", makeHTTPHandleFunc(s.handleLogout))
-
-	router.HandleFunc("/auth/register", makeHTTPHandleFunc(s.handleRegister))
-	router.HandleFunc("/users", withJWTAuth(makeHTTPHandleFunc(s.handleGetUsers), s.store))
-
-	router.HandleFunc("/users/{id}", withJWTAuth(makeHTTPHandleFunc(s.handleUserById), s.store))
-	router.HandleFunc("/users/{id}/upload", withJWTAuth(makeHTTPHandleFunc(s.UploadImages), s.store))
-	router.HandleFunc("/posts", withJWTAuth(makeHTTPHandleFunc(s.handleGetPosts), s.store))
+	router.Get("/posts", s.handleGetPosts)
 	log.Println("JSON API server running on port:", s.listenAddress)
 
 	http.ListenAndServe(s.listenAddress, router)
@@ -87,8 +97,7 @@ func FileServer(r chi.Router, path string, root http.FileSystem) {
 		fs.ServeHTTP(w, r)
 	})
 }
-func (s *ApiRouter) handleHome(w http.ResponseWriter, r *http.Request) error {
-
+func (s *ApiRouter) handleHome(w http.ResponseWriter, r *http.Request) {
 	templatesDir := os.Getenv("TEMPLATES_DIR")
 	if templatesDir == "" {
 		fmt.Println("TEMPLATES_DIR environment variable is not set.")
@@ -106,15 +115,18 @@ func (s *ApiRouter) handleHome(w http.ResponseWriter, r *http.Request) error {
 	tmpl, err := template.ParseFiles(files...)
 
 	if err != nil {
-		return err
+		s.handleError(w, r, err)
+		return
 	}
+
 	err = tmpl.Execute(w, nil)
 	if err != nil {
-		return err
+		s.handleError(w, r, err)
+		return
 	}
-	return nil
 }
-func (s *ApiRouter) handleNotFound(w http.ResponseWriter, r *http.Request) error {
+
+func (s *ApiRouter) handleNotFound(w http.ResponseWriter, r *http.Request) {
 	templatesDir := os.Getenv("TEMPLATES_DIR")
 	if templatesDir == "" {
 		fmt.Println("TEMPLATES_DIR environment variable is not set.")
@@ -129,30 +141,28 @@ func (s *ApiRouter) handleNotFound(w http.ResponseWriter, r *http.Request) error
 	}
 	tmpl, err := template.ParseFiles(files...)
 	if err != nil {
-		return err
+		s.handleError(w, r, err)
+		return
 	}
+
 	err = tmpl.Execute(w, nil)
 	if err != nil {
-		return err
+		s.handleError(w, r, err)
+		return
 	}
-
-	return nil
 }
 
-type apiFunc func(http.ResponseWriter, *http.Request) error
+func (s *ApiRouter) handleError(w http.ResponseWriter, r *http.Request, err error) {
+	WriteJSON(w, http.StatusBadRequest, ApiError{Error: err.Error()})
+}
+func (s *ApiRouter) handleMethodNotAllowed(w http.ResponseWriter, r *http.Request) {
+	s.handleError(w, r, fmt.Errorf("method not allowed %s", r.Method))
+}
 
 func WriteJSON(w http.ResponseWriter, status int, v any) error {
 	w.Header().Add("Content-Type", "application/json")
 	w.WriteHeader(status)
 	return json.NewEncoder(w).Encode(v)
-}
-
-func makeHTTPHandleFunc(f apiFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		if err := f(w, r); err != nil {
-			WriteJSON(w, http.StatusBadRequest, ApiError{Error: err.Error()})
-		}
-	}
 }
 
 func getID(r *http.Request) (int, error) {
