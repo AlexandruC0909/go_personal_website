@@ -13,151 +13,154 @@ import (
 	user "go_api/types"
 
 	"github.com/golang-jwt/jwt/v5"
+	// Import other necessary packages
 )
 
-type AuthHandler interface {
-	handleLogin(w http.ResponseWriter, r *http.Request) error
-	handleRegister(w http.ResponseWriter, r *http.Request) error
+func (s *ApiRouter) handleLoginGET(w http.ResponseWriter, r *http.Request) {
+	templatesDir := os.Getenv("TEMPLATES_DIR")
+	if templatesDir == "" {
+		fmt.Println("TEMPLATES_DIR environment variable is not set.")
+	}
+
+	tmplPathBase := fmt.Sprintf("%s/ui/base.html", templatesDir)
+	tmplPathContent := fmt.Sprintf("%s/auth/login.html", templatesDir)
+
+	files := []string{
+		tmplPathBase,
+		tmplPathContent,
+	}
+	tmpl, err := template.ParseFiles(files...)
+	if err != nil {
+		s.handleError(w, r, err)
+		return
+	}
+
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		s.handleError(w, r, err)
+		return
+	}
 }
 
-func (s *ApiRouter) handleLogin(w http.ResponseWriter, r *http.Request) error {
-	if r.Method == "GET" {
-		templatesDir := os.Getenv("TEMPLATES_DIR")
-		if templatesDir == "" {
-			fmt.Println("TEMPLATES_DIR environment variable is not set.")
-		}
-
-		tmplPathBase := fmt.Sprintf("%s/ui/base.html", templatesDir)
-		tmplPathContent := fmt.Sprintf("%s/auth/login.html", templatesDir)
-
-		files := []string{
-			tmplPathBase,
-			tmplPathContent,
-		}
-		tmpl, err := template.ParseFiles(files...)
-		if err != nil {
-			return err
-		}
-		err = tmpl.Execute(w, nil)
-		if err != nil {
-			return err
-		}
-
-		return nil
+func (s *ApiRouter) handleLoginPOST(w http.ResponseWriter, r *http.Request) {
+	var req types.LoginRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		s.handleError(w, r, err)
+		return
 	}
 
-	if r.Method == "POST" {
-
-		var req types.LoginRequest
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			return err
-		}
-
-		user, err := s.store.GetUserByEmail(req.Email)
-		if err != nil {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusNotFound)
-
-			return nil
-		}
-
-		if !user.ValidPassword(req.Password) {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusNotFound)
-
-			return nil
-		}
-
-		token, err := createJWT(user)
-		if err != nil {
-			return err
-		}
-		domain := os.Getenv("DOMAIN")
-		http.SetCookie(w, &http.Cookie{
-			Name:     "access_token",
-			Value:    token,
-			HttpOnly: true,
-			Path:     "/",
-			Domain:   domain,
-		})
-		http.SetCookie(w, &http.Cookie{
-			Name:     "email",
-			Value:    user.Email,
-			HttpOnly: true,
-			Path:     "/",
-			Domain:   domain,
-		})
-		w.Header().Set("HX-Redirect", "/")
-
+	user, err := s.store.GetUserByEmail(req.Email)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		return
 	}
 
-	return fmt.Errorf("method not allowed %s", r.Method)
+	if !user.ValidPassword(req.Password) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	token, err := createJWT(user)
+	if err != nil {
+		s.handleError(w, r, err)
+		return
+	}
+	domain := os.Getenv("DOMAIN")
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
+		Value:    token,
+		HttpOnly: true,
+		Path:     "/",
+		Domain:   domain,
+	})
+	http.SetCookie(w, &http.Cookie{
+		Name:     "email",
+		Value:    user.Email,
+		HttpOnly: true,
+		Path:     "/",
+		Domain:   domain,
+	})
+	w.Header().Set("HX-Redirect", "/")
 }
 
-func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) error {
-	if r.Method == "GET" {
-		templatesDir := os.Getenv("TEMPLATES_DIR")
-		if templatesDir == "" {
-			fmt.Println("TEMPLATES_DIR environment variable is not set.")
-		}
-
-		tmplPathBase := fmt.Sprintf("%s/ui/base.html", templatesDir)
-		tmplPathContent := fmt.Sprintf("%s/auth/register.html", templatesDir)
-
-		files := []string{
-			tmplPathBase,
-			tmplPathContent,
-		}
-		tmpl, err := template.ParseFiles(files...)
-
-		if err != nil {
-			return err
-		}
-		err = tmpl.Execute(w, nil)
-		if err != nil {
-			return err
-		}
-
-		return nil
+func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		s.handleRegisterGET(w, r)
+	case http.MethodPost:
+		s.handleRegisterPOST(w, r)
+	default:
+		s.handleMethodNotAllowed(w, r)
 	}
-
-	if r.Method == "POST" {
-		createAccReq := new(types.RegisterRequest)
-
-		if err := json.NewDecoder(r.Body).Decode(createAccReq); err != nil {
-			return err
-		}
-		existingUser, _ := s.store.GetUserByEmail(createAccReq.Email)
-		if existingUser != nil {
-			return WriteJSON(w, http.StatusForbidden, ApiError{Error: createAccReq.Email + " already used"})
-		}
-		user, err := types.NewUser(createAccReq.FirstName, createAccReq.LastName, createAccReq.Email, createAccReq.Password)
-		if err != nil {
-			return err
-		}
-		if err := s.store.CreateUser(user); err != nil {
-			return err
-		}
-		token, err := createJWT(user)
-		if err != nil {
-			return err
-		}
-		domain := os.Getenv("DOMAIN")
-		http.SetCookie(w, &http.Cookie{
-			Name:     "access_token",
-			Value:    token,
-			HttpOnly: true,
-			Path:     "/",
-			Domain:   domain,
-		})
-		w.Header().Set("HX-Redirect", "/")
-	}
-
-	return fmt.Errorf("method not allowed %s", r.Method)
 }
 
-func (s *ApiRouter) handleLogout(w http.ResponseWriter, r *http.Request) error {
-	if r.Method == "GET" {
+func (s *ApiRouter) handleRegisterGET(w http.ResponseWriter, r *http.Request) {
+	templatesDir := os.Getenv("TEMPLATES_DIR")
+	if templatesDir == "" {
+		fmt.Println("TEMPLATES_DIR environment variable is not set.")
+	}
+
+	tmplPathBase := fmt.Sprintf("%s/ui/base.html", templatesDir)
+	tmplPathContent := fmt.Sprintf("%s/auth/register.html", templatesDir)
+
+	files := []string{
+		tmplPathBase,
+		tmplPathContent,
+	}
+	tmpl, err := template.ParseFiles(files...)
+
+	if err != nil {
+		s.handleError(w, r, err)
+		return
+	}
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		s.handleError(w, r, err)
+		return
+	}
+}
+
+func (s *ApiRouter) handleRegisterPOST(w http.ResponseWriter, r *http.Request) {
+	createAccReq := new(types.RegisterRequest)
+
+	if err := json.NewDecoder(r.Body).Decode(createAccReq); err != nil {
+		s.handleError(w, r, err)
+		return
+	}
+	existingUser, _ := s.store.GetUserByEmail(createAccReq.Email)
+	if existingUser != nil {
+		WriteJSON(w, http.StatusForbidden, ApiError{Error: createAccReq.Email + " already used"})
+		return
+	}
+	user, err := types.NewUser(createAccReq.FirstName, createAccReq.LastName, createAccReq.Email, createAccReq.Password)
+	if err != nil {
+		s.handleError(w, r, err)
+		return
+	}
+	if err := s.store.CreateUser(user); err != nil {
+		s.handleError(w, r, err)
+		return
+	}
+	token, err := createJWT(user)
+	if err != nil {
+		s.handleError(w, r, err)
+		return
+	}
+	domain := os.Getenv("DOMAIN")
+	http.SetCookie(w, &http.Cookie{
+		Name:     "access_token",
+		Value:    token,
+		HttpOnly: true,
+		Path:     "/",
+		Domain:   domain,
+	})
+	w.Header().Set("HX-Redirect", "/")
+}
+
+func (s *ApiRouter) handleLogout(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
 		domain := os.Getenv("DOMAIN")
 		http.SetCookie(w, &http.Cookie{
 			Name:     "access_token",
@@ -174,59 +177,53 @@ func (s *ApiRouter) handleLogout(w http.ResponseWriter, r *http.Request) error {
 			Domain:   domain,
 		})
 		w.Header().Set("HX-Redirect", "/")
-		return nil
+	} else {
+		s.handleMethodNotAllowed(w, r)
 	}
-
-	return fmt.Errorf("method not allowed %s", r.Method)
-
 }
+func JWTAuthMiddleware(s database.Methods) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Your middleware logic here
+			secret := os.Getenv("JWT_SECRET")
 
-func withJWTAuth(handlerFunc http.HandlerFunc, s database.Methods) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		secret := os.Getenv("JWT_SECRET")
-
-		fmt.Println("calling JWT auth middleware")
-		tokenString, err := extractTokenFromRequest(r)
-		if err != nil {
-			permissionDenied(w)
-			return
-		}
-		claims := &types.LoginResponse{}
-		jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			fmt.Println("calling JWT auth middleware")
+			tokenString, err := extractTokenFromRequest(r)
+			if err != nil {
+				permissionDenied(w)
+				return
 			}
+			claims := &types.LoginResponse{}
+			jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+					return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+				}
 
-			return []byte(secret), nil
+				return []byte(secret), nil
+			})
+			if err != nil {
+				permissionDenied(w)
+				return
+			}
+			if time.Until(claims.ExpiresAt.Time) < 1*time.Second {
+				cookie, _ := r.Cookie("email")
+
+				user, _ := s.GetUserByEmail(cookie.Value)
+				refreshToken(w, r, user)
+			} else {
+				token, err := validateJWT(tokenString)
+				if err != nil {
+					permissionDenied(w)
+					return
+				}
+				if !token.Valid {
+					permissionDenied(w)
+					return
+				}
+				// Handle other cases as needed
+			}
+			next.ServeHTTP(w, r)
 		})
-		if err != nil {
-			permissionDenied(w)
-			return
-		}
-		if time.Until(claims.ExpiresAt.Time) < 1*time.Second {
-			cookie, _ := r.Cookie("email")
-
-			user, _ := s.GetUserByEmail(cookie.Value)
-			refreshToken(w, r, user)
-		} else {
-
-			token, err := validateJWT(tokenString)
-			if err != nil {
-				permissionDenied(w)
-				return
-			}
-			if !token.Valid {
-				permissionDenied(w)
-				return
-			}
-			if err != nil {
-				WriteJSON(w, http.StatusForbidden, ApiError{Error: "invalid token"})
-				return
-			}
-
-		}
-
-		handlerFunc(w, r)
 	}
 }
 
