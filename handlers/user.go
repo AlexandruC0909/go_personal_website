@@ -2,41 +2,23 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"html/template"
 	"net/http"
-	"os"
 
 	"go_api/types"
+
+	templates "go_api/templates"
 )
 
 func (s *ApiRouter) handleGetUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := s.store.GetUsers()
 
+	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/navbar.html", "user/usersList.html")
 	if err != nil {
 		s.handleError(w, r, err)
 		return
 	}
-	templatesDir := os.Getenv("TEMPLATES_DIR")
-	if templatesDir == "" {
-		fmt.Println("TEMPLATES_DIR environment variable is not set.")
-	}
 
-	tmplPathBase := fmt.Sprintf("%s/ui/base.html", templatesDir)
-	tmplPathNav := fmt.Sprintf("%s/ui/navbar.html", templatesDir)
-	tmplPathContent := fmt.Sprintf("%s/user/usersList.html", templatesDir)
-
-	files := []string{
-		tmplPathBase,
-		tmplPathNav,
-		tmplPathContent,
-	}
-	tmpl, err := template.ParseFiles(files...)
-
-	if err != nil {
-		s.handleError(w, r, err)
-		return
-	}
 	err = tmpl.Execute(w, users)
 	if err != nil {
 		s.handleError(w, r, err)
@@ -57,25 +39,12 @@ func (s *ApiRouter) handleUserByIdGET(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	templatesDir := os.Getenv("TEMPLATES_DIR")
-	if templatesDir == "" {
-		fmt.Println("TEMPLATES_DIR environment variable is not set.")
-	}
-
-	tmplPathBase := fmt.Sprintf("%s/ui/base.html", templatesDir)
-	tmplPathNav := fmt.Sprintf("%s/ui/navbar.html", templatesDir)
-	tmplPathContent := fmt.Sprintf("%s/user/userDetails.html", templatesDir)
-
-	files := []string{
-		tmplPathBase,
-		tmplPathNav,
-		tmplPathContent,
-	}
-	tmpl, err := template.ParseFiles(files...)
+	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/navbar.html", "user/userDetails.html")
 	if err != nil {
 		s.handleError(w, r, err)
 		return
 	}
+
 	err = tmpl.Execute(w, user)
 	if err != nil {
 		s.handleError(w, r, err)
@@ -95,7 +64,6 @@ func (s *ApiRouter) handleUserByIdDELETE(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	WriteJSON(w, http.StatusOK, map[string]int{"deleted": id})
 }
 
 func (s *ApiRouter) handleUserByIdPUT(w http.ResponseWriter, r *http.Request) {

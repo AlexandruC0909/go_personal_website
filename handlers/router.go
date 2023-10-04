@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	database "go_api/database"
+	templates "go_api/templates"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -61,7 +62,8 @@ func (s *ApiRouter) Run() {
 	router.Get("/auth/login", s.handleLoginGET)
 	router.Post("/auth/login", s.handleLoginPOST)
 	router.Post("/auth/logout", s.handleLogout)
-	router.Post("/auth/register", s.handleRegister)
+	router.Post("/auth/register", s.handleRegisterPOST)
+	router.Get("/auth/register", s.handleRegisterGET)
 	router.Route("/users", func(r chi.Router) {
 		r.Use(JWTAuthMiddleware(s.store))
 		r.Get("/", s.handleGetUsers)
@@ -77,6 +79,34 @@ func (s *ApiRouter) Run() {
 	log.Println("JSON API server running on port:", s.listenAddress)
 
 	http.ListenAndServe(s.listenAddress, router)
+}
+
+func (s *ApiRouter) handleHome(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/navbar.html", "ui/home.html")
+	if err != nil {
+		s.handleError(w, r, err)
+		return
+	}
+
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		s.handleError(w, r, err)
+		return
+	}
+}
+
+func (s *ApiRouter) handleNotFound(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/page404.html")
+	if err != nil {
+		s.handleError(w, r, err)
+		return
+	}
+
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		s.handleError(w, r, err)
+		return
+	}
 }
 
 func FileServer(r chi.Router, path string, root http.FileSystem) {
@@ -96,60 +126,6 @@ func FileServer(r chi.Router, path string, root http.FileSystem) {
 		fs := http.StripPrefix(pathPrefix, http.FileServer(root))
 		fs.ServeHTTP(w, r)
 	})
-}
-func (s *ApiRouter) handleHome(w http.ResponseWriter, r *http.Request) {
-	templatesDir := os.Getenv("TEMPLATES_DIR")
-	if templatesDir == "" {
-		fmt.Println("TEMPLATES_DIR environment variable is not set.")
-	}
-
-	tmplPathBase := fmt.Sprintf("%s/ui/base.html", templatesDir)
-	tmplPathNav := fmt.Sprintf("%s/ui/navbar.html", templatesDir)
-	tmplPathContent := fmt.Sprintf("%s/ui/home.html", templatesDir)
-
-	files := []string{
-		tmplPathBase,
-		tmplPathNav,
-		tmplPathContent,
-	}
-	tmpl, err := template.ParseFiles(files...)
-
-	if err != nil {
-		s.handleError(w, r, err)
-		return
-	}
-
-	err = tmpl.Execute(w, nil)
-	if err != nil {
-		s.handleError(w, r, err)
-		return
-	}
-}
-
-func (s *ApiRouter) handleNotFound(w http.ResponseWriter, r *http.Request) {
-	templatesDir := os.Getenv("TEMPLATES_DIR")
-	if templatesDir == "" {
-		fmt.Println("TEMPLATES_DIR environment variable is not set.")
-	}
-
-	tmplPathBase := fmt.Sprintf("%s/ui/base.html", templatesDir)
-	tmplPathContent := fmt.Sprintf("%s/ui/page404.html", templatesDir)
-
-	files := []string{
-		tmplPathBase,
-		tmplPathContent,
-	}
-	tmpl, err := template.ParseFiles(files...)
-	if err != nil {
-		s.handleError(w, r, err)
-		return
-	}
-
-	err = tmpl.Execute(w, nil)
-	if err != nil {
-		s.handleError(w, r, err)
-		return
-	}
 }
 
 func (s *ApiRouter) handleError(w http.ResponseWriter, r *http.Request, err error) {

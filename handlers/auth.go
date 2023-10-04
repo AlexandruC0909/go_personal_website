@@ -12,24 +12,13 @@ import (
 	"go_api/types"
 	user "go_api/types"
 
+	templates "go_api/templates"
+
 	"github.com/golang-jwt/jwt/v5"
-	// Import other necessary packages
 )
 
 func (s *ApiRouter) handleLoginGET(w http.ResponseWriter, r *http.Request) {
-	templatesDir := os.Getenv("TEMPLATES_DIR")
-	if templatesDir == "" {
-		fmt.Println("TEMPLATES_DIR environment variable is not set.")
-	}
-
-	tmplPathBase := fmt.Sprintf("%s/ui/base.html", templatesDir)
-	tmplPathContent := fmt.Sprintf("%s/auth/login.html", templatesDir)
-
-	files := []string{
-		tmplPathBase,
-		tmplPathContent,
-	}
-	tmpl, err := template.ParseFiles(files...)
+	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "auth/login.html")
 	if err != nil {
 		s.handleError(w, r, err)
 		return
@@ -85,36 +74,13 @@ func (s *ApiRouter) handleLoginPOST(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("HX-Redirect", "/")
 }
 
-func (s *ApiRouter) handleRegister(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case http.MethodGet:
-		s.handleRegisterGET(w, r)
-	case http.MethodPost:
-		s.handleRegisterPOST(w, r)
-	default:
-		s.handleMethodNotAllowed(w, r)
-	}
-}
-
 func (s *ApiRouter) handleRegisterGET(w http.ResponseWriter, r *http.Request) {
-	templatesDir := os.Getenv("TEMPLATES_DIR")
-	if templatesDir == "" {
-		fmt.Println("TEMPLATES_DIR environment variable is not set.")
-	}
-
-	tmplPathBase := fmt.Sprintf("%s/ui/base.html", templatesDir)
-	tmplPathContent := fmt.Sprintf("%s/auth/register.html", templatesDir)
-
-	files := []string{
-		tmplPathBase,
-		tmplPathContent,
-	}
-	tmpl, err := template.ParseFiles(files...)
-
+	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "auth/register.html")
 	if err != nil {
 		s.handleError(w, r, err)
 		return
 	}
+
 	err = tmpl.Execute(w, nil)
 	if err != nil {
 		s.handleError(w, r, err)
@@ -181,6 +147,7 @@ func (s *ApiRouter) handleLogout(w http.ResponseWriter, r *http.Request) {
 		s.handleMethodNotAllowed(w, r)
 	}
 }
+
 func JWTAuthMiddleware(s database.Methods) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -331,25 +298,14 @@ func extractTokenFromRequest(r *http.Request) (string, error) {
 }
 
 func permissionDenied(w http.ResponseWriter) error {
-	templatesDir := os.Getenv("TEMPLATES_DIR")
-	if templatesDir == "" {
-		fmt.Println("TEMPLATES_DIR environment variable is not set.")
-	}
-
-	tmplPathBase := fmt.Sprintf("%s/ui/base.html", templatesDir)
-	tmplPathContent := fmt.Sprintf("%s/ui/page403.html", templatesDir)
-
-	files := []string{
-		tmplPathBase,
-		tmplPathContent,
-	}
-	tmpl, err := template.ParseFiles(files...)
+	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/page403.html")
 	if err != nil {
-		return err
+		return nil
 	}
+
 	err = tmpl.Execute(w, nil)
 	if err != nil {
-		return err
+		return nil
 	}
 
 	return nil
