@@ -134,6 +134,7 @@ func (s *ApiRouter) handleLogout(w http.ResponseWriter, r *http.Request) {
 			HttpOnly: true,
 			Path:     "/",
 			Domain:   domain,
+			MaxAge:   -1,
 		})
 		http.SetCookie(w, &http.Cookie{
 			Name:     "email",
@@ -141,8 +142,9 @@ func (s *ApiRouter) handleLogout(w http.ResponseWriter, r *http.Request) {
 			HttpOnly: true,
 			Path:     "/",
 			Domain:   domain,
+			MaxAge:   -1,
 		})
-		w.Header().Set("HX-Redirect", "/")
+		http.Redirect(w, r, "/", http.StatusSeeOther)
 	} else {
 		s.handleMethodNotAllowed(w, r)
 	}

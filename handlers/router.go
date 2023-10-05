@@ -61,7 +61,7 @@ func (s *ApiRouter) Run() {
 	router.Get("/", s.handleHome)
 	router.Get("/auth/login", s.handleLoginGET)
 	router.Post("/auth/login", s.handleLoginPOST)
-	router.Post("/auth/logout", s.handleLogout)
+	router.Get("/auth/logout", s.handleLogout)
 	router.Post("/auth/register", s.handleRegisterPOST)
 	router.Get("/auth/register", s.handleRegisterGET)
 	router.Route("/users", func(r chi.Router) {
@@ -79,6 +79,25 @@ func (s *ApiRouter) Run() {
 	log.Println("JSON API server running on port:", s.listenAddress)
 
 	http.ListenAndServe(s.listenAddress, router)
+}
+
+func FileServer(r chi.Router, path string, root http.FileSystem) {
+	if strings.ContainsAny(path, "{}*") {
+		panic("FileServer does not permit any URL parameters.")
+	}
+
+	if path != "/" && path[len(path)-1] != '/' {
+		r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
+		path += "/"
+	}
+	path += "*"
+
+	r.Get(path, func(w http.ResponseWriter, r *http.Request) {
+		rctx := chi.RouteContext(r.Context())
+		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
+		fs := http.StripPrefix(pathPrefix, http.FileServer(root))
+		fs.ServeHTTP(w, r)
+	})
 }
 
 func (s *ApiRouter) handleHome(w http.ResponseWriter, r *http.Request) {
@@ -109,28 +128,10 @@ func (s *ApiRouter) handleNotFound(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func FileServer(r chi.Router, path string, root http.FileSystem) {
-	if strings.ContainsAny(path, "{}*") {
-		panic("FileServer does not permit any URL parameters.")
-	}
-
-	if path != "/" && path[len(path)-1] != '/' {
-		r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
-		path += "/"
-	}
-	path += "*"
-
-	r.Get(path, func(w http.ResponseWriter, r *http.Request) {
-		rctx := chi.RouteContext(r.Context())
-		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
-		fs := http.StripPrefix(pathPrefix, http.FileServer(root))
-		fs.ServeHTTP(w, r)
-	})
-}
-
 func (s *ApiRouter) handleError(w http.ResponseWriter, r *http.Request, err error) {
 	WriteJSON(w, http.StatusBadRequest, ApiError{Error: err.Error()})
 }
+
 func (s *ApiRouter) handleMethodNotAllowed(w http.ResponseWriter, r *http.Request) {
 	s.handleError(w, r, fmt.Errorf("method not allowed %s", r.Method))
 }
