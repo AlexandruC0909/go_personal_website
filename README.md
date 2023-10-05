@@ -5,7 +5,7 @@
 | Environment | N/A | PROD |
 | --- | --- | --- |
 | Branch | develop | prod |
-| URL | N/A | [PROD URL](https://baietiiRai.com/api) |
+| URL | N/A | [PROD URL](https://alexandrucuriman.com) |
 | Coverage | [![codecov](https://codecov.io/github/AlexandruC0909/go_personal_website/graph/badge.svg?token=6DTLMS8GSE)](https://codecov.io/github/AlexandruC0909/go_personal_website) | [![codecov](https://codecov.io/github/AlexandruC0909/go_personal_website/graph/badge.svg?token=6DTLMS8GSE)](https://codecov.io/github/AlexandruC0909/go_personal_website) |
 | Last Commit | <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/AlexandruC0909/go_personal_website/develop"> | <img alt="GitHub last commit" src="https://img.shields.io/github/last-commit/AlexandruC0909/go_personal_website/prod"> |
 
