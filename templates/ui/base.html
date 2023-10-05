@@ -4,8 +4,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://cdn.jsdelivr.net/npm/htmx.org@1.6.0/dist/htmx.min.js"></script>
+  <script src="/static/js/htmx.min.js"></script>
   <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="icon" type="image/x-icon" href="/static/uploads/favicon.png">
 </head>
@@ -19,13 +20,13 @@
       <div class="container flex flex-col md:flex-row items-center justify-center">
         <div class="container  min-h-screen flex flex-col md:flex-row items-center justify-center min-h-screen">{{block
           "content" .}}{{end}}</div>
-
       </div>
     </main>
-  </div>
+  </div>{{.ImageURL}}
 </body>
 
 </html>
+
 <style>
   .path {
     stroke-dasharray: 1;
