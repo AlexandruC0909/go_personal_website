@@ -2,16 +2,20 @@ package database
 
 import (
 	"database/sql"
+	"embed"
 	"fmt"
 	"log"
 	"os"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
-	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/golang-migrate/migrate/v4/source/iofs"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
+
+//go:embed migrations/*
+var Migrations embed.FS
 
 func NewPostgresDbConnection() (*DbConnection, error) {
 	isProduction := os.Getenv("GO_ENV") == "production"
@@ -21,6 +25,7 @@ func NewPostgresDbConnection() (*DbConnection, error) {
 			log.Fatal("Error loading .env file")
 		}
 	}
+
 	dbname := os.Getenv("DB_NAME")
 	dbPassword := os.Getenv("DB_PASSWORD")
 	dbUser := os.Getenv("DB_USER")
@@ -37,13 +42,16 @@ func NewPostgresDbConnection() (*DbConnection, error) {
 		db.Close()
 		return nil, fmt.Errorf("failed to create database driver: %v", err)
 	}
-	migrationPath := os.Getenv("MIGRATIONS_DIR")
 
-	log.Printf("Using migrations path: %s", migrationPath)
-	m, err := migrate.NewWithDatabaseInstance(
-		migrationPath,
-		"postgres",
-		driver)
+	sourceInstance, err := iofs.New(Migrations, "migrations")
+	if err != nil {
+		db.Close()
+		return nil, fmt.Errorf("failed to create custom source driver: %v", err)
+	}
+
+	log.Printf("Using embedded migrations")
+	m, err := migrate.NewWithInstance("iofs", sourceInstance, "postgres", driver)
+
 	if err != nil {
 		db.Close()
 		return nil, fmt.Errorf("failed to create migration instance: %v", err)
