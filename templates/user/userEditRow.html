@@ -1,4 +1,4 @@
-<tr hx-ext=" json-enc">
+<tr hx-ext="json-enc">
   <td class="whitespace-nowrap px-6 py-4">
     <div class="relative h-10 w-10">
       <img class="h-full w-full rounded-full object-cover object-center" src={{.ImageURL}}
@@ -27,7 +27,7 @@
       data-include-edit="{{.ID}}" name="role" value="{{.Role.Name}}" />
   </td>
   <td>
-    <button class="btn" hx-get="/users/{{.ID}}/row" hx-target="#datarow-{{.ID}}" hx-swap="outerHTML">
+    <button class="btn" hx-get="/users/{{.ID}}/row" hx-swap="outerHTML">
       Cancel
     </button>
     <button class="btn btn-danger" hx-put="/users/{{.ID}}" hx-include="closest tr">

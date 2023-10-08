@@ -1,15 +1,12 @@
 {{define "userRow"}}
-<tr class="hover:bg-gray-50" id="datarow-{{.ID}}">
-  <th class="flex gap-3 px-6 py-4 font-normal text-gray-900">
-    <a href="/users/{{.ID}}">
-      <div class="relative h-10 w-10">
-        <img class="h-full w-full rounded-full object-cover object-center" src={{.ImageURL}}
-          onerror="this.src='../static/uploads/default_avatar.jpg'" alt="User Avatar" />
-        <span class="absolute right-0 bottom-0 h-2 w-2 rounded-full bg-green-400 ring ring-white"></span>
-      </div>
-    </a>
-
-  </th>
+<tr>
+  <td class="whitespace-nowrap px-6 py-4">
+    <div class="relative h-10 w-10">
+      <img class="h-full w-full rounded-full object-cover object-center" src={{.ImageURL}}
+        onerror="this.src='../static/uploads/default_avatar.jpg'" alt="User Avatar" />
+      <span class="absolute right-0 bottom-0 h-2 w-2 rounded-full bg-green-400 ring ring-white"></span>
+    </div>
+  </td>
   <td class="px-6 py-4">
     <div class="text-gray-400">{{.FirstName}}</div>
   </td>
@@ -40,6 +37,5 @@
       </button>
     </div>
   </td>
-
 </tr>
 {{end}}
