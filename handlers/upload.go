@@ -10,10 +10,10 @@ import (
 )
 
 type UploadHandler interface {
-	UploadImages(w http.ResponseWriter, r *http.Request) error
+	handleUploadUserImages(w http.ResponseWriter, r *http.Request) error
 }
 
-func (s *ApiRouter) UploadImages(w http.ResponseWriter, r *http.Request) {
+func (s *ApiRouter) handleUploadUserImages(w http.ResponseWriter, r *http.Request) {
 
 	id, err := getID(r)
 	if err != nil {

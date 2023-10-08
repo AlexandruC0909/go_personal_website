@@ -17,7 +17,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func (s *ApiRouter) handleLoginGET(w http.ResponseWriter, r *http.Request) {
+func (s *ApiRouter) handleLoginGet(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "auth/login.html")
 	if err != nil {
 		s.handleError(w, r, err)
@@ -31,7 +31,7 @@ func (s *ApiRouter) handleLoginGET(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *ApiRouter) handleLoginPOST(w http.ResponseWriter, r *http.Request) {
+func (s *ApiRouter) handleLoginPost(w http.ResponseWriter, r *http.Request) {
 	var req types.LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		s.handleError(w, r, err)
@@ -74,7 +74,7 @@ func (s *ApiRouter) handleLoginPOST(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("HX-Redirect", "/")
 }
 
-func (s *ApiRouter) handleRegisterGET(w http.ResponseWriter, r *http.Request) {
+func (s *ApiRouter) handleRegisterGet(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "auth/register.html")
 	if err != nil {
 		s.handleError(w, r, err)
@@ -88,7 +88,7 @@ func (s *ApiRouter) handleRegisterGET(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *ApiRouter) handleRegisterPOST(w http.ResponseWriter, r *http.Request) {
+func (s *ApiRouter) handleRegisterPost(w http.ResponseWriter, r *http.Request) {
 	createAccReq := new(types.RegisterRequest)
 
 	if err := json.NewDecoder(r.Body).Decode(createAccReq); err != nil {

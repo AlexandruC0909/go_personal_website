@@ -1,0 +1,37 @@
+<tr hx-ext=" json-enc">
+  <td class="whitespace-nowrap px-6 py-4">
+    <div class="relative h-10 w-10">
+      <img class="h-full w-full rounded-full object-cover object-center" src={{.ImageURL}}
+        onerror="this.src='../static/uploads/default_avatar.jpg'" alt="User Avatar" />
+      <span class="absolute right-0 bottom-0 h-2 w-2 rounded-full bg-green-400 ring ring-white"></span>
+    </div>
+  </td>
+  <td class="whitespace-nowrap px-6 py-4">
+    <input type="text"
+      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+      name="firstname" value="{{.FirstName}}" />
+  </td>
+  <td class="whitespace-nowrap px-6 py-4">
+    <input type="text"
+      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+      data-include-edit="{{.ID}}" name="lastname" value="{{.LastName}}" />
+  </td>
+  <td class="whitespace-nowrap px-6 py-4">
+    <input type="text"
+      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+      data-include-edit="{{.ID}}" name="email" value="{{.Email}}" />
+  </td>
+  <td class="whitespace-nowrap px-6 py-4">
+    <input type="text"
+      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+      data-include-edit="{{.ID}}" name="role" value="{{.Role.Name}}" />
+  </td>
+  <td>
+    <button class="btn" hx-get="/users/{{.ID}}/row" hx-target="#datarow-{{.ID}}" hx-swap="outerHTML">
+      Cancel
+    </button>
+    <button class="btn btn-danger" hx-put="/users/{{.ID}}" hx-include="closest tr">
+      Save
+    </button>
+  </td>
+</tr>
