@@ -1,4 +1,4 @@
-<tr hx-ext="json-enc">
+<tr hx-ext="json-enc" id="datarow-{{.ID}}">
   <td class="whitespace-nowrap px-6 py-4">
     <div class="relative h-10 w-10">
       <img class="h-full w-full rounded-full object-cover object-center" src={{.ImageURL}}
@@ -22,16 +22,15 @@
       data-include-edit="{{.ID}}" name="email" value="{{.Email}}" />
   </td>
   <td class="whitespace-nowrap px-6 py-4">
-    <input type="text"
-      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-      data-include-edit="{{.ID}}" name="role" value="{{.Role.Name}}" />
+    {{.Role.Name}}
   </td>
-  <td>
-    <button class="btn" hx-get="/users/{{.ID}}/row" hx-swap="outerHTML">
-      Cancel
-    </button>
-    <button class="btn btn-danger" hx-put="/users/{{.ID}}" hx-include="closest tr">
-      Save
-    </button>
+  <td class="whitespace-nowrap px-1 py-1">
+    <a hx-get="/users/{{.ID}}/row" hx-target="#datarow-{{.ID}}" hx-swap="outerHTML"
+      class="inline-flex items-center h-8 px-4 m-2 text-sm text-red-100 transition-colors duration-150 bg-red-700 rounded-lg focus:shadow-outline hover:bg-red-800"
+      href="">Cancel</a>
+    <a hx-put="/users/{{.ID}}" hx-target="#datarow-{{.ID}}" hx-swap="outerHTML" hx-include="closest tr"
+      class="inline-flex items-center h-8 px-4 m-2 text-sm text-blue-100 transition-colors duration-150 bg-blue-700 rounded-lg focus:shadow-outline hover:bg-blue-800"
+      href="">Save</a>
   </td>
 </tr>
+</form>
