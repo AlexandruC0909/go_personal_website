@@ -17,7 +17,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func (s *ApiRouter) handleLoginGET(w http.ResponseWriter, r *http.Request) {
+func (s *ApiRouter) handleLoginGet(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "auth/login.html")
 	if err != nil {
 		s.handleError(w, r, err)
@@ -31,7 +31,7 @@ func (s *ApiRouter) handleLoginGET(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *ApiRouter) handleLoginPOST(w http.ResponseWriter, r *http.Request) {
+func (s *ApiRouter) handleLoginPost(w http.ResponseWriter, r *http.Request) {
 	var req types.LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		s.handleError(w, r, err)
@@ -74,7 +74,7 @@ func (s *ApiRouter) handleLoginPOST(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("HX-Redirect", "/")
 }
 
-func (s *ApiRouter) handleRegisterGET(w http.ResponseWriter, r *http.Request) {
+func (s *ApiRouter) handleRegisterGet(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "auth/register.html")
 	if err != nil {
 		s.handleError(w, r, err)
@@ -88,7 +88,7 @@ func (s *ApiRouter) handleRegisterGET(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *ApiRouter) handleRegisterPOST(w http.ResponseWriter, r *http.Request) {
+func (s *ApiRouter) handleRegisterPost(w http.ResponseWriter, r *http.Request) {
 	createAccReq := new(types.RegisterRequest)
 
 	if err := json.NewDecoder(r.Body).Decode(createAccReq); err != nil {
@@ -263,31 +263,40 @@ func validateJWT(tokenString string) (*jwt.Token, error) {
 func refreshToken(w http.ResponseWriter, r *http.Request, user *user.User) error {
 	secret := os.Getenv("JWT_SECRET")
 
-	tokenString, _ := extractTokenFromRequest(r)
-	claims := &types.LoginResponse{}
-
-	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-		}
-
-		return []byte(secret), nil
-	})
-
-	claims.RegisteredClaims.ExpiresAt = jwt.NewNumericDate(time.Now())
-
-	token, err := createJWT(user)
+	tokenString, err := extractTokenFromRequest(r)
 	if err != nil {
 		return err
 	}
+
+	claims := &types.LoginResponse{}
+
+	_, err = jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(secret), nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	claims.RegisteredClaims.ExpiresAt = jwt.NewNumericDate(time.Now())
+
+	newToken, err := createJWT(user)
+	if err != nil {
+		return err
+	}
+
 	domain := os.Getenv("DOMAIN")
 	http.SetCookie(w, &http.Cookie{
 		Name:     "access_token",
-		Value:    token,
+		Value:    newToken,
 		HttpOnly: true,
 		Path:     "/",
 		Domain:   domain,
 	})
+
 	return nil
 }
 
@@ -302,12 +311,12 @@ func extractTokenFromRequest(r *http.Request) (string, error) {
 func permissionDenied(w http.ResponseWriter) error {
 	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/page403.html")
 	if err != nil {
-		return nil
+		return err
 	}
 
 	err = tmpl.Execute(w, nil)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	return nil

@@ -13,7 +13,7 @@ import (
 func (s *ApiRouter) handleGetUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := s.store.GetUsers()
 
-	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/navbar.html", "user/usersList.html")
+	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/navbar.html", "user/usersList.html", "user/userRow.html")
 	if err != nil {
 		s.handleError(w, r, err)
 		return
@@ -26,7 +26,7 @@ func (s *ApiRouter) handleGetUsers(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *ApiRouter) handleUserByIdGET(w http.ResponseWriter, r *http.Request) {
+func (s *ApiRouter) handleGetUser(w http.ResponseWriter, r *http.Request) {
 	id, err := getID(r)
 	if err != nil {
 		s.handleError(w, r, err)
@@ -52,7 +52,7 @@ func (s *ApiRouter) handleUserByIdGET(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s *ApiRouter) handleUserByIdDELETE(w http.ResponseWriter, r *http.Request) {
+func (s *ApiRouter) handleDeleteUser(w http.ResponseWriter, r *http.Request) {
 	id, err := getID(r)
 	if err != nil {
 		s.handleError(w, r, err)
@@ -66,7 +66,8 @@ func (s *ApiRouter) handleUserByIdDELETE(w http.ResponseWriter, r *http.Request)
 
 }
 
-func (s *ApiRouter) handleUserByIdPUT(w http.ResponseWriter, r *http.Request) {
+func (s *ApiRouter) handleEditUser(w http.ResponseWriter, r *http.Request) {
+
 	updateUserReq := new(types.UpdateUserRequest)
 
 	if err := json.NewDecoder(r.Body).Decode(updateUserReq); err != nil {
@@ -85,7 +86,62 @@ func (s *ApiRouter) handleUserByIdPUT(w http.ResponseWriter, r *http.Request) {
 	if err := s.store.UpdateUser(user); err != nil {
 		s.handleError(w, r, err)
 		return
+	} else {
+		tmpl, err := template.ParseFS(templates.Templates, "user/userRow.html")
+		if err != nil {
+			s.handleError(w, r, err)
+			return
+		}
+
+		err = tmpl.Execute(w, user)
+		if err != nil {
+			s.handleError(w, r, err)
+			return
+		}
 	}
 
-	WriteJSON(w, http.StatusOK, user)
+}
+
+func (s *ApiRouter) handlgeGetUserEditRow(w http.ResponseWriter, r *http.Request) {
+	id, err := getID(r)
+	if err != nil {
+		s.handleError(w, r, err)
+		return
+	}
+	user, err := s.store.GetUser(id)
+
+	tmpl, err := template.ParseFS(templates.Templates, "user/userEditRow.html")
+	if err != nil {
+		s.handleError(w, r, err)
+		return
+	}
+
+	err = tmpl.Execute(w, user)
+	if err != nil {
+		s.handleError(w, r, err)
+		return
+	}
+
+}
+
+func (s *ApiRouter) handleGetUserRow(w http.ResponseWriter, r *http.Request) {
+	id, err := getID(r)
+	if err != nil {
+		s.handleError(w, r, err)
+		return
+	}
+	user, err := s.store.GetUser(id)
+
+	tmpl, err := template.ParseFS(templates.Templates, "user/userRow.html")
+	if err != nil {
+		s.handleError(w, r, err)
+		return
+	}
+
+	err = tmpl.Execute(w, user)
+	if err != nil {
+		s.handleError(w, r, err)
+		return
+	}
+
 }
