@@ -1,0 +1,31 @@
+{{define "userRow"}}
+<tr id="datarow-{{.ID}}">
+  <td class="whitespace-nowrap px-6 py-4">
+    <div class="relative h-10 w-10">
+      <a href="/users/{{.ID}}">
+        <img class="h-full w-full rounded-full object-cover object-center" src={{.ImageURL}}
+          onerror="this.src='../static/uploads/default_avatar.jpg'" alt="User Avatar" />
+        <span class="absolute right-0 bottom-0 h-2 w-2 rounded-full bg-green-400 ring ring-white"></span>
+      </a>
+    </div>
+  </td>
+  <td class="px-6 py-4">
+    <div class="text-gray-400">{{.FirstName}}</div>
+  </td>
+  <td class="px-6 py-4">
+    <div class="text-gray-400">{{.LastName}}</div>
+  </td>
+  <td class="px-6 py-4">
+    <div class="text-gray-400">{{.Email}}</div>
+  </td>
+  <td class="px-6 py-4">{{.Role.Name}}</td>
+  <td class="px-6 py-4">
+    <a hx-delete="/users/{{.ID}}" hx-confirm="Are you sure you want to delete ?" class="hover:underline text-blue-700"
+      href="">Delete</a>
+    <a hx-get="/users/{{.ID}}/edit" hx-target="#datarow-{{.ID}}" hx-swap="outerHTML"
+      class="hover:underline text-blue-700" href="">
+      Edit
+    </a>
+  </td>
+</tr>
+{{end}}
