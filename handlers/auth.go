@@ -263,31 +263,40 @@ func validateJWT(tokenString string) (*jwt.Token, error) {
 func refreshToken(w http.ResponseWriter, r *http.Request, user *user.User) error {
 	secret := os.Getenv("JWT_SECRET")
 
-	tokenString, _ := extractTokenFromRequest(r)
-	claims := &types.LoginResponse{}
-
-	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-		}
-
-		return []byte(secret), nil
-	})
-
-	claims.RegisteredClaims.ExpiresAt = jwt.NewNumericDate(time.Now())
-
-	token, err := createJWT(user)
+	tokenString, err := extractTokenFromRequest(r)
 	if err != nil {
 		return err
 	}
+
+	claims := &types.LoginResponse{}
+
+	_, err = jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(secret), nil
+	})
+
+	if err != nil {
+		return err
+	}
+
+	claims.RegisteredClaims.ExpiresAt = jwt.NewNumericDate(time.Now())
+
+	newToken, err := createJWT(user)
+	if err != nil {
+		return err
+	}
+
 	domain := os.Getenv("DOMAIN")
 	http.SetCookie(w, &http.Cookie{
 		Name:     "access_token",
-		Value:    token,
+		Value:    newToken,
 		HttpOnly: true,
 		Path:     "/",
 		Domain:   domain,
 	})
+
 	return nil
 }
 
@@ -302,12 +311,12 @@ func extractTokenFromRequest(r *http.Request) (string, error) {
 func permissionDenied(w http.ResponseWriter) error {
 	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/page403.html")
 	if err != nil {
-		return nil
+		return err
 	}
 
 	err = tmpl.Execute(w, nil)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	return nil
