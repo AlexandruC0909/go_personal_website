@@ -205,7 +205,8 @@ func (s *ApiRouter) withRoleAuth(d database.Methods, requiredRole string) func(h
 
 			tokenString, err := extractTokenFromRequest(r)
 			if err != nil {
-				permissionDenied(w)
+				s.HandleGetUserRow(w, r)
+				s.sendRoleAlert(w, r)
 				return
 			}
 
@@ -214,7 +215,8 @@ func (s *ApiRouter) withRoleAuth(d database.Methods, requiredRole string) func(h
 			})
 
 			if err != nil {
-				permissionDenied(w)
+				s.HandleGetUserRow(w, r)
+				s.sendRoleAlert(w, r)
 				return
 			}
 
@@ -222,16 +224,19 @@ func (s *ApiRouter) withRoleAuth(d database.Methods, requiredRole string) func(h
 				email := claims["email"].(string)
 				user, err := d.GetUserByEmail(email)
 				if err != nil {
-					permissionDenied(w)
+					s.HandleGetUserRow(w, r)
+					s.sendRoleAlert(w, r)
 					return
 				}
 
 				if user.Role.Name != requiredRole {
-					permissionDenied(w)
+					s.HandleGetUserRow(w, r)
+					s.sendRoleAlert(w, r)
 					return
 				}
 			} else {
-				permissionDenied(w)
+				s.HandleGetUserRow(w, r)
+				s.sendRoleAlert(w, r)
 			}
 
 			next.ServeHTTP(w, r)
@@ -328,4 +333,19 @@ func permissionDenied(w http.ResponseWriter) error {
 	}
 
 	return nil
+}
+
+func (s *ApiRouter) sendRoleAlert(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFS(templates.Templates, "ui/roleAlert.html")
+	if err != nil {
+		s.handleError(w, r, err)
+		return
+	}
+
+	err = tmpl.Execute(w, r)
+	if err != nil {
+		s.handleError(w, r, err)
+		return
+	}
+
 }
