@@ -87,7 +87,8 @@ func (s *ApiRouter) handleEditUser(w http.ResponseWriter, r *http.Request) {
 		s.handleError(w, r, err)
 		return
 	} else {
-		tmpl, err := template.ParseFS(templates.Templates, "user/userRow.html")
+		user, err := s.store.GetUser(user.ID)
+		tmpl, err := template.ParseFS(templates.Templates, "user/userRow2.html")
 		if err != nil {
 			s.handleError(w, r, err)
 			return
@@ -124,7 +125,7 @@ func (s *ApiRouter) handlgeGetUserEditRow(w http.ResponseWriter, r *http.Request
 
 }
 
-func (s *ApiRouter) handleGetUserRow(w http.ResponseWriter, r *http.Request) {
+func (s *ApiRouter) HandleGetUserRow(w http.ResponseWriter, r *http.Request) {
 	id, err := getID(r)
 	if err != nil {
 		s.handleError(w, r, err)
@@ -132,7 +133,7 @@ func (s *ApiRouter) handleGetUserRow(w http.ResponseWriter, r *http.Request) {
 	}
 	user, err := s.store.GetUser(id)
 
-	tmpl, err := template.ParseFS(templates.Templates, "user/userRow.html")
+	tmpl, err := template.ParseFS(templates.Templates, "user/userRow2.html")
 	if err != nil {
 		s.handleError(w, r, err)
 		return

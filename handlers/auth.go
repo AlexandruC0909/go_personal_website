@@ -153,15 +153,15 @@ func (s *ApiRouter) handleLogout(w http.ResponseWriter, r *http.Request) {
 func JWTAuthMiddleware(s database.Methods) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// Your middleware logic here
 			secret := os.Getenv("JWT_SECRET")
-
 			fmt.Println("calling JWT auth middleware")
+
 			tokenString, err := extractTokenFromRequest(r)
 			if err != nil {
 				permissionDenied(w)
 				return
 			}
+
 			claims := &types.LoginResponse{}
 			jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -170,10 +170,12 @@ func JWTAuthMiddleware(s database.Methods) func(http.Handler) http.Handler {
 
 				return []byte(secret), nil
 			})
+
 			if err != nil {
 				permissionDenied(w)
 				return
 			}
+
 			if time.Until(claims.ExpiresAt.Time) < 1*time.Second {
 				cookie, _ := r.Cookie("email")
 
@@ -185,55 +187,61 @@ func JWTAuthMiddleware(s database.Methods) func(http.Handler) http.Handler {
 					permissionDenied(w)
 					return
 				}
+
 				if !token.Valid {
 					permissionDenied(w)
 					return
 				}
-				// Handle other cases as needed
 			}
 			next.ServeHTTP(w, r)
 		})
 	}
 }
 
-func withRoleAuth(requiredRole string, handlerFunc http.HandlerFunc, s database.Methods) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		secret := os.Getenv("JWT_SECRET")
+func (s *ApiRouter) withRoleAuth(d database.Methods, requiredRole string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			secret := os.Getenv("JWT_SECRET")
 
-		tokenString, _ := extractTokenFromRequest(r)
-
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			return []byte(secret), nil
-		})
-
-		if err != nil {
-			permissionDenied(w)
-			return
-		}
-
-		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-			email := claims["email"].(string)
-			user, err := s.GetUserByEmail(email)
+			tokenString, err := extractTokenFromRequest(r)
 			if err != nil {
 				permissionDenied(w)
 				return
 			}
 
-			if user.Role.Name != requiredRole {
+			token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+				return []byte(secret), nil
+			})
+
+			if err != nil {
 				permissionDenied(w)
 				return
 			}
 
-			handlerFunc(w, r)
-		} else {
-			permissionDenied(w)
-		}
+			if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+				email := claims["email"].(string)
+				user, err := d.GetUserByEmail(email)
+				if err != nil {
+					permissionDenied(w)
+					return
+				}
+
+				if user.Role.Name != requiredRole {
+					permissionDenied(w)
+					return
+				}
+			} else {
+				permissionDenied(w)
+			}
+
+			next.ServeHTTP(w, r)
+		})
 	}
 }
 
 func createJWT(user *user.User) (string, error) {
 
-	expirationTime := time.Now().Add(20 * time.Second)
+	expirationTime := time.Now().Add(3600 * time.Second)
 
 	claims := &types.LoginResponse{
 		Email: user.Email,

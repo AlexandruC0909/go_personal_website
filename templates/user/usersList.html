@@ -14,7 +14,7 @@
         </tr>
       </thead>
       <tbody class="divide-y divide-gray-100 border-t border-gray-100" id="table-body" hx-target="closest tr"
-        hx-swap="outerHTML">
+        hx-swap="outerHTML swap:1s">
         {{range .}}
         {{block "userRow" .}}{{end}}
         {{end}}
