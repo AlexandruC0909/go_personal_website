@@ -205,7 +205,7 @@ func (s *ApiRouter) withRoleAuth(d database.Methods, requiredRole string) func(h
 
 			tokenString, err := extractTokenFromRequest(r)
 			if err != nil {
-				s.HandleGetUserRow(w, r)
+				permissionDenied(w)
 				return
 			}
 
@@ -214,7 +214,7 @@ func (s *ApiRouter) withRoleAuth(d database.Methods, requiredRole string) func(h
 			})
 
 			if err != nil {
-				s.HandleGetUserRow(w, r)
+				permissionDenied(w)
 				return
 			}
 
@@ -222,16 +222,16 @@ func (s *ApiRouter) withRoleAuth(d database.Methods, requiredRole string) func(h
 				email := claims["email"].(string)
 				user, err := d.GetUserByEmail(email)
 				if err != nil {
-					s.HandleGetUserRow(w, r)
+					permissionDenied(w)
 					return
 				}
 
 				if user.Role.Name != requiredRole {
-					s.HandleGetUserRow(w, r)
+					permissionDenied(w)
 					return
 				}
 			} else {
-				s.HandleGetUserRow(w, r)
+				permissionDenied(w)
 			}
 
 			next.ServeHTTP(w, r)
