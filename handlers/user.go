@@ -124,7 +124,7 @@ func (s *ApiRouter) handlgeGetUserEditRow(w http.ResponseWriter, r *http.Request
 
 }
 
-func (s *ApiRouter) handleGetUserRow(w http.ResponseWriter, r *http.Request) {
+func (s *ApiRouter) HandleGetUserRow(w http.ResponseWriter, r *http.Request) {
 	id, err := getID(r)
 	if err != nil {
 		s.handleError(w, r, err)

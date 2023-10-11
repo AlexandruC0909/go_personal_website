@@ -29,8 +29,6 @@ type ApiError struct {
 	Error string `json:"error"`
 }
 
-type ApiFunc func(http.ResponseWriter, *http.Request) error
-
 func NewAPIServer(listenAddress string, store database.Methods) *ApiRouter {
 	return &ApiRouter{
 		listenAddress: listenAddress,
@@ -39,8 +37,8 @@ func NewAPIServer(listenAddress string, store database.Methods) *ApiRouter {
 }
 
 func (s *ApiRouter) Run() {
-
 	router := chi.NewRouter()
+
 	router.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"http://localhost", "https://localhost", "http://87.106.122.212", "https://87.106.122.212"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -69,11 +67,11 @@ func (s *ApiRouter) Run() {
 		r.Get("/", s.handleGetUsers)
 		r.Route("/{id}", func(r chi.Router) {
 			r.Get("/", s.handleGetUser)
-			r.Delete("/", s.handleDeleteUser)
-			r.Put("/", s.handleEditUser)
 			r.Get("/edit", s.handlgeGetUserEditRow)
-			r.Get("/row", s.handleGetUserRow)
+			r.Get("/row", s.HandleGetUserRow)
 			r.Post("/upload", s.handleUploadUserImages)
+			r.With(s.withRoleAuth(s.store, "admin")).Put("/", s.handleEditUser)
+			r.With(s.withRoleAuth(s.store, "admin")).Delete("/", s.handleDeleteUser)
 		})
 	})
 
