@@ -1,28 +1,21 @@
 {{define "title"}}Users{{end}} {{define "content"}}
-
-<body class="bg-gray-100 ">
-  <div class="overflow-hidden w-full rounded-lg border border-gray-200 shadow-md m-5">
-    <table class="w-full border-collapse bg-white text-left text-sm text-gray-500">
-      <thead class="bg-gray-50">
-        <tr>
-          <th scope="col" class="px-6 py-4 font-medium text-gray-900"></th>
-          <th scope="col" class="px-6 py-4 font-medium text-gray-900">Firstname</th>
-          <th scope="col" class="px-6 py-4 font-medium text-gray-900">Lastname</th>
-          <th scope="col" class="px-6 py-4 font-medium text-gray-900">Email</th>
-          <th scope="col" class="px-6 py-4 font-medium text-gray-900">Role</th>
-          <th scope="col" class="px-6 py-4 font-medium text-gray-900"></th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-gray-100 border-t border-gray-100" id="table-body" hx-target="closest tr"
-        hx-swap="outerHTML swap:1s">
-        {{range .}}
-        {{block "userRow" .}}{{end}}
-        {{end}}
-
-      </tbody>
-    </table>
-  </div>
-</body>
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th>Firstname</th>
+      <th>Lastname</th>
+      <th>Email</th>
+      <th>Role</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody id="table-body" hx-target="closest tr" hx-swap="outerHTML swap:1s">
+    {{range .}}
+    {{block "userRow" .}}{{end}}
+    {{end}}
+  </tbody>
+</table>
 <style>
   tr.htmx-swapping td {
     opacity: 0;
