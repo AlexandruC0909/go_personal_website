@@ -1,21 +1,23 @@
 {{define "title"}}Users{{end}} {{define "content"}}
-<table>
-  <thead>
-    <tr>
-      <th></th>
-      <th>Firstname</th>
-      <th>Lastname</th>
-      <th>Email</th>
-      <th>Role</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody id="table-body" hx-target="closest tr" hx-swap="outerHTML swap:1s">
-    {{range .}}
-    {{block "userRow" .}}{{end}}
-    {{end}}
-  </tbody>
-</table>
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th>Firstname</th>
+        <th>Lastname</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody hx-target="closest tr" hx-swap="outerHTML swap:1s">
+      {{range .}}
+      {{block "userRow" .}}{{end}}
+      {{end}}
+    </tbody>
+  </table>
+</div>
 <style>
   tr.htmx-swapping td {
     opacity: 0;

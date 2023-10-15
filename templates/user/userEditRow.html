@@ -1,37 +1,27 @@
 <tr hx-ext="json-enc" id="datarow-{{.ID}}">
   <td class="">
-    <div style="display: flex; align-items: center;">
+    <div class="center-both">
       <a href="/users/{{.ID}}">
         <img src="{{.ImageURL}}" onerror="this.src='../static/uploads/default_avatar.jpg'" alt="User Avatar"
           style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
       </a>
     </div>
   </td>
-  <td class="whitespace-nowrap px-6 py-4">
-    <input type="text"
-      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-      name="firstname" value="{{.FirstName}}" />
+  <td>
+    <input type="text" name="firstname" value="{{.FirstName}}" />
   </td>
-  <td class="whitespace-nowrap px-6 py-4">
-    <input type="text"
-      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-      data-include-edit="{{.ID}}" name="lastname" value="{{.LastName}}" />
+  <td>
+    <input type="text" data-include-edit="{{.ID}}" name="lastname" value="{{.LastName}}" />
   </td>
-  <td class="whitespace-nowrap px-6 py-4">
-    <input type="text"
-      class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-      data-include-edit="{{.ID}}" name="email" value="{{.Email}}" />
+  <td>
+    <input type="text" data-include-edit="{{.ID}}" name="email" value="{{.Email}}" />
   </td>
-  <td class="whitespace-nowrap px-6 py-4">
+  <td>
     {{.Role.Name}}
   </td>
-  <td class="whitespace-nowrap px-1 py-1">
-    <a hx-get="/users/{{.ID}}/row" hx-target="#datarow-{{.ID}}" hx-swap="outerHTML"
-      class="inline-flex items-center h-8 px-4 m-2 text-sm text-red-100 transition-colors duration-150 bg-red-700 rounded-lg focus:shadow-outline hover:bg-red-800"
-      href="">Cancel</a>
-    <a hx-put="/users/{{.ID}}" hx-target="#datarow-{{.ID}}" hx-swap="outerHTML" hx-include="closest tr"
-      class="inline-flex items-center h-8 px-4 m-2 text-sm text-blue-100 transition-colors duration-150 bg-blue-700 rounded-lg focus:shadow-outline hover:bg-blue-800"
-      href="">Save</a>
+  <td class="center-content">
+    <a hx-get="/users/{{.ID}}/row" hx-target="#datarow-{{.ID}}" hx-swap="outerHTML" href="">Cancel</a>
+    <a hx-put="/users/{{.ID}}" hx-target="#datarow-{{.ID}}" hx-swap="outerHTML" hx-include="closest tr" href="">Save</a>
   </td>
 </tr>
 </form>
