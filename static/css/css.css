@@ -6,7 +6,7 @@
   }
 
   .content {
-    height: 100%;
+    min-height: 100vh;
     overflow-y: scroll;
   }
 
@@ -216,7 +216,7 @@
     background-color: #10002b;
   }
 
-  form {
+  .form-container {
     width: 300px;
     background: #ffffff;
     padding: 40px;
@@ -237,6 +237,7 @@
     border: 1px solid #ddd;
     margin-bottom: 20px;
     border-radius: 4px;
+    box-sizing:border-box
   }
 
   .hidden {
