@@ -4,7 +4,8 @@
     <h1>
         Login
     </h1>
-    <form id="login-form" hx-post="/auth/login" hx-ext="json-enc" on="submit">
+    <form id="login-form" hx-post="/auth/login" hx-ext="json-enc" on="submit" hx-swap="outerHTML"
+        hx-target="#basic-error">
         <div>
             <label for="email">Your
                 email</label>
@@ -20,27 +21,9 @@
         <p>
             Don't have an account? <a href="/auth/register">Register here</a>
         </p>
-        <p id="error-invalid-credentials" class="hidden" style="color: red;">
-            Invalid Credentials.</p>
+        <p id="basic-error"></p>
+
     </form>
+
 </div>
-
-<script>
-
-    htmx.config.historyEnabled = false;
-    htmx.on('htmx:afterRequest', (event) => {
-        if (event.detail.xhr.response) {
-            const responseData = JSON.parse(event.detail.xhr.response);
-
-            if (responseData.user) {
-                localStorage.setItem('user', JSON.stringify(responseData.user));
-            }
-        }
-        if (!event.detail.successful) {
-            document.getElementById("error-invalid-credentials").classList.remove("hidden");
-        }
-
-    })
-
-</script>
 {{end}}
