@@ -1,6 +1,6 @@
 {{define "userRow"}}
 <tr id="datarow-{{.ID}}">
-  <td>
+  <td width="5%">
     <div class="center-both">
       <a href="/users/{{.ID}}">
         <img src="{{.ImageURL}}" onerror="this.src='../static/uploads/default_avatar.jpg'" alt="User Avatar"
@@ -8,17 +8,17 @@
       </a>
     </div>
   </td>
-  <td class="">
+  <td width="20%">
     <div class="text-gray-400">{{.FirstName}}</div>
   </td>
-  <td class="">
+  <td width="20%">
     <div>{{.LastName}}</div>
   </td>
-  <td class="">
+  <td width="20%">
     <div class="text-gray-400">{{.Email}}</div>
   </td>
-  <td class="">{{.Role.Name}}</td>
-  <td class="center-content">
+  <td width="20%">{{.Role.Name}}</td>
+  <td class="center-content" width="15%">
     <button hx-delete="/users/{{.ID}}" class="btn btn-danger" hx-confirm="Are you sure?">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
         class="h-6 w-6" x-tooltip="tooltip">
