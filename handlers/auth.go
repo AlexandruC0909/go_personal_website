@@ -18,7 +18,7 @@ import (
 )
 
 func (s *ApiRouter) handleLoginGet(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "auth/login.html")
+	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/navbar.html", "auth/login.html")
 	if err != nil {
 		s.handleError(w, r, err)
 		return
@@ -75,7 +75,7 @@ func (s *ApiRouter) handleLoginPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *ApiRouter) handleRegisterGet(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "auth/register.html")
+	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/navbar.html", "auth/register.html")
 	if err != nil {
 		s.handleError(w, r, err)
 		return
@@ -322,7 +322,7 @@ func extractTokenFromRequest(r *http.Request) (string, error) {
 }
 
 func permissionDenied(w http.ResponseWriter) error {
-	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/page403.html")
+	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/navbar.html", "ui/page403.html")
 	if err != nil {
 		return err
 	}

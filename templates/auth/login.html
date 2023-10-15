@@ -1,50 +1,46 @@
 {{define "title"}}Login{{end}} {{define "content"}}
 
-<body>
-    <div>
+<div class="form-container">
+    <h1>
+        Login
+    </h1>
+    <form id="login-form" hx-post="/auth/login" hx-ext="json-enc" on="submit">
         <div>
-            <h1>
-                Login
-            </h1>
-            <form id="login-form" hx-post="/auth/login" hx-ext="json-enc" on="submit">
-                <div>
-                    <label for="email">Your
-                        email</label>
-                    <input type="email" name="email" id="email" placeholder="name@company.com" required="">
-                </div>
-                <div>
-                    <label for="password">Password</label>
-                    <input type="password" name="password" id="password" placeholder="••••••••" required="">
-                </div>
-                <div class="mb-4">
-                    <button type="submit">Login</button>
-                </div>
-                <p>
-                    Don't have an account? <a href="/auth/register">Register here</a>
-                </p>
-                <p id="error-invalid-credentials" class="hidden" style="color: red;">
-                    Invalid Credentials.</p>
-            </form>
+            <label for="email">Your
+                email</label>
+            <input type="email" name="email" id="email" placeholder="name@company.com" required="">
         </div>
-    </div>
+        <div>
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" placeholder="••••••••" required="">
+        </div>
+        <div class="mb-4">
+            <button type="submit">Login</button>
+        </div>
+        <p>
+            Don't have an account? <a href="/auth/register">Register here</a>
+        </p>
+        <p id="error-invalid-credentials" class="hidden" style="color: red;">
+            Invalid Credentials.</p>
+    </form>
+</div>
 
-    <script>
+<script>
 
-        htmx.config.historyEnabled = false;
-        htmx.on('htmx:afterRequest', (event) => {
-            if (event.detail.xhr.response) {
-                const responseData = JSON.parse(event.detail.xhr.response);
+    htmx.config.historyEnabled = false;
+    htmx.on('htmx:afterRequest', (event) => {
+        if (event.detail.xhr.response) {
+            const responseData = JSON.parse(event.detail.xhr.response);
 
-                if (responseData.user) {
-                    localStorage.setItem('user', JSON.stringify(responseData.user));
-                }
+            if (responseData.user) {
+                localStorage.setItem('user', JSON.stringify(responseData.user));
             }
-            if (!event.detail.successful) {
-                document.getElementById("error-invalid-credentials").classList.remove("hidden");
-            }
+        }
+        if (!event.detail.successful) {
+            document.getElementById("error-invalid-credentials").classList.remove("hidden");
+        }
 
-        })
+    })
 
-    </script>
-</body>
+</script>
 {{end}}

@@ -115,7 +115,7 @@ func (s *ApiRouter) handleHome(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *ApiRouter) handleNotFound(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/page404.html")
+	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/navbar.html", "ui/page404.html")
 	if err != nil {
 		s.handleError(w, r, err)
 		return

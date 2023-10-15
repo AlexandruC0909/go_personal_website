@@ -1,56 +1,50 @@
 {{define "title"}}Register{{end}} {{define "content"}}
-
-<body>
-    <div>
+<div class="form-container">
+    <h1>
+        Create an account
+    </h1>
+    <form id="login-form" hx-post="/auth/register" hx-ext="json-enc" on="submit" hx-post="/auth/register">
         <div>
-            <h1>
-                Create an account
-            </h1>
-            <form id="login-form" hx-post="/auth/register" hx-ext="json-enc" on="submit" hx-post="/auth/register">
-                <div>
-                    <label for="email">Your
-                        email</label>
-                    <input type="email" name="email" id="email" placeholder="name@company.com" required="">
-                </div>
-                <div>
-                    <label for="lastName">Lastname</label>
-                    <input type="normal" name="lastName" id="lastName" placeholder="Lastname" required="">
-                </div>
-                <div>
-                    <label for="firstName">Firstname</label>
-                    <input type="normal" name="firstName" id="firstName" placeholder="Firstname" required="">
-                </div>
-                <div>
-                    <label for="password">Password</label>
-                    <input type="password" name="password" id="password" placeholder="••••••••" required="">
-                </div>
-                <div>
-                    <label for="confirm-password">Confirm password</label>
-                    <input type="password" name="confirm-password" id="confirm-password" placeholder="••••••••"
-                        required="">
-                </div>
-                <button type="submit">Create
-                    an account</button>
-                <p>
-                    Already have an account? <a href="/auth/login">Login here</a>
-                </p>
-            </form>
-            <p id="password-error" class="text-sm font-light text-red-500 dark:text-red-400"></p>
+            <label for="email">Your
+                email</label>
+            <input type="email" name="email" id="email" placeholder="name@company.com" required="">
         </div>
-    </div>
+        <div>
+            <label for="lastName">Lastname</label>
+            <input type="normal" name="lastName" id="lastName" placeholder="Lastname" required="">
+        </div>
+        <div>
+            <label for="firstName">Firstname</label>
+            <input type="normal" name="firstName" id="firstName" placeholder="Firstname" required="">
+        </div>
+        <div>
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" placeholder="••••••••" required="">
+        </div>
+        <div>
+            <label for="confirm-password">Confirm password</label>
+            <input type="password" name="confirm-password" id="confirm-password" placeholder="••••••••" required="">
+        </div>
+        <button type="submit">Create
+            an account</button>
+        <p>
+            Already have an account? <a href="/auth/login">Login here</a>
+        </p>
+    </form>
+    <p id="password-error" class="text-sm font-light text-red-500 dark:text-red-400"></p>
+</div>
 
-    <script>
-        function validateForm() {
-            const passwordInput = document.getElementById('password');
-            const confirmPasswordInput = document.getElementById('confirm-password');
-            const errorContainer = document.getElementById('password-error');
+<script>
+    function validateForm() {
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirm-password');
+        const errorContainer = document.getElementById('password-error');
 
-            if (passwordInput.value !== confirmPasswordInput.value) {
-                errorContainer.textContent = 'Passwords do not match. Please try again.';
-                return false;
-            }
-            return true;
+        if (passwordInput.value !== confirmPasswordInput.value) {
+            errorContainer.textContent = 'Passwords do not match. Please try again.';
+            return false;
         }
-    </script>
-</body>
+        return true;
+    }
+</script>
 {{end}}
