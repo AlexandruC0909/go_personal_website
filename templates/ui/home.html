@@ -1,41 +1,32 @@
 {{define "title"}}Home{{end}} {{define "content"}}
-<div class="row row-4">
-  <div class="col">
-    <div class="card">
-      <div class="card-title">Card Title</div>
-      <div class="card-content">This is a simple material design card. You can add any content here.</div>
-    </div>
+<div style="width: 100%;">
+  <div class="progress-bar" id="progressBar"></div>
+  <div class="section">
+    <h1>Section 1</h1>
   </div>
-
-  <div class="col">
-    <div class="card">
-      <div class="card-title">Card Title</div>
-      <div class="card-content">This is a simple material design card. You can add any content here.</div>
-    </div>
+  <div class="section">
+    <h1>Section 2</h1>
   </div>
-
-  <div class="col">
-    <div class="card">
-      <div class="card-title">Card Title</div>
-      <div class="card-content">This is a simple material design card. You can add any content here.</div>
-    </div>
+  <div class="section">
+    <h1>Section 3</h1>
   </div>
-
-  <div class="col">
-    <div class="card">
-      <div class="card-title">Card Title</div>
-      <div class="card-content">This is a simple material design card. You can add any content here.</div>
-    </div>
+  <div class="section">
+    <h1>Section 4</h1>
   </div>
-
-  <div class="col">
-    <div class="card">
-      <div class="card-title">Card Title</div>
-      <div class="card-content">This is a simple material design card. You can add any content here.</div>
-    </div>
+  <div class="section">
+    <h1>Section 5</h1>
   </div>
-
-
 </div>
+<script>
+  window.onscroll = function () { updateProgress() };
+
+  function updateProgress() {
+    let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    let scrolled = (winScroll / height) * 100;
+    document.getElementById("progressBar").style.height = scrolled + "%";
+  }
+</script>
+
 
 {{end}}
