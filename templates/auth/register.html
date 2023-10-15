@@ -3,7 +3,7 @@
     <h1>
         Create an account
     </h1>
-    <form id="login-form" hx-ext="json-enc" hx-post="/auth/register" hx-swap="outerHTML" hx-target="#register-error">
+    <form id="login-form" hx-ext="json-enc" hx-post="/auth/register" hx-swap="outerHTML" hx-target="#basic-error">
         <div>
             <label for="email">Your
                 email</label>
@@ -31,6 +31,6 @@
             Already have an account? <a href="/auth/login">Login here</a>
         </p>
     </form>
-    <p id="register-error"></p>
+    <p id="basic-error"></p>
 </div>
 {{end}}
