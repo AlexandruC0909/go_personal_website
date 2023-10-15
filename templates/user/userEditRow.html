@@ -1,5 +1,5 @@
 <tr hx-ext="json-enc" id="datarow-{{.ID}}">
-  <td class="">
+  <td width="5%">
     <div class="center-both">
       <a href="/users/{{.ID}}">
         <img src="{{.ImageURL}}" onerror="this.src='../static/uploads/default_avatar.jpg'" alt="User Avatar"
@@ -7,19 +7,19 @@
       </a>
     </div>
   </td>
-  <td>
+  <td width="20%">
     <input type="text" name="firstname" value="{{.FirstName}}" />
   </td>
-  <td>
+  <td width="20%">
     <input type="text" data-include-edit="{{.ID}}" name="lastname" value="{{.LastName}}" />
   </td>
-  <td>
+  <td width="20%">
     <input type="text" data-include-edit="{{.ID}}" name="email" value="{{.Email}}" />
   </td>
-  <td>
+  <td width="20%">
     {{.Role.Name}}
   </td>
-  <td class="center-content">
+  <td class="center-content" width="15%">
     <a hx-get="/users/{{.ID}}/row" hx-target="#datarow-{{.ID}}" hx-swap="outerHTML" href="">Cancel</a>
     <a hx-put="/users/{{.ID}}" hx-target="#datarow-{{.ID}}" hx-swap="outerHTML" hx-include="closest tr" href="">Save</a>
   </td>
