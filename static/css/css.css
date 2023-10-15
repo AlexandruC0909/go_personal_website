@@ -1,20 +1,18 @@
   .sidebar {
     min-width: 65px;
+    position: sticky;
+    top:0;
+    left: 0;
   }
 
   .content {
-    max-height: 100vh;
-    min-height: 100vh;
-    overflow-y: auto;
+    height: 100%;
+    overflow-y: scroll;
   }
 
   .container {
     display: flex;
-    overflow-x: hidden;
-
-    height: 100vh;
-    justify-content: center;
-    align-items: center;
+    align-items: start;
     width: 100%;
     min-height: 100vh;
     margin: 0 auto;
@@ -165,23 +163,23 @@
 
   .table-container {
     width: 80%;
-    border-collapse: collapse;
-  }
+    overflow-x: auto;
+}
 
   .table-container table {
     width: 100%;
     border-collapse: collapse;
-  }
+}
 
   .table-container th,
   .table-container td {
     border: 1px solid #dddddd;
     padding: 12px;
-  }
+}
 
   .table-container th {
     background-color: #f2f2f2;
-  }
+}
 
   .table-container tr:nth-child(even) {
     background-color: #f2f2f2;
@@ -189,6 +187,12 @@
 
   .table-container tr:hover {
     background-color: #e0e0e0;
+  }
+
+  @media screen and (max-width: 600px) {
+    .table-container table {
+        width: 100%;
+    }
   }
 
   button {
