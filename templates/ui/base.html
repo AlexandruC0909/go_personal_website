@@ -6,75 +6,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="/static/js/htmx.min.js"></script>
   <script src="/static/js/json-enc.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/static/css/normalize.css">
+  <link rel="stylesheet" href="/static/css/css.css">
   <link rel="icon" type="image/x-icon" href="/static/uploads/favicon.png">
 </head>
 
 <body>
-  <div class="w-full bg-white relative flex overflow-hidden">
-    <div class="navbar fixed h-full bg-gray-200 w-16">
+  <div class="container">
+    <div class="sidebar">
       {{block "navbar" .}}{{end}}
     </div>
-    <main class="w-full flex items-center justify-center align-center overflow-auto ml-20">
-      <div class="container flex flex-col md:flex-row items-center justify-center">
-        <div class="container  min-h-screen flex flex-col md:flex-row items-center justify-center min-h-screen">{{block
-          "content" .}}{{end}}</div>
+    <div class="row">
+      <div class="col-12 center-both content">
+        {{block "content" .}}{{end}}
       </div>
-    </main>
+    </div>
   </div>
 </body>
 
+
 </html>
-
-<style>
-  .path {
-    stroke-dasharray: 1;
-    stroke-dashoffset: 1;
-    animation: dash 5s linear alternate infinite;
-  }
-
-  @keyframes dash {
-    from {
-      stroke-dashoffset: 1;
-    }
-
-    to {
-      stroke-dashoffset: 0;
-    }
-  }
-
-  .line-container {
-    position: absolute;
-  }
-
-  .svg-animation {
-    display: inline-block;
-    height: 100%;
-  }
-
-  ::-webkit-scrollbar {
-    width: 7px;
-  }
-
-  /* Track */
-  ::-webkit-scrollbar-track {
-    background: #202936;
-  }
-
-  /* Handle */
-  ::-webkit-scrollbar-thumb {
-    background: #a5b6ce;
-    border-radius: 5px;
-  }
-
-  /* Handle on hover */
-  ::-webkit-scrollbar-thumb:hover {
-    background: #202936;
-  }
-
-  /* Add this CSS class to hide the menu */
-  .hidden {
-    transform: translateY(-100%);
-    transition: transform 0.3s ease-in-out;
-  }
-</style>

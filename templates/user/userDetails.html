@@ -1,40 +1,32 @@
 {{define "title"}}Users Details{{end}} {{define "content"}}
 
-<div class=" bg-white shadow mt-24 ">
-  <div class="grid grid-cols-1 md:grid-cols-3">
-    <div class="grid grid-cols-3 text-center order-last md:order-first mt-20 md:mt-0">
-      <div>
-        <p class="font-bold text-gray-700 text-xl">22</p>
-        <p class="text-gray-400">Friends</p>
-      </div>
-      <div>
-        <p class="font-bold text-gray-700 text-xl">10</p>
-        <p class="text-gray-400">Photos</p>
-      </div>
-      <div>
-        <p class="font-bold text-gray-700 text-xl">89</p>
-        <p class="text-gray-400">Comments</p>
-      </div>
+<div>
+  <div class="center-both">
+    <div class="center-both">
+      <img id="profile_image" src="{{.ImageURL}}" onerror="this.src='../static/uploads/default_avatar.jpg'"
+        alt="User Avatar" style="width: 200px; height: 200px; border-radius: 50%; object-fit: cover;">
     </div>
-
-    <div class="relative">
-      <div
-        class="w-48 h-48 bg-indigo-100 mx-auto rounded-full shadow-2xl absolute inset-x-0 top-0 -mt-24 flex items-center justify-center text-indigo-500">
-        <img id="profile_image" class="h-full w-full rounded-full object-cover object-center" src={{.ImageURL}}
-          alt="User Avatar" onerror="this.src='../static/uploads/default_avatar.jpg'" />
-        <span class="absolute right-4 bottom-4 h-5 w-5 rounded-full bg-green-400 ring ring-white"></span>
-
-      </div>
-    </div>
-
   </div>
-  <div class="mt-20 text-center border-b pb-12">
-    <h1 class="text-4xl font-medium text-gray-700">{{ .FirstName }} {{ .LastName }}
+  <div>
+    <h1>{{ .FirstName }} {{ .LastName }}
     </h1>
-    <p class="font-light text-gray-600 mt-3">Bucharest, Romania</p>
-    <p class="mt-8 text-gray-500">{{ .Email }}</p>
-    <p class="mt-2 text-gray-500">University of Computer Science</p>
+    <p>Bucharest, Romania</p>
+    <p>{{ .Email }}</p>
+    <p>University of Computer Science</p>
   </div>
+  <div>
+    <label for="photo">Photo</label>
+    <a for="photo" class="appearance" type='file' name='file'>
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path fill-rule="evenodd"
+          d="M18.685 19.097A9.723 9.723 0 0021.75 12c0-5.385-4.365-9.75-9.75-9.75S2.25 6.615 2.25 12a9.723 9.723 0 003.065 7.097A9.716 9.716 0 0012 21.75a9.716 9.716 0 006.685-2.653zm-12.54-1.285A7.486 7.486 0 0112 15a7.486 7.486 0 015.855 2.812A8.224 8.224 0 0112 20.25a8.224 8.224 0 01-5.855-2.438zM15.75 9a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"
+          clip-rule="evenodd" />
+      </svg>
+
+    </a>
+    <button type="button">Change</button>
+  </div>
+
   <form id='form' hx-encoding='multipart/form-data' hx-post='/users/{{.ID}}/upload'>
     <input class="appearance" type='file' name='file'>
     <button>
@@ -58,13 +50,5 @@
   });
 
 </script>
-<style>
-  .appearance {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    -ms-appearance: none;
-    -o-appearance: none;
-    appearance: none;
-  }
-</style>
+
 {{end}}
