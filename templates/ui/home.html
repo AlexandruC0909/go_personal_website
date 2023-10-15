@@ -1,32 +1,60 @@
 {{define "title"}}Home{{end}} {{define "content"}}
 <div style="width: 100%;">
-  <div class="progress-bar" id="progressBar"></div>
-  <div class="section">
+
+  <div class="section" id="section1">
     <h1>Section 1</h1>
   </div>
-  <div class="section">
+  <div class="section" id="section2">
     <h1>Section 2</h1>
   </div>
-  <div class="section">
+  <div class="section" id="section3">
     <h1>Section 3</h1>
   </div>
-  <div class="section">
+  <div class="section" id="section4">
     <h1>Section 4</h1>
   </div>
-  <div class="section">
+  <div class="section" id="section5">
     <h1>Section 5</h1>
   </div>
-</div>
-<script>
-  window.onscroll = function () { updateProgress() };
+  <div class="section" id="section6">
+    <h1>Section 6</h1>
+  </div>
 
-  function updateProgress() {
-    let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-    let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-    let scrolled = (winScroll / height) * 100;
-    document.getElementById("progressBar").style.height = scrolled + "%";
-  }
-</script>
+  <script>
+    window.onscroll = function () { updateProgress() };
+
+    function updateProgress() {
+      let winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      let height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      let scrolled = (winScroll / height) * 100;
+
+      let section1 = document.getElementById('section1').offsetTop;
+      let section2 = document.getElementById('section2').offsetTop;
+      let section3 = document.getElementById('section3').offsetTop;
+      let section4 = document.getElementById('section4').offsetTop;
+      let section5 = document.getElementById('section5').offsetTop;
+      let section6 = document.getElementById('section6').offsetTop;
+      let section1Link = document.getElementById('section1-link').offsetTop;
+      let section2Link = document.getElementById('section2-link').offsetTop;
+      let section3Link = document.getElementById('section3-link').offsetTop;
+      let section4Link = document.getElementById('section4-link').offsetTop;
+      let section5Link = document.getElementById('section5-link').offsetTop;
+
+      if (winScroll < section2 - (height / 20)) {
+        document.getElementById("progressBar").style.height = "0%";
+      } else if (winScroll >= section2 - (height / 20) && winScroll < section3 - (height / 20)) {
+        document.getElementById("progressBar").style.height = (section1Link - 10).toString() + "px";
+      } else if (winScroll >= section3 - (height / 20) && winScroll < section4 - (height / 20)) {
+        document.getElementById("progressBar").style.height = (section2Link - 10).toString() + "px";
+      } else if (winScroll >= section4 - (height / 20) && winScroll < section5 - (height / 20)) {
+        document.getElementById("progressBar").style.height = (section3Link - 10).toString() + "px";
+      } else if (winScroll >= section5 - (height / 20) && winScroll < section6 - (height / 20)) {
+        document.getElementById("progressBar").style.height = (section4Link - 10).toString() + "px";
+      } else {
+        document.getElementById("progressBar").style.height = "100%";
+      }
+    }
+  </script>
 
 
-{{end}}
+  {{end}}
