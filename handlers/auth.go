@@ -95,9 +95,33 @@ func (s *ApiRouter) handleRegisterPost(w http.ResponseWriter, r *http.Request) {
 		s.handleError(w, r, err)
 		return
 	}
+	if createAccReq.Password != createAccReq.ConfirmPassword {
+		tmpl, err := template.ParseFS(templates.Templates, "ui/registerError.html")
+		if err != nil {
+			s.handleError(w, r, err)
+			return
+		}
+		errorMessage := "Passwords don't match."
+		err = tmpl.Execute(w, errorMessage)
+		if err != nil {
+			s.handleError(w, r, err)
+			return
+		}
+		return
+	}
 	existingUser, _ := s.store.GetUserByEmail(createAccReq.Email)
 	if existingUser != nil {
-		WriteJSON(w, http.StatusForbidden, ApiError{Error: createAccReq.Email + " already used"})
+		tmpl, err := template.ParseFS(templates.Templates, "ui/registerError.html")
+		if err != nil {
+			s.handleError(w, r, err)
+			return
+		}
+		errorMessage := "Email Already Exists."
+		err = tmpl.Execute(w, errorMessage)
+		if err != nil {
+			s.handleError(w, r, err)
+			return
+		}
 		return
 	}
 	user, err := types.NewUser(createAccReq.FirstName, createAccReq.LastName, createAccReq.Email, createAccReq.Password)

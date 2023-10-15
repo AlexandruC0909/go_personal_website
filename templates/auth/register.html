@@ -3,7 +3,7 @@
     <h1>
         Create an account
     </h1>
-    <form id="login-form" hx-post="/auth/register" hx-ext="json-enc" on="submit" hx-post="/auth/register">
+    <form id="login-form" hx-ext="json-enc" hx-post="/auth/register" hx-swap="outerHTML" hx-target="#register-error">
         <div>
             <label for="email">Your
                 email</label>
@@ -11,19 +11,19 @@
         </div>
         <div>
             <label for="lastName">Lastname</label>
-            <input type="normal" name="lastName" id="lastName" placeholder="Lastname" required="">
+            <input type="text" name="lastName" id="lastName" placeholder="Lastname" required="">
         </div>
         <div>
             <label for="firstName">Firstname</label>
-            <input type="normal" name="firstName" id="firstName" placeholder="Firstname" required="">
+            <input type="text" name="firstName" id="firstName" placeholder="Firstname" required="">
         </div>
         <div>
             <label for="password">Password</label>
             <input type="password" name="password" id="password" placeholder="••••••••" required="">
         </div>
         <div>
-            <label for="confirm-password">Confirm password</label>
-            <input type="password" name="confirm-password" id="confirm-password" placeholder="••••••••" required="">
+            <label for="confirmPassword">Confirm password</label>
+            <input type="password" name="confirmPassword" id="confirmPassword" placeholder="••••••••" required="">
         </div>
         <button type="submit">Create
             an account</button>
@@ -31,20 +31,6 @@
             Already have an account? <a href="/auth/login">Login here</a>
         </p>
     </form>
-    <p id="password-error" class="text-sm font-light text-red-500 dark:text-red-400"></p>
+    <p id="register-error"></p>
 </div>
-
-<script>
-    function validateForm() {
-        const passwordInput = document.getElementById('password');
-        const confirmPasswordInput = document.getElementById('confirm-password');
-        const errorContainer = document.getElementById('password-error');
-
-        if (passwordInput.value !== confirmPasswordInput.value) {
-            errorContainer.textContent = 'Passwords do not match. Please try again.';
-            return false;
-        }
-        return true;
-    }
-</script>
 {{end}}
