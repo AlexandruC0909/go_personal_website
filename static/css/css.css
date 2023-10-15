@@ -211,10 +211,13 @@
     background-color: #e0e0e0;
   }
 
-  @media screen and (max-width: 600px) {
+  @media screen and (max-width: 800px) {
     .table-container table {
         width: 100%;
     }
+    .table-container {
+      width: 100%;
+  }
   }
 
   button {
