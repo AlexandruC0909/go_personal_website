@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	database "go_api/database"
+	"go_api/static"
 	templates "go_api/templates"
 
 	"github.com/go-chi/chi/v5"
@@ -74,6 +75,8 @@ func (s *ApiRouter) Run() {
 			r.With(s.withRoleAuth(s.store, "admin")).Delete("/", s.handleDeleteUser)
 		})
 	})
+	http.Handle("/static/css/", http.FileServer(http.FS(static.CssFiles)))
+	http.Handle("/static/js/", http.FileServer(http.FS(static.JsFiles)))
 
 	router.Get("/posts", s.handleGetPosts)
 	log.Println("JSON API server running on port:", s.listenAddress)
