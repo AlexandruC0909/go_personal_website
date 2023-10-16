@@ -98,7 +98,22 @@ func FileServer(r chi.Router, path string, root http.FileSystem) {
 	r.Get(path, func(w http.ResponseWriter, r *http.Request) {
 		rctx := chi.RouteContext(r.Context())
 		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
-		fs := http.StripPrefix(pathPrefix, http.FileServer(root))
+		fileServer := http.FileServer(root)
+		fs := http.StripPrefix(pathPrefix, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			path := r.URL.Path
+			if strings.HasSuffix(path, ".css") {
+				w.Header().Set("Content-Type", "text/css")
+			} else if strings.HasSuffix(path, ".js") {
+				w.Header().Set("Content-Type", "application/javascript")
+			} else if strings.HasSuffix(path, ".jpg") || strings.HasSuffix(path, ".jpeg") {
+				w.Header().Set("Content-Type", "image/jpeg")
+			} else if strings.HasSuffix(path, ".png") {
+				w.Header().Set("Content-Type", "image/png")
+			} else if strings.HasSuffix(path, ".gif") {
+				w.Header().Set("Content-Type", "image/gif")
+			} // Add other file types as needed
+			fileServer.ServeHTTP(w, r)
+		}))
 		fs.ServeHTTP(w, r)
 	})
 }
