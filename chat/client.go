@@ -1,31 +1,24 @@
-// Copyright 2013 The Gorilla WebSocket Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style
-// license that can be found in the LICENSE file.
-
 package chat
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
+
+	"go_api/database"
 
 	"github.com/gorilla/websocket"
 )
 
 const (
-	// Time allowed to write a message to the peer.
-	writeWait = 10 * time.Second
-
-	// Time allowed to read the next pong message from the peer.
-	pongWait = 60 * time.Second
-
-	// Send pings to peer with this period. Must be less than pongWait.
-	pingPeriod = (pongWait * 9) / 10
-
-	// Maximum message size allowed from peer.
+	writeWait      = 10 * time.Second
+	pongWait       = 60 * time.Second
+	pingPeriod     = (pongWait * 9) / 10
 	maxMessageSize = 512
 )
 
@@ -39,22 +32,13 @@ var upgrader = websocket.Upgrader{
 	WriteBufferSize: 1024,
 }
 
-// Client is a middleman between the websocket connection and the hub.
 type Client struct {
-	hub *Hub
-
-	// The websocket connection.
-	conn *websocket.Conn
-
-	// Buffered channel of outbound messages.
-	send chan []byte
+	hub   *Hub
+	conn  *websocket.Conn
+	send  chan []byte
+	store database.Methods
 }
 
-// readPump pumps messages from the websocket connection to the hub.
-//
-// The application runs readPump in a per-connection goroutine. The application
-// ensures that there is at most one reader on a connection by executing all
-// reads from this goroutine.
 func (c *Client) readPump() {
 	defer func() {
 		c.hub.unregister <- c
@@ -76,12 +60,7 @@ func (c *Client) readPump() {
 	}
 }
 
-// writePump pumps messages from the hub to the websocket connection.
-//
-// A goroutine running writePump is started for each connection. The
-// application ensures that there is at most one writer to a connection by
-// executing all writes from this goroutine.
-func (c *Client) writePump() {
+func (c *Client) writePump(w http.ResponseWriter, r *http.Request) {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
 		ticker.Stop()
@@ -103,14 +82,28 @@ func (c *Client) writePump() {
 				log.Println("Error parsing JSON:", err)
 				return
 			}
+			cookie, _ := r.Cookie("email")
+			db := &database.DbConnection{}
+			dbname := os.Getenv("DB_NAME")
+			dbPassword := os.Getenv("DB_PASSWORD")
+			dbUser := os.Getenv("DB_USER")
+			connString := "user=" + dbUser + " dbname=" + dbname + " password=" + dbPassword + " sslmode=disable"
+			sqlDB, err := sql.Open("postgres", connString)
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer sqlDB.Close()
 
+			db.DB = sqlDB
+
+			user, _ := db.GetUserByEmail(cookie.Value)
 			chatMessage, ok := parsedMessage["chat_message"].(string)
 			if !ok {
 				log.Println("Error parsing chat message")
 				return
 			}
 			myMessageTemplate := `<div hx-swap-oob="beforeend:#content">
-					<p>` + chatMessage + `</p>
+					<p>` + user.FirstName + ` ` + user.LastName + ` : ` + chatMessage + `</p>
 					</div>`
 			response := fmt.Sprintf(myMessageTemplate, chatMessage)
 			tplBuffer.WriteString(response)
@@ -129,19 +122,15 @@ func (c *Client) writePump() {
 	}
 }
 
-// serveWs handles websocket requests from the peer.
 func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-
 	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256)}
 	client.hub.register <- client
 
-	// Allow collection of memory referenced by the caller by doing all work in
-	// new goroutines.
-	go client.writePump()
+	go client.writePump(w, r)
 	go client.readPump()
 }
