@@ -1,0 +1,87 @@
+{{define "content"}}
+
+<head>
+  <title>Chat</title>
+  <script type="text/javascript">
+    window.onload = function () {
+      var conn;
+      var msg = document.getElementById("msg");
+      var log = document.getElementById("log");
+
+      function appendLog(item) {
+        var doScroll = log.scrollTop > log.scrollHeight - log.clientHeight - 1;
+        log.appendChild(item);
+        if (doScroll) {
+          log.scrollTop = log.scrollHeight - log.clientHeight;
+        }
+      }
+
+      document.getElementById("form").onsubmit = function () {
+        if (!conn) {
+          return false;
+        }
+        if (!msg.value) {
+          return false;
+        }
+        conn.send(msg.value);
+        msg.value = "";
+        return false;
+      };
+
+      if (window["WebSocket"]) {
+        conn = new WebSocket("ws://" + document.location.host + "/ws");
+        conn.onclose = function (evt) {
+          var item = document.createElement("div");
+          item.innerHTML = "<b>Connection closed.</b>";
+          appendLog(item);
+        };
+        conn.onmessage = function (evt) {
+          var messages = evt.data.split('\n');
+          for (var i = 0; i < messages.length; i++) {
+            var item = document.createElement("div");
+            item.innerText = messages[i];
+            appendLog(item);
+          }
+        };
+      } else {
+        var item = document.createElement("div");
+        item.innerHTML = "<b>Your browser does not support WebSockets.</b>";
+        appendLog(item);
+      }
+    };
+  </script>
+  <style>
+    .chat-container {
+      width: 400px;
+      margin: 0 auto;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .send-btn {
+      width: calc(100% - 20px);
+      margin: 10px;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      background-color: #25D366;
+      color: #FFFFFF;
+      cursor: pointer;
+    }
+  </style>
+
+</head>
+
+
+<form id="form">
+  <div id="log"></div>
+
+  <div class="chat-container">
+    <input type="text" id="msg" class="message-input" placeholder="Type a message">
+    <button type="submit" class="send-btn">Send</button>
+  </div>
+
+</form>
+
+
+{{end}}
