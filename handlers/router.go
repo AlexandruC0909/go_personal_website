@@ -12,9 +12,10 @@ import (
 	"strconv"
 	"strings"
 
-	database "go_api/database"
+	"go_api/chat"
+	"go_api/database"
 	"go_api/static"
-	templates "go_api/templates"
+	"go_api/templates"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -57,6 +58,12 @@ func (s *ApiRouter) Run() {
 	router.NotFound(s.handleNotFound)
 
 	flag.Parse()
+	hub := chat.NewHub()
+	go hub.Run()
+
+	router.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		chat.ServeWs(hub, w, r)
+	})
 	router.Get("/", s.handleHome)
 	router.Get("/auth/login", s.handleLoginGet)
 	router.Post("/auth/login", s.handleLoginPost)
@@ -75,8 +82,10 @@ func (s *ApiRouter) Run() {
 			r.With(s.withRoleAuth(s.store, "admin")).Delete("/", s.handleDeleteUser)
 		})
 	})
-	http.Handle("/static/css/", http.FileServer(http.FS(static.CssFiles)))
-	http.Handle("/static/js/", http.FileServer(http.FS(static.JsFiles)))
+	router.Get("/chat", s.handleChat)
+
+	router.Handle("/static/css/", http.FileServer(http.FS(static.CssFiles)))
+	router.Handle("/static/js/", http.FileServer(http.FS(static.JsFiles)))
 
 	router.Get("/posts", s.handleGetPosts)
 	log.Println("JSON API server running on port:", s.listenAddress)
@@ -111,7 +120,7 @@ func FileServer(r chi.Router, path string, root http.FileSystem) {
 				w.Header().Set("Content-Type", "image/png")
 			} else if strings.HasSuffix(path, ".gif") {
 				w.Header().Set("Content-Type", "image/gif")
-			} // Add other file types as needed
+			}
 			fileServer.ServeHTTP(w, r)
 		}))
 		fs.ServeHTTP(w, r)
@@ -120,6 +129,20 @@ func FileServer(r chi.Router, path string, root http.FileSystem) {
 
 func (s *ApiRouter) handleHome(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/navbar.html", "ui/home.html")
+	if err != nil {
+		s.handleError(w, r, err)
+		return
+	}
+
+	err = tmpl.Execute(w, nil)
+	if err != nil {
+		s.handleError(w, r, err)
+		return
+	}
+}
+
+func (s *ApiRouter) handleChat(w http.ResponseWriter, r *http.Request) {
+	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/navbar.html", "ui/chat.html")
 	if err != nil {
 		s.handleError(w, r, err)
 		return
