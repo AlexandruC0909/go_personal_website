@@ -28,13 +28,18 @@
   <div id="notifications"></div>
   <div id="chat_room">
   </div>
-  <form id="form" ws-send>
+  <form id="form" ws-send hx-on::after-request="this.reset()">
     <input name="chat_message">
   </form>
   <div id="content"></div>
 </div>
 
-
+<script>
+  document.body.addEventListener('htmx:oobAfterSwap', function (evt) {
+    const form = document.querySelector("#form");
+    form.reset();
+  });
+</script>
 
 
 {{end}}
