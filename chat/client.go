@@ -6,6 +6,8 @@ package chat
 
 import (
 	"bytes"
+	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -90,25 +92,32 @@ func (c *Client) writePump() {
 		case message, ok := <-c.send:
 			c.conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if !ok {
-				// The hub closed the channel.
 				c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			}
 
-			w, err := c.conn.NextWriter(websocket.TextMessage)
+			var tplBuffer bytes.Buffer
+			var parsedMessage map[string]interface{}
+			err := json.Unmarshal(message, &parsedMessage)
 			if err != nil {
+				log.Println("Error parsing JSON:", err)
 				return
 			}
-			w.Write(message)
 
-			// Add queued chat messages to the current websocket message.
-			n := len(c.send)
-			for i := 0; i < n; i++ {
-				w.Write(newline)
-				w.Write(<-c.send)
+			chatMessage, ok := parsedMessage["chat_message"].(string)
+			if !ok {
+				log.Println("Error parsing chat message")
+				return
 			}
+			myMessageTemplate := `<div hx-swap-oob="beforeend:#content">
+					<p>` + chatMessage + `</p>
+					</div>`
+			response := fmt.Sprintf(myMessageTemplate, chatMessage)
+			tplBuffer.WriteString(response)
 
-			if err := w.Close(); err != nil {
+			err = c.conn.WriteMessage(websocket.TextMessage, tplBuffer.Bytes())
+			if err != nil {
+				log.Println(err)
 				return
 			}
 		case <-ticker.C:
