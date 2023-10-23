@@ -1,37 +1,33 @@
 {{define "content"}}
 
 <head>
-
   <style>
-    .chat-container {
-      width: 400px;
-      margin: 0 auto;
-      border: 1px solid #ddd;
-      border-radius: 5px;
+    .chat {
+      align-items: center;
     }
 
-    .send-btn {
-      width: calc(100% - 20px);
-      margin: 10px;
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
-      background-color: #25D366;
-      color: #FFFFFF;
-      cursor: pointer;
+    .chat-input {
+      height: 20vh;
+    }
+
+    .messages {
+      height: 80vh;
+      width: 300px;
+      overflow: auto;
     }
   </style>
-
 </head>
+<div hx-ext="ws" class="chat center-content" ws-connect="/ws">
 
-<div hx-ext="ws" ws-connect="/ws">
-  <div id="notifications"></div>
-  <div id="chat_room">
+  <div class="messages">
+    <div id="content">
+    </div>
   </div>
-  <form id="form" ws-send hx-on::after-request="this.reset()">
-    <input name="chat_message">
-  </form>
-  <div id="content"></div>
+  <div class="chat-input">
+    <form id="form" ws-send hx-on::after-request="this.reset()">
+      <input name="chat_message">
+    </form>
+  </div>
 </div>
 
 <script>
@@ -40,6 +36,8 @@
     form.reset();
   });
 </script>
+
+
 
 
 {{end}}

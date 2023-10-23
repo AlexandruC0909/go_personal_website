@@ -4,13 +4,15 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
-	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
 	"go_api/database"
+	"go_api/templates"
+	"go_api/types"
 
 	"github.com/gorilla/websocket"
 )
@@ -37,6 +39,11 @@ type Client struct {
 	conn  *websocket.Conn
 	send  chan []byte
 	store database.Methods
+}
+
+type MessageData struct {
+	User        *types.User
+	ChatMessage string
 }
 
 func (c *Client) readPump() {
@@ -75,7 +82,6 @@ func (c *Client) writePump(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			var tplBuffer bytes.Buffer
 			var parsedMessage map[string]interface{}
 			err := json.Unmarshal(message, &parsedMessage)
 			if err != nil {
@@ -102,11 +108,25 @@ func (c *Client) writePump(w http.ResponseWriter, r *http.Request) {
 				log.Println("Error parsing chat message")
 				return
 			}
-			myMessageTemplate := `<div hx-swap-oob="beforeend:#content">
-					<p>` + user.FirstName + ` ` + user.LastName + ` : ` + chatMessage + `</p>
-					</div>`
-			response := fmt.Sprintf(myMessageTemplate, chatMessage)
-			tplBuffer.WriteString(response)
+
+			tmpl, err := template.ParseFS(templates.Templates, "user/userMessage.html")
+			if err != nil {
+				log.Println("Error parsing template file:", err)
+				return
+			}
+
+			data := MessageData{
+				User:        user,
+				ChatMessage: chatMessage,
+			}
+
+			var tplBuffer bytes.Buffer
+
+			err = tmpl.Execute(&tplBuffer, data)
+			if err != nil {
+				log.Println("Error executing template:", err)
+				return
+			}
 
 			err = c.conn.WriteMessage(websocket.TextMessage, tplBuffer.Bytes())
 			if err != nil {
