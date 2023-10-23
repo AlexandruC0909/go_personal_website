@@ -1,0 +1,60 @@
+<div hx-swap-oob="beforeend:#message-content">
+
+  <div class="row-message">
+    <div class="center-vertically">
+      <div class="profile-pic ">
+        <img src="{{.User.ImageURL}}" alt="Profile Picture">
+      </div>
+    </div>
+
+    <div class="message-content">
+      <div class="row-message"><b>{{.User.LastName}} {{.User.FirstName}}</b></div>
+      <div class="message-text row-message">
+        <div>{{.ChatMessage}} </div>
+        <div class="time">{{.Timestamp}}</div>
+      </div>
+    </div>
+  </div>
+  <style>
+    .message-text .time {
+      align-self: flex-end;
+      font-size: 12px;
+      bottom: 5px;
+      right: 5px;
+      color: #888;
+    }
+
+    .row-message {
+      flex-shrink: 0;
+      display: flex;
+      padding-bottom: 10px;
+    }
+
+    .profile-pic {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin-top: 3px;
+    }
+
+    .profile-pic img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .message-content {
+      margin-left: 10px;
+    }
+
+    .message-text {
+      display: flex;
+      flex-direction: column;
+      background-color: #DCF8C6;
+      padding: 10px;
+      border-radius: 10px;
+      word-break: break-word;
+    }
+  </style>
+</div>

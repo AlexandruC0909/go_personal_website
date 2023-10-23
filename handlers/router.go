@@ -82,7 +82,11 @@ func (s *ApiRouter) Run() {
 			r.With(s.withRoleAuth(s.store, "admin")).Delete("/", s.handleDeleteUser)
 		})
 	})
-	router.Get("/chat", s.handleChat)
+	router.Route("/chat", func(r chi.Router) {
+		r.Use(JWTAuthMiddleware(s.store))
+		r.Get("/", s.handleChat)
+
+	})
 
 	router.Handle("/static/css/", http.FileServer(http.FS(static.CssFiles)))
 	router.Handle("/static/js/", http.FileServer(http.FS(static.JsFiles)))

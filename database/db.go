@@ -7,5 +7,5 @@ import (
 )
 
 type DbConnection struct {
-	db *sql.DB
+	DB *sql.DB
 }

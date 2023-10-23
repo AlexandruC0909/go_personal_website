@@ -23,7 +23,7 @@ type Methods interface {
 }
 
 func (s *DbConnection) GetUsers() ([]*types.User, error) {
-	rows, err := s.db.Query(getUserQuery)
+	rows, err := s.DB.Query(getUserQuery)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (s *DbConnection) CreateUser(user *types.User) error {
 	(first_name, last_name, email, password, created_at, updated_at, roles_id, image_url)
 	values ($1, $2, $3, $4, $5, $6, 2, '')`
 
-	_, err := s.db.Query(
+	_, err := s.DB.Query(
 		query,
 		user.FirstName,
 		user.LastName,
@@ -62,7 +62,7 @@ func (s *DbConnection) CreateUser(user *types.User) error {
 }
 
 func (s *DbConnection) GetUser(id int) (*types.User, error) {
-	rows, err := s.db.Query(getUserQuery+"WHERE u.id = $1", id)
+	rows, err := s.DB.Query(getUserQuery+"WHERE u.id = $1", id)
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (s *DbConnection) GetUser(id int) (*types.User, error) {
 }
 
 func (s *DbConnection) GetUserByEmail(email string) (*types.User, error) {
-	rows, err := s.db.Query(getUserQuery+"where email = $1", email)
+	rows, err := s.DB.Query(getUserQuery+"where email = $1", email)
 	if err != nil {
 		return nil, err
 	}
@@ -91,7 +91,7 @@ func (s *DbConnection) UpdateUser(user *types.User) error {
 	updateQuery := `update users set first_name = $1 , last_name = $2, updated_at= $3 where id = $4 RETURNING id`
 
 	var userId int
-	err := s.db.QueryRow(
+	err := s.DB.QueryRow(
 		updateQuery,
 		user.FirstName,
 		user.LastName,
@@ -113,7 +113,7 @@ func (s *DbConnection) DeleteUser(id int) error {
 	deleteQuery := `DELETE FROM users WHERE id = $1 RETURNING id`
 
 	var userID int
-	err := s.db.QueryRow(deleteQuery, id).Scan(&userID)
+	err := s.DB.QueryRow(deleteQuery, id).Scan(&userID)
 
 	if err == sql.ErrNoRows {
 		return fmt.Errorf("user with id %d not found", id)
@@ -128,7 +128,7 @@ func (s *DbConnection) UpdateUserImage(user *types.User) error {
 	updateQuery := `update users set image_url = $1 , updated_at= $2 where id = $3 RETURNING id`
 
 	var userId int
-	err := s.db.QueryRow(
+	err := s.DB.QueryRow(
 		updateQuery,
 		user.ImageURL,
 		time.Now(),
