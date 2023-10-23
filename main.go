@@ -9,13 +9,13 @@ import (
 
 func main() {
 
-	store, err := database.NewPostgresDbConnection()
+	Store, err := database.NewPostgresDbConnection()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("%+v\n", store)
+	fmt.Printf("%+v\n", Store)
 
-	server := server.NewAPIServer(":3000", store)
+	server := server.NewAPIServer(":3000", Store)
 	server.Run()
 }

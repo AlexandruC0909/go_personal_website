@@ -112,6 +112,9 @@
     padding: 0 15px;
     box-sizing: border-box;
   }
+  .p1{
+    padding: 5px;
+  }
 
   .info-dialog>div {
     background-color: #f9f9f9;
@@ -165,13 +168,13 @@
   .center-content {
     text-align: center;
   }
-
-  .center-vertically {
+  
+  .center-horizontally {
     display: flex;
     align-items: center;
   }
 
-  .center-horizontally {
+  .center-vertically {
     display: flex;
     justify-content: center;
   }

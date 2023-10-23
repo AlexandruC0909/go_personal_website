@@ -68,6 +68,6 @@ func NewPostgresDbConnection() (*DbConnection, error) {
 	}
 
 	return &DbConnection{
-		db: db,
+		DB: db,
 	}, nil
 }
