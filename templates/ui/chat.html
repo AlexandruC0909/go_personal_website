@@ -3,6 +3,7 @@
 <head>
   <style>
     .chat {
+      padding-top: 30px;
       align-items: center;
     }
 
@@ -10,22 +11,37 @@
       height: 20vh;
     }
 
+    .chat_message {
+      width: 300px;
+    }
+
     .messages {
       height: 80vh;
-      width: 300px;
-      overflow: auto;
+      width: 400px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column-reverse;
+    }
+
+    @media (max-width: 767px) {
+
+      .messages,
+      .chat_message {
+        width: 300px;
+      }
+
     }
   </style>
 </head>
-<div hx-ext="ws" class="chat center-content" ws-connect="/ws">
+<div hx-ext="ws" class="chat" ws-connect="/ws">
 
   <div class="messages">
-    <div id="content">
+    <div id="message-content">
     </div>
   </div>
-  <div class="chat-input">
+  <div class="chat-input center-content">
     <form id="form" ws-send hx-on::after-request="this.reset()">
-      <input name="chat_message">
+      <input class="chat_message" name="chat_message">
     </form>
   </div>
 </div>

@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"go_api/database"
@@ -44,6 +45,7 @@ type Client struct {
 type MessageData struct {
 	User        *types.User
 	ChatMessage string
+	Timestamp   string
 }
 
 func (c *Client) readPump() {
@@ -114,10 +116,12 @@ func (c *Client) writePump(w http.ResponseWriter, r *http.Request) {
 				log.Println("Error parsing template file:", err)
 				return
 			}
-
+			currentTime := time.Now()
+			currentHour, currentMinute, _ := currentTime.Clock()
 			data := MessageData{
 				User:        user,
 				ChatMessage: chatMessage,
+				Timestamp:   strconv.Itoa(currentHour) + ":" + strconv.Itoa(currentMinute),
 			}
 
 			var tplBuffer bytes.Buffer
