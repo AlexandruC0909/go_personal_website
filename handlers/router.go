@@ -146,7 +146,7 @@ func (s *ApiRouter) handleHome(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *ApiRouter) handleChat(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/navbar.html", "ui/chat.html")
+	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/navbar.html", "chat/chat.html")
 	if err != nil {
 		s.handleError(w, r, err)
 		return

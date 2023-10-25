@@ -111,7 +111,7 @@ func (c *Client) writePump(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
-			tmpl, err := template.ParseFS(templates.Templates, "user/userMessage.html")
+			tmpl, err := template.ParseFS(templates.Templates, "chat/message.html")
 			if err != nil {
 				log.Println("Error parsing template file:", err)
 				return
