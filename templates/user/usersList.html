@@ -7,12 +7,12 @@
   <table>
     <thead>
       <tr>
-        <th></th>
-        <th>Firstname</th>
-        <th>Lastname</th>
-        <th>Email</th>
-        <th>Role</th>
-        <th></th>
+        <th scope="col">ID</th>
+        <th scope="col">Firstname</th>
+        <th scope="col">Lastname</th>
+        <th scope="col">Email</th>
+        <th scope="col">Role</th>
+        <th scope="col">Actions</th>
       </tr>
     </thead>
     <tbody hx-target="closest tr" hx-swap="outerHTML swap:1s">
@@ -28,4 +28,5 @@
     transition: opacity 1s ease-out;
   }
 </style>
+
 {{end}}
