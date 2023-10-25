@@ -1,0 +1,24 @@
+{{define "content"}}
+
+<head>
+  <title>Chat Auth</title>
+</head>
+<div class="form-container">
+  <h1>
+    Choose a nickname
+  </h1>
+  <form id="login-form" hx-post="/chat/login" hx-ext="json-enc" on="submit" hx-swap="outerHTML"
+    hx-target="#basic-error">
+    <div>
+      <label for="nickname">Nickname</label>
+      <input type="text" name="nickname" id="nickname" placeholder="nickname" required="">
+    </div>
+    <div class="mb-4">
+      <button type="submit">Enter</button>
+    </div>
+    <p id="basic-error"></p>
+
+  </form>
+
+</div>
+{{end}}

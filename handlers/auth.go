@@ -219,7 +219,10 @@ func JWTAuthMiddleware(s database.Methods) func(http.Handler) http.Handler {
 			}
 
 			if time.Until(claims.ExpiresAt.Time) < 1*time.Second {
-				cookie, _ := r.Cookie("email")
+				cookie, err := r.Cookie("email")
+				if err != nil {
+					return
+				}
 
 				user, _ := s.GetUserByEmail(cookie.Value)
 				refreshToken(w, r, user)
