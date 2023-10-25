@@ -6,7 +6,6 @@
 
   <style>
     .chat {
-      padding-top: 30px;
       align-items: center;
     }
 
@@ -43,7 +42,7 @@
     </div>
   </div>
   <div class="chat-input center-content">
-    <form id="form" ws-send hx-on::after-request="this.reset()">
+    <form id="form" ws-send hx-on::after-request="this.reset()" hx-swap="transition:true">
       <input class="chat_message" name="chat_message">
     </form>
   </div>
