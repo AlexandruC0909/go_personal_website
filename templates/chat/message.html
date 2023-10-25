@@ -3,12 +3,12 @@
   <div class="row-message">
     <div class="center-vertically">
       <div class="profile-pic ">
-        <img src="{{.User.ImageURL}}" alt="Profile Picture">
+        <img src="../static/uploads/default_avatar.jpg" alt="Profile Picture">
       </div>
     </div>
 
     <div class="message-content">
-      <div class="row-message"><b>{{.User.LastName}} {{.User.FirstName}}</b></div>
+      <div class="row-message"><b>{{.Nickname}} </b></div>
       <div class="message-text row-message">
         <div>{{.ChatMessage}} </div>
         <div class="time">{{.Timestamp}}</div>
@@ -55,6 +55,22 @@
       padding: 10px;
       border-radius: 10px;
       word-break: break-word;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .row-message {
+      animation: fadeIn 0.3s ease;
     }
   </style>
 </div>

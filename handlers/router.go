@@ -83,9 +83,8 @@ func (s *ApiRouter) Run() {
 		})
 	})
 	router.Route("/chat", func(r chi.Router) {
-		r.Use(JWTAuthMiddleware(s.store))
 		r.Get("/", s.handleChat)
-
+		r.Post("/login", s.handleChatLogin)
 	})
 
 	router.Handle("/static/css/", http.FileServer(http.FS(static.CssFiles)))
@@ -133,20 +132,6 @@ func FileServer(r chi.Router, path string, root http.FileSystem) {
 
 func (s *ApiRouter) handleHome(w http.ResponseWriter, r *http.Request) {
 	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/navbar.html", "ui/home.html")
-	if err != nil {
-		s.handleError(w, r, err)
-		return
-	}
-
-	err = tmpl.Execute(w, nil)
-	if err != nil {
-		s.handleError(w, r, err)
-		return
-	}
-}
-
-func (s *ApiRouter) handleChat(w http.ResponseWriter, r *http.Request) {
-	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/navbar.html", "ui/chat.html")
 	if err != nil {
 		s.handleError(w, r, err)
 		return

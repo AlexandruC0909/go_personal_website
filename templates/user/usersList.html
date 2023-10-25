@@ -1,4 +1,8 @@
-{{define "title"}}Users{{end}} {{define "content"}}
+{{define "content"}}
+
+<head>
+  <title>Users</title>
+</head>
 <div class="table-container">
   <table>
     <thead>
@@ -13,7 +17,7 @@
     </thead>
     <tbody hx-target="closest tr" hx-swap="outerHTML swap:1s">
       {{range .}}
-      {{block "userRow" .}}{{end}}
+      {{template "userRow.html" .}}
       {{end}}
     </tbody>
   </table>
