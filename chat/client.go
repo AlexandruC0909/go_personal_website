@@ -2,18 +2,15 @@ package chat
 
 import (
 	"bytes"
-	"database/sql"
 	"encoding/json"
 	"html/template"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 
 	"go_api/database"
 	"go_api/templates"
-	"go_api/types"
 
 	"github.com/gorilla/websocket"
 )
@@ -43,7 +40,7 @@ type Client struct {
 }
 
 type MessageData struct {
-	User        *types.User
+	Nickname    string
 	ChatMessage string
 	Timestamp   string
 }
@@ -90,28 +87,18 @@ func (c *Client) writePump(w http.ResponseWriter, r *http.Request) {
 				log.Println("Error parsing JSON:", err)
 				return
 			}
-			cookie, _ := r.Cookie("email")
-			db := &database.DbConnection{}
-			dbname := os.Getenv("DB_NAME")
-			dbPassword := os.Getenv("DB_PASSWORD")
-			dbUser := os.Getenv("DB_USER")
-			connString := "user=" + dbUser + " dbname=" + dbname + " password=" + dbPassword + " sslmode=disable"
-			sqlDB, err := sql.Open("postgres", connString)
+			cookie, err := r.Cookie("nickname")
 			if err != nil {
-				log.Fatal(err)
+				return
 			}
-			defer sqlDB.Close()
 
-			db.DB = sqlDB
-
-			user, _ := db.GetUserByEmail(cookie.Value)
 			chatMessage, ok := parsedMessage["chat_message"].(string)
 			if !ok {
 				log.Println("Error parsing chat message")
 				return
 			}
 
-			tmpl, err := template.ParseFS(templates.Templates, "user/userMessage.html")
+			tmpl, err := template.ParseFS(templates.Templates, "chat/message.html")
 			if err != nil {
 				log.Println("Error parsing template file:", err)
 				return
@@ -119,7 +106,7 @@ func (c *Client) writePump(w http.ResponseWriter, r *http.Request) {
 			currentTime := time.Now()
 			currentHour, currentMinute, _ := currentTime.Clock()
 			data := MessageData{
-				User:        user,
+				Nickname:    cookie.Value,
 				ChatMessage: chatMessage,
 				Timestamp:   strconv.Itoa(currentHour) + ":" + strconv.Itoa(currentMinute),
 			}
