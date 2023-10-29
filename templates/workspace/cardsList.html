@@ -4,16 +4,15 @@
   <title>Workspace</title>
   <script src="/static/js/htmx.min.js"></script>
   <script src="/static/js/sotable.min.js"></script>
+
 </head>
 <form class="sortable" hx-post="/workspace/reorder" hx-trigger="end">
-  <div class="htmx-indicator">Updating...</div>
-  {{range .}}
-  <div><input type='hidden' name='card' value='{{.Position}}' />{{.Name}}</div>
-  {{end}}
+  {{template "cardDraggable.html" .}}
 </form>
+
 <script>
   htmx.onLoad(function (content) {
-    var sortables = content.querySelectorAll(".sortable");
+    var sortables = document.querySelectorAll(".sortable");
     for (var i = 0; i < sortables.length; i++) {
       var sortable = sortables[i];
       var sortableInstance = new Sortable(sortable, {
@@ -40,4 +39,5 @@
   })
 </script>
 
+</style>
 {{end}}

@@ -1,0 +1,12 @@
+<div id="draggable-list" class="htmx-indicator">Updating...</div>
+<style>
+  #draggable-item {
+    margin: 5px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+  }
+</style>
+{{range .}}
+{{template "card.html" .}}
+{{end}}

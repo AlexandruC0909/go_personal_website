@@ -13,7 +13,7 @@ import (
 func (s *ApiRouter) handleGetCards(w http.ResponseWriter, r *http.Request) {
 	cards, err := s.store.GetCards()
 
-	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/navbar.html", "workspace/cardsList.html")
+	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/navbar.html", "workspace/cardsList.html", "workspace/cardDraggable.html", "workspace/card.html")
 	if err != nil {
 		s.handleError(w, r, err)
 		return
@@ -109,54 +109,23 @@ func (s *ApiRouter) handleReorderCards(w http.ResponseWriter, r *http.Request) {
 		s.handleError(w, r, err)
 	}
 
-	cards, _ := r.PostForm["card"]
-
-	if err := s.store.ReorderCards(cards); err != nil {
+	cards, _ := r.PostForm["item"]
+	var orderedCards []*types.Card
+	if ordered, err := s.store.ReorderCards(cards); err != nil {
 		s.handleError(w, r, err)
 		return
+	} else {
+		orderedCards = ordered
 	}
-}
-
-func (s *ApiRouter) handlgeGetCardEditRow(w http.ResponseWriter, r *http.Request) {
-	id, err := getID(r)
-	if err != nil {
-		s.handleError(w, r, err)
-		return
-	}
-	card, err := s.store.GetCard(id)
-
-	tmpl, err := template.ParseFS(templates.Templates, "card/cardEditRow.html")
+	tmpl, err := template.ParseFS(templates.Templates, "workspace/cardDraggable.html", "workspace/card.html")
 	if err != nil {
 		s.handleError(w, r, err)
 		return
 	}
 
-	err = tmpl.Execute(w, card)
+	err = tmpl.Execute(w, orderedCards)
 	if err != nil {
 		s.handleError(w, r, err)
 		return
 	}
-
-}
-
-func (s *ApiRouter) HandleGetCardRow(w http.ResponseWriter, r *http.Request) {
-	id, err := getID(r)
-	if err != nil {
-		s.handleError(w, r, err)
-		return
-	}
-	card, err := s.store.GetCard(id)
-
-	tmpl, err := template.ParseFS(templates.Templates, "card/cardRow.html")
-	if err != nil {
-		s.handleError(w, r, err)
-		return
-	}
-
-	err = tmpl.Execute(w, card)
-	if err != nil {
-		s.handleError(w, r, err)
-		return
-	}
-
 }
