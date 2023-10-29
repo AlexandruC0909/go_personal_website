@@ -12,16 +12,6 @@ import (
 
 const getUserQuery = "SELECT u.id, u.first_name, u.last_name, u.email, u.password, u.created_at, u.updated_at,image_url, r.id as role_id, r.name as role_name FROM users u JOIN roles r ON u.roles_id = r.id "
 
-type Methods interface {
-	CreateUser(*types.User) error
-	DeleteUser(int) error
-	UpdateUser(*types.User) error
-	UpdateUserImage(*types.User) error
-	GetUser(int) (*types.User, error)
-	GetUserByEmail(string) (*types.User, error)
-	GetUsers() ([]*types.User, error)
-}
-
 func (s *DbConnection) GetUsers() ([]*types.User, error) {
 	rows, err := s.DB.Query(getUserQuery)
 	if err != nil {

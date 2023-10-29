@@ -83,7 +83,16 @@ func (s *ApiRouter) Run() {
 		})
 	})
 	router.Route("/chat", func(r chi.Router) {
-		r.Get("/", s.handleChat)
+		r.Get("/", s.handleGetCards)
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", s.handleGetCard)
+			r.Get("/edit", s.handleEditCard)
+			r.Get("/delete", s.handleDeleteCard)
+		})
+	})
+
+	router.Route("/workspace", func(r chi.Router) {
+		r.Get("/", s.handleGetCards)
 		r.Post("/login", s.handleChatLogin)
 	})
 
