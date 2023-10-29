@@ -9,7 +9,7 @@ type UpdateCardRequest struct {
 	Name     string `json:"name"`
 	Content  string `json:"content"`
 	Position int    `json:"position"`
-	Parent   int    `json:"cards"`
+	Parent   *int   `json:"cards"`
 }
 
 type Card struct {
@@ -18,12 +18,15 @@ type Card struct {
 	Content   string    `json:"content"`
 	Position  int       `json:"position"`
 	CardType  bool      `json:"cardType"`
-	Parent    int       `json:"cards"`
+	Parent    *int      `json:"cards"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
+type UpdateCardPositions struct {
+	Items []int `json:"items"`
+}
 
-func NewCard(name string, content string, position int, cardType bool, parent int) (*Card, error) {
+func NewCard(name string, content string, position int, cardType bool, parent *int) (*Card, error) {
 	return &Card{
 		Name:      name,
 		Content:   content,
@@ -35,7 +38,7 @@ func NewCard(name string, content string, position int, cardType bool, parent in
 	}, nil
 }
 
-func UpdateCard(id int, name, content string, position int, parent int) *Card {
+func UpdateCard(id int, name, content string, position int, parent *int) *Card {
 
 	return &Card{
 		ID:        id,

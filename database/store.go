@@ -16,6 +16,8 @@ type Methods interface {
 	CreateCard(*types.Card) error
 	DeleteCard(int) error
 	UpdateCard(*types.Card) error
+	ReorderCards([]string) error
+
 	GetCard(int) (*types.Card, error)
 	GetCards() ([]*types.Card, error)
 }

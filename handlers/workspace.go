@@ -13,7 +13,7 @@ import (
 func (s *ApiRouter) handleGetCards(w http.ResponseWriter, r *http.Request) {
 	cards, err := s.store.GetCards()
 
-	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/navbar.html", "card/cardsList.html", "card/cardRow.html")
+	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/navbar.html", "workspace/cardsList.html")
 	if err != nil {
 		s.handleError(w, r, err)
 		return
@@ -101,6 +101,20 @@ func (s *ApiRouter) handleEditCard(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+}
+
+func (s *ApiRouter) handleReorderCards(w http.ResponseWriter, r *http.Request) {
+	err := r.ParseForm()
+	if err != nil {
+		s.handleError(w, r, err)
+	}
+
+	cards, _ := r.PostForm["card"]
+
+	if err := s.store.ReorderCards(cards); err != nil {
+		s.handleError(w, r, err)
+		return
+	}
 }
 
 func (s *ApiRouter) handlgeGetCardEditRow(w http.ResponseWriter, r *http.Request) {
