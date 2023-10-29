@@ -107,26 +107,12 @@ func (s *DbConnection) DeleteCard(id int) error {
 func (s *DbConnection) ReorderCards(id []string) ([]*types.Card, error) {
 	updateQuery := `update cards set position = $1 where id = $2 RETURNING id`
 
-	rows, err := s.DB.Query(getCardQuery)
-	if err != nil {
-		return nil, err
-	}
-
-	cards := []*types.Card{}
-	for rows.Next() {
-		card, err := scanIntoCard(rows)
-		if err != nil {
-			return nil, err
-		}
-		cards = append(cards, card)
-	}
-
-	for i, card := range cards {
+	for i := range id {
 		var cardId int
 		updateErr := s.DB.QueryRow(
 			updateQuery,
+			i,
 			id[i],
-			card.ID,
 		).Scan(&cardId)
 
 		if updateErr != nil {
