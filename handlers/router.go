@@ -82,9 +82,20 @@ func (s *ApiRouter) Run() {
 			r.With(s.withRoleAuth(s.store, "admin")).Delete("/", s.handleDeleteUser)
 		})
 	})
+
 	router.Route("/chat", func(r chi.Router) {
 		r.Get("/", s.handleChat)
 		r.Post("/login", s.handleChatLogin)
+	})
+
+	router.Route("/workspace", func(r chi.Router) {
+		r.Get("/", s.handleGetCards)
+		r.Post("/reorder", s.handleReorderCards)
+		r.Route("/{id}", func(r chi.Router) {
+			r.Get("/", s.handleGetCard)
+			r.Get("/edit", s.handleEditCard)
+			r.Get("/delete", s.handleDeleteCard)
+		})
 	})
 
 	router.Handle("/static/css/", http.FileServer(http.FS(static.CssFiles)))

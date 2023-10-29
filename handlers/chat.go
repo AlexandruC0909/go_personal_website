@@ -9,7 +9,7 @@ import (
 	templates "go_api/templates"
 )
 
-type ChantNickname struct {
+type ChatNickname struct {
 	Nickname string `json:"nickname"`
 }
 type ChatHandler interface {
@@ -48,7 +48,7 @@ func (s *ApiRouter) handleChat(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *ApiRouter) handleChatLogin(w http.ResponseWriter, r *http.Request) {
-	var req ChantNickname
+	var req ChatNickname
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		s.handleError(w, r, err)
 		return
