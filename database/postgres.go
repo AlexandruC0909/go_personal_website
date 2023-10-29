@@ -49,7 +49,6 @@ func NewPostgresDbConnection() (*DbConnection, error) {
 		return nil, fmt.Errorf("failed to create custom source driver: %v", err)
 	}
 
-	log.Printf("Using embedded migrations")
 	m, err := migrate.NewWithInstance("iofs", sourceInstance, "postgres", driver)
 
 	if err != nil {
