@@ -3,10 +3,10 @@ package chat
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 
 	"go_api/database"
@@ -108,7 +108,7 @@ func (c *Client) writePump(w http.ResponseWriter, r *http.Request) {
 			data := MessageData{
 				Nickname:    cookie.Value,
 				ChatMessage: chatMessage,
-				Timestamp:   strconv.Itoa(currentHour) + ":" + strconv.Itoa(currentMinute),
+				Timestamp:   fmt.Sprintf("%d:%02d", currentHour, currentMinute),
 			}
 
 			var tplBuffer bytes.Buffer

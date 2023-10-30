@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -98,10 +99,15 @@ func (s *ApiRouter) Run() {
 		})
 	})
 
+	router.Route("/posts", func(r chi.Router) {
+		r.Use(JWTAuthMiddleware(s.store))
+		r.Use(PaginationMiddleware)
+		r.Get("/", s.handleGetPosts)
+	})
+
 	router.Handle("/static/css/", http.FileServer(http.FS(static.CssFiles)))
 	router.Handle("/static/js/", http.FileServer(http.FS(static.JsFiles)))
 
-	router.Get("/posts", s.handleGetPosts)
 	log.Println("JSON API server running on port:", s.listenAddress)
 
 	http.ListenAndServe(s.listenAddress, router)
@@ -138,6 +144,30 @@ func FileServer(r chi.Router, path string, root http.FileSystem) {
 			fileServer.ServeHTTP(w, r)
 		}))
 		fs.ServeHTTP(w, r)
+	})
+}
+
+func PaginationMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("calling pagination middleware")
+		pageStr := r.URL.Query().Get("page")
+		page, err := strconv.Atoi(pageStr)
+		if err != nil || page < 1 {
+			page = 1
+		}
+
+		offset := (page - 1) * 5
+		limit := 5
+
+		pagination2 := map[string]int{
+			"page":   page,
+			"limit":  limit,
+			"offset": offset,
+		}
+
+		ctx := context.WithValue(r.Context(), "pagination", pagination2)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 

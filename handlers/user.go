@@ -11,6 +11,7 @@ import (
 )
 
 func (s *ApiRouter) handleGetUsers(w http.ResponseWriter, r *http.Request) {
+	
 	users, err := s.store.GetUsers()
 
 	tmpl, err := template.ParseFS(templates.Templates, "ui/base.html", "ui/navbar.html", "user/usersList.html", "user/userRow.html")
