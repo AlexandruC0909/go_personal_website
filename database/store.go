@@ -21,7 +21,7 @@ type Methods interface {
 	ReorderCards([]string) ([]*types.Card, error)
 
 	CreatePost(*types.Post) error
-	GetPosts(page, limit int) ([]*types.Post, error)
+	GetPosts(page int) ([]*types.Post, error)
 	GetPost(int) (*types.Post, error)
 	UpdatePost(*types.Post) error
 	DeletePost(int) error

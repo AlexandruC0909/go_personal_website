@@ -271,6 +271,7 @@
   }
 
   .card {
+    height: 300px;
     padding: 20px;
     margin: 20px;
     border-radius: 4px;
