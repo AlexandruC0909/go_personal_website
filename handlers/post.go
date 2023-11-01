@@ -17,9 +17,9 @@ type PostResponse struct {
 
 func (s *ApiRouter) handleGetPosts(w http.ResponseWriter, r *http.Request) {
 	pagination := r.Context().Value("pagination").(map[string]int)
-	page, limit := pagination["page"], pagination["limit"]
+	page := pagination["page"]
 
-	posts, err := s.store.GetPosts(page, limit)
+	posts, err := s.store.GetPosts(page)
 	if err != nil {
 		s.handleError(w, r, err)
 		return

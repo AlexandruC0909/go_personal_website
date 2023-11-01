@@ -12,9 +12,9 @@ import (
 
 const getPostQuery = "SELECT p.id, p.name, p.content, image_url FROM posts p ORDER BY p.created_at"
 
-func (s *DbConnection) GetPosts(page, limit int) ([]*types.Post, error) {
-	offset := (page - 1) * limit
-	query := fmt.Sprintf("%s LIMIT %d OFFSET %d", getPostQuery, limit, offset)
+func (s *DbConnection) GetPosts(page int) ([]*types.Post, error) {
+	offset := (page - 1) * 10
+	query := fmt.Sprintf("%s LIMIT %d OFFSET %d", getPostQuery, 10, offset)
 
 	rows, err := s.DB.Query(query)
 	if err != nil {
