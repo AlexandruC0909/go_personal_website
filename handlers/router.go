@@ -11,11 +11,9 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 
 	"go_api/chat"
 	"go_api/database"
-	"go_api/static"
 	"go_api/templates"
 
 	"github.com/go-chi/chi/v5"
@@ -54,7 +52,7 @@ func (s *ApiRouter) Run() {
 
 	workDir, _ := os.Getwd()
 	filesDir := http.Dir(filepath.Join(workDir, "/static"))
-	router.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(filesDir)))
+	router.Handle("/static/*", http.StripPrefix("/static/", CacheControlWrapper(http.FileServer(filesDir))))
 
 	router.NotFound(s.handleNotFound)
 
@@ -100,50 +98,19 @@ func (s *ApiRouter) Run() {
 	})
 
 	router.Route("/posts", func(r chi.Router) {
-		r.Use(JWTAuthMiddleware(s.store))
 		r.Use(PaginationMiddleware)
 		r.Get("/", s.handleGetPosts)
 	})
-
-	router.Handle("/static/css/", http.FileServer(http.FS(static.CssFiles)))
-	router.Handle("/static/js/", http.FileServer(http.FS(static.JsFiles)))
 
 	log.Println("JSON API server running on port:", s.listenAddress)
 
 	http.ListenAndServe(s.listenAddress, router)
 }
 
-func FileServer(r chi.Router, path string, root http.FileSystem) {
-	if strings.ContainsAny(path, "{}*") {
-		panic("FileServer does not permit any URL parameters.")
-	}
-
-	if path != "/" && path[len(path)-1] != '/' {
-		r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
-		path += "/"
-	}
-	path += "*"
-
-	r.Get(path, func(w http.ResponseWriter, r *http.Request) {
-		rctx := chi.RouteContext(r.Context())
-		pathPrefix := strings.TrimSuffix(rctx.RoutePattern(), "/*")
-		fileServer := http.FileServer(root)
-		fs := http.StripPrefix(pathPrefix, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			path := r.URL.Path
-			if strings.HasSuffix(path, ".css") {
-				w.Header().Set("Content-Type", "text/css")
-			} else if strings.HasSuffix(path, ".js") {
-				w.Header().Set("Content-Type", "application/javascript")
-			} else if strings.HasSuffix(path, ".jpg") || strings.HasSuffix(path, ".jpeg") {
-				w.Header().Set("Content-Type", "image/jpeg")
-			} else if strings.HasSuffix(path, ".png") {
-				w.Header().Set("Content-Type", "image/png")
-			} else if strings.HasSuffix(path, ".gif") {
-				w.Header().Set("Content-Type", "image/gif")
-			}
-			fileServer.ServeHTTP(w, r)
-		}))
-		fs.ServeHTTP(w, r)
+func CacheControlWrapper(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "max-age=2592000") // 30 days
+		h.ServeHTTP(w, r)
 	})
 }
 
@@ -156,16 +123,11 @@ func PaginationMiddleware(next http.Handler) http.Handler {
 			page = 1
 		}
 
-		offset := (page - 1) * 5
-		limit := 5
-
-		pagination2 := map[string]int{
-			"page":   page,
-			"limit":  limit,
-			"offset": offset,
+		pagination := map[string]int{
+			"page": page,
 		}
 
-		ctx := context.WithValue(r.Context(), "pagination", pagination2)
+		ctx := context.WithValue(r.Context(), "pagination", pagination)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
