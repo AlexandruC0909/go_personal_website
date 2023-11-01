@@ -10,7 +10,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-const getPostQuery = "SELECT p.id, p.name, p.content, image_url FROM posts p ORDER BY p.created_at"
+const getPostQuery = "SELECT p.id, p.name, p.content, image_url FROM posts p ORDER BY p.id"
 
 func (s *DbConnection) GetPosts(page int) ([]*types.Post, error) {
 	offset := (page - 1) * 10
