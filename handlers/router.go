@@ -52,8 +52,8 @@ func (s *ApiRouter) Run() {
 
 	workDir, _ := os.Getwd()
 	filesDir := http.Dir(filepath.Join(workDir, "/static"))
-	router.Handle("/static/*", http.StripPrefix("/static/", CacheControlWrapper(http.FileServer(filesDir))))
-
+	router.Handle("/static/*", http.StripPrefix("/static/", cacheControlWrapper(http.FileServer(filesDir))))
+	router.HandleFunc("/robots.txt", robotsHandler)
 	router.NotFound(s.handleNotFound)
 
 	flag.Parse()
@@ -107,11 +107,17 @@ func (s *ApiRouter) Run() {
 	http.ListenAndServe(s.listenAddress, router)
 }
 
-func CacheControlWrapper(h http.Handler) http.Handler {
+func cacheControlWrapper(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "max-age=2592000") // 30 days
 		h.ServeHTTP(w, r)
 	})
+}
+
+func robotsHandler(w http.ResponseWriter, r *http.Request) {
+	robotsTxt := []byte("User-agent: *\nDisallow: /private/")
+	w.Header().Set("Content-Type", "text/plain")
+	w.Write(robotsTxt)
 }
 
 func PaginationMiddleware(next http.Handler) http.Handler {
