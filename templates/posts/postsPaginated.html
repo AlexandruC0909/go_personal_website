@@ -1,11 +1,11 @@
 {{ range $index, $a := .Posts }}
 {{ if eq $index 9 }}
-<div class="card" hx-get="/posts/?page={{ $.Page }}" hx-trigger="revealed" hx-swap="afterend">
+<div class="card col" hx-get="/posts/?page={{ $.Page }}" hx-trigger="revealed" hx-swap="afterend">
   <div class="card-title">{{$a.ID}}. {{$a.Name}}</div>
   <div class="card-content">{{$a.Content}}</div>
 </div>
 {{ else }}
-<div class="card">
+<div class="card col">
   <div class="card-title">{{$a.ID}}. {{$a.Name}}</div>
   <div class="card-content">{{$a.Content}}</div>
 </div>

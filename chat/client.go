@@ -28,8 +28,8 @@ var (
 )
 
 var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
+	ReadBufferSize:  2048,
+	WriteBufferSize: 2048,
 }
 
 type Client struct {
@@ -87,14 +87,16 @@ func (c *Client) writePump(w http.ResponseWriter, r *http.Request) {
 				log.Println("Error parsing JSON:", err)
 				return
 			}
-			cookie, err := r.Cookie("nickname")
-			if err != nil {
-				return
-			}
 
 			chatMessage, ok := parsedMessage["chat_message"].(string)
 			if !ok {
 				log.Println("Error parsing chat message")
+				return
+			}
+
+			nickname, ok := parsedMessage["nickname"].(string)
+			if !ok {
+				log.Println("Error parsing nickname")
 				return
 			}
 
@@ -106,7 +108,7 @@ func (c *Client) writePump(w http.ResponseWriter, r *http.Request) {
 			currentTime := time.Now()
 			currentHour, currentMinute, _ := currentTime.Clock()
 			data := MessageData{
-				Nickname:    cookie.Value,
+				Nickname:    nickname,
 				ChatMessage: chatMessage,
 				Timestamp:   fmt.Sprintf("%d:%02d", currentHour, currentMinute),
 			}
