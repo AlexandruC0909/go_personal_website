@@ -26,7 +26,7 @@ func (s *ApiRouter) handleChat(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = tmpl.Execute(w, nil)
+		err = tmpl.Execute(w, cookie)
 		if err != nil {
 			s.handleError(w, r, err)
 			return
