@@ -2,7 +2,7 @@
 
 <head>
   <title>Chat</title>
-  <script src="/static/js/ws.js" async></script>
+  <script src="/static/js/ws.js"></script>
 
   <style>
     .chat {
@@ -36,22 +36,26 @@
   </style>
 </head>
 <div hx-ext="ws" class="chat" ws-connect="/ws">
-
   <div class="messages">
     <div id="message-content">
     </div>
   </div>
   <div class="chat-input center-content">
-    <form id="form" ws-send hx-on::after-request="this.reset()" hx-swap="transition:true">
-      <input class="chat_message" name="chat_message">
+    <form id="form" ws-send hx-swap="transition:true">
+      <input id="nickname" class="chat_message" name="chat_message">
     </form>
   </div>
 </div>
 
 <script>
+  const cookieValue = "{{.Value}}";
+
   document.body.addEventListener('htmx:oobAfterSwap', function (evt) {
     const form = document.querySelector("#form");
     form.reset();
+  });
+  document.body.addEventListener('htmx:wsConfigSend', function (evt) {
+    evt.detail.parameters['nickname'] = cookieValue;
   });
 </script>
 
