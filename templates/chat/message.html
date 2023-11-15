@@ -1,19 +1,44 @@
 <div hx-swap-oob="beforeend:#message-content">
-  <div class="row-message">
+  {{ if .IsCurrentUser }}
+  <div class="row-message user-message">
+    <div class="message-content">
+
+      <div class="row-message user-message">
+        <b>{{.Nickname}} </b>
+      </div>
+      <div class="message-text row-message">
+        <div>{{.ChatMessage}} </div>
+        <div class="time">{{.Timestamp}}</div>
+      </div>
+    </div>
     <div class="center-vertically">
       <div class="profile-pic ">
         <img src="../static/uploads/default_avatar.jpg" alt="Profile Picture">
       </div>
     </div>
-
+  </div>
+  {{ else }}
+  <div class="row-message other-message">
+    <div class="center-vertically">
+      <div class="profile-pic ">
+        <img src="../static/uploads/default_avatar.jpg" alt="Profile Picture">
+      </div>
+    </div>
     <div class="message-content">
-      <div class="row-message"><b>{{.Nickname}} </b></div>
+      <div class="row-message other-message">
+        <b>{{.Nickname}} </b>
+      </div>
       <div class="message-text row-message">
         <div>{{.ChatMessage}} </div>
         <div class="time">{{.Timestamp}}</div>
       </div>
     </div>
   </div>
+
+</div>
+{{ end }}
+
+<div>
   <style>
     .message-text .time {
       align-self: flex-end;
@@ -45,6 +70,8 @@
 
     .message-content {
       margin-left: 10px;
+      margin-right: 10px;
+
     }
 
     .message-text {
@@ -54,6 +81,14 @@
       padding: 10px;
       border-radius: 10px;
       word-break: break-word;
+    }
+
+    .user-message {
+      justify-content: flex-end;
+    }
+
+    .other-message {
+      justify-content: flex-start;
     }
 
     @keyframes fadeIn {
