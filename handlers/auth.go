@@ -179,6 +179,14 @@ func (s *ApiRouter) handleLogout(w http.ResponseWriter, r *http.Request) {
 			MaxAge:   -1,
 		})
 		http.SetCookie(w, &http.Cookie{
+			Name:     "nickname",
+			Value:    "",
+			HttpOnly: true,
+			Path:     "/",
+			Domain:   domain,
+			MaxAge:   -1,
+		})
+		http.SetCookie(w, &http.Cookie{
 			Name:     "email",
 			Value:    "",
 			HttpOnly: true,
