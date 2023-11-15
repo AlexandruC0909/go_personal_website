@@ -40,9 +40,10 @@ type Client struct {
 }
 
 type MessageData struct {
-	Nickname    string
-	ChatMessage string
-	Timestamp   string
+	Nickname      string
+	ChatMessage   string
+	Timestamp     string
+	IsCurrentUser bool
 }
 
 func (c *Client) readPump() {
@@ -100,6 +101,11 @@ func (c *Client) writePump(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 
+			cookie, err := r.Cookie("nickname")
+			if err != nil {
+				return
+			}
+			currentUserNickname := cookie.Value
 			tmpl, err := template.ParseFS(templates.Templates, "chat/message.html")
 			if err != nil {
 				log.Println("Error parsing template file:", err)
@@ -108,9 +114,10 @@ func (c *Client) writePump(w http.ResponseWriter, r *http.Request) {
 			currentTime := time.Now()
 			currentHour, currentMinute, _ := currentTime.Clock()
 			data := MessageData{
-				Nickname:    nickname,
-				ChatMessage: chatMessage,
-				Timestamp:   fmt.Sprintf("%d:%02d", currentHour, currentMinute),
+				Nickname:      nickname,
+				ChatMessage:   chatMessage,
+				Timestamp:     fmt.Sprintf("%d:%02d", currentHour, currentMinute),
+				IsCurrentUser: (nickname == currentUserNickname),
 			}
 
 			var tplBuffer bytes.Buffer
